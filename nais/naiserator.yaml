@@ -51,6 +51,7 @@ spec:
         mountPath: /var/run/secrets/nais.io/dokdistDB
       - kvPath: {{ APPDYNAMICS }}
         mountPath: /var/run/secrets/nais.io/appdynamics
+  webproxy: true
   azure:
     application:
       enabled: true
@@ -65,4 +66,3 @@ spec:
          namespace: {{namespace}}
          cluster: {{cluster}}
     {{/each}}
-  webproxy: true

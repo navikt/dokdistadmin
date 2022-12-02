@@ -25,6 +25,7 @@
 		<token-support.version>2.1.8</token-support.version>
 		<springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
 		<flyway.version>9.8.1</flyway.version>
+		<oracle.version>19.16.0.0</oracle.version>
 	</properties>
 
 	<dependencyManagement>
@@ -39,26 +40,42 @@
 				<artifactId>app</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>net.logstash.logback</groupId>
-				<artifactId>logstash-logback-encoder</artifactId>
-				<version>${logstash-logback-encoder.version}</version>
-			</dependency>
+
 			<dependency>
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-ui</artifactId>
 				<version>${springdoc-openapi-ui.version}</version>
 			</dependency>
+
+			<!--NAV token support-->
 			<dependency>
 				<groupId>no.nav.security</groupId>
 				<artifactId>token-validation-spring</artifactId>
 				<version>${token-support.version}</version>
 			</dependency>
 
+			<!--Database-->
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
 				<version>${flyway.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.oracle.database.jdbc</groupId>
+				<artifactId>ojdbc10</artifactId>
+				<version>${oracle.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.oracle.database.jdbc</groupId>
+				<artifactId>ucp</artifactId>
+				<version>${oracle.version}</version>
+			</dependency>
+
+			<!-- logging -->
+			<dependency>
+				<groupId>net.logstash.logback</groupId>
+				<artifactId>logstash-logback-encoder</artifactId>
+				<version>${logstash-logback-encoder.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
