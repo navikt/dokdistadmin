@@ -1,4 +1,5 @@
 {
+  "APP_NAME": "dokdistadmin",
   "NAMESPACE": "teamdokumenthandtering",
   "MIN_REPLICAS": 2,
   "MAX_REPLICAS": 10,
@@ -7,7 +8,6 @@
   "SRVDOKDISTADMIN": "/serviceuser/data/prod/srvdokumentdistribusjon",
   "APPDYNAMICS": "/apikey/appdynamics/prod",
   "APPD_NAME": "dokdistadmin",
-  "APP_NAME": "dokdistadmin",
   "INGRESSES": [
     "https://dokdistadmin.nais.adeo.no",
     "https://dokdistadmin.prod-fss-pub.nais.io",

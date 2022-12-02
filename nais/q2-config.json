@@ -1,4 +1,5 @@
 {
+  "APP_NAME": "dokdistadmin",
   "NAMESPACE": "teamdokumenthandtering",
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
@@ -7,7 +8,6 @@
   "SRVDOKDISTADMIN": "/serviceuser/data/dev/srvdokumentdistribusjon",
   "APPDYNAMICS": "/apikey/appdynamics/dev",
   "APPD_NAME": "dokdistadmin",
-  "APP_NAME": "dokdistadmin",
   "INGRESSES": [
     "https://dokdistadmin.dev.adeo.no",
     "https://dokdistadmin.dev.intern.nav.no"
