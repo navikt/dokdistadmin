@@ -26,6 +26,7 @@
 		<springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
 		<flyway.version>9.8.1</flyway.version>
 		<oracle.version>19.16.0.0</oracle.version>
+		<maven-toolchains.version>3.0.0</maven-toolchains.version>
 	</properties>
 
 	<dependencyManagement>
@@ -95,8 +96,9 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-toolchains-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>${maven-toolchains.version}</version>
 				<executions>
 					<execution>
 						<goals>
