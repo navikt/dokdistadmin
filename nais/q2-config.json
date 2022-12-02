@@ -1,0 +1,42 @@
+{
+  "NAMESPACE": "teamdokumenthandtering",
+  "MIN_REPLICAS": 1,
+  "MAX_REPLICAS": 2,
+  "SPRING_DATASOURCE_URL":"jdbc:oracle:thin:@a01dbfl042.adeo.no:1521/dokdist_q2",
+  "DOKDISTADMIN_DB":"/oracle/data/dev/creds/dokdist_q2-user",
+  "SRVDOKDISTADMIN": "/serviceuser/data/dev/srvdokumentdistribusjon",
+  "APPDYNAMICS": "/apikey/appdynamics/dev",
+  "APPD_NAME": "dokdistadmin",
+  "APP_NAME": "dokdistadmin",
+  "INGRESSES": [
+    "https://dokdistadmin.dev.adeo.no",
+    "https://dokdistadmin.dev.intern.nav.no"
+  ],
+  "AZURE_IAC_RULES": [
+    {
+      "app": "dokdistfordeling",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "dokdistdpi-2",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "dokdistdittnav",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "dokdistsentralprint",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
+      "app": "dokdisteformidling",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    }
+  ]
+}

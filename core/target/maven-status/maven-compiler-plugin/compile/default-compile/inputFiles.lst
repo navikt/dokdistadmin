@@ -1,0 +1,5 @@
+/Users/tsigab/nav-devop/dokdistadmin/core/src/main/java/no/nav/dokdistadmin/config/DokdistadminProperties.java
+/Users/tsigab/nav-devop/dokdistadmin/core/src/main/java/no/nav/dokdistadmin/exception/technical/DokdistadminTechnicalException.java
+/Users/tsigab/nav-devop/dokdistadmin/core/src/main/java/no/nav/dokdistadmin/azure/Azureproperties.java
+/Users/tsigab/nav-devop/dokdistadmin/core/src/main/java/no/nav/dokdistadmin/CoreConfig.java
+/Users/tsigab/nav-devop/dokdistadmin/core/src/main/java/no/nav/dokdistadmin/exception/functional/DokdistFunctionalException.java
