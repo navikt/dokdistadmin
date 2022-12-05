@@ -2,7 +2,7 @@ package no.nav.dokdistadmin.interceptor;
 
 import no.nav.dokdistadmin.domain.AbstractDomainObject;
 import no.nav.dokdistadmin.domain.ChangeStamp;
-import org.hibernate.EmptyInterceptor;
+import org.hibernate.Interceptor;
 import org.hibernate.type.Type;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
@@ -13,19 +13,19 @@ import java.io.Serializable;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 @Component
-public class ChangeStampInterceptor extends EmptyInterceptor {
+public class ChangeStampInterceptor implements Interceptor, Serializable  {
 
 	@Serial
 	private static final long serialVersionUID = 973776995128953194L;
 
 	@Override
-	public boolean onFlushDirty(final Object entity, final Serializable id, final Object[] currentState,
+	public boolean onFlushDirty(final Object entity, final Object id, final Object[] currentState,
 								final Object[] previousState, final String[] propertyNames, final Type[] types) {
 		return updateChangeStamp(entity, currentState, types);
 	}
 
 	@Override
-	public boolean onSave(final Object entity, final Serializable id, final Object[] state, final String[] propertyNames,
+	public boolean onSave(final Object entity, final Object id, final Object[] state, final String[] propertyNames,
 						  final Type[] types) {
 		return createChangeStamp(entity, state, types);
 	}

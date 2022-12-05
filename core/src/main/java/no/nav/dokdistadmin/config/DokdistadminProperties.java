@@ -1,13 +1,10 @@
 package no.nav.dokdistadmin.config;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-
 
 @Validated
 @ConfigurationProperties("dokdistadmin")

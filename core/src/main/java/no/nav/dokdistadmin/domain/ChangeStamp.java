@@ -1,10 +1,10 @@
 package no.nav.dokdistadmin.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import java.time.LocalDateTime;
 
 @Builder
