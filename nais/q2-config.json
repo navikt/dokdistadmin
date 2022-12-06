@@ -1,6 +1,5 @@
 {
   "APP_NAME": "dokdistadmin",
-  "NAMESPACE": "teamdokumenthandtering",
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
   "SPRING_DATASOURCE_URL":"jdbc:oracle:thin:@a01dbfl042.adeo.no:1521/dokdist_q2",
@@ -9,7 +8,6 @@
   "APPDYNAMICS": "/apikey/appdynamics/dev",
   "APPD_NAME": "dokdistadmin",
   "INGRESSES": [
-    "https://dokdistadmin.dev.adeo.no",
     "https://dokdistadmin.dev.intern.nav.no"
   ],
   "AZURE_IAC_RULES": [

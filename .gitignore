@@ -1,5 +1,5 @@
-#Maven
+# Maven
 target/
 
-#IntelliJ
-*.idea
+# IntelliJ
+.idea/

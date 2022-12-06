@@ -1,7 +1,0 @@
-no/nav/dokdistadmin/exception/functional/DokdistFunctionalException.class
-no/nav/dokdistadmin/CoreConfig.class
-no/nav/dokdistadmin/config/DokdistadminProperties.class
-no/nav/dokdistadmin/azure/Azureproperties.class
-no/nav/dokdistadmin/exception/technical/DokdistadminTechnicalException.class
-no/nav/dokdistadmin/config/DokdistadminProperties$Serviceuser.class
-no/nav/dokdistadmin/config/DokdistadminProperties$AzureEndpoint.class

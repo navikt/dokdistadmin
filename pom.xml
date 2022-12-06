@@ -3,6 +3,7 @@
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -21,11 +22,14 @@
 
 	<properties>
 		<java.version>17</java.version>
+
 		<logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
 		<token-support.version>3.0.0</token-support.version>
 		<springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
 		<oracle.version>19.16.0.0</oracle.version>
-		<maven-toolchains.version>3.0.0</maven-toolchains.version>
+
+		<!-- Plugins -->
+		<maven-toolchains.version>3.1.0</maven-toolchains.version>
 	</properties>
 
 	<dependencyManagement>

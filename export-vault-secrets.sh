@@ -12,13 +12,13 @@ then
     export DOKDISTADMIN_SERVICEUSER_PASSWORD=$(cat /var/run/secrets/nais.io/srvdokumentdistribusjon/password)
 fi
 
-if test -f /var/run/secrets/nais.io/foerstesidegeneratorDB/username;
+if test -f /var/run/secrets/nais.io/dokdistDB/username;
 then
     echo "Setting SPRING_DATASOURCE_USERNAME"
     export SPRING_DATASOURCE_USERNAME=$(cat /var/run/secrets/nais.io/dokdistDB/username)
 fi
 
-if test -f /var/run/secrets/nais.io/foerstesidegeneratorDB/password;
+if test -f /var/run/secrets/nais.io/dokdistDB/password;
 then
     echo "Setting SPRING_DATASOURCE_PASSWORD"
     export SPRING_DATASOURCE_PASSWORD=$(cat /var/run/secrets/nais.io/dokdistDB/password)
