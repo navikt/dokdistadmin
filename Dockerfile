@@ -9,7 +9,6 @@ COPY --from=builder build/dependencies/ ./
 COPY --from=builder build/snapshot-dependencies/ ./
 COPY --from=builder build/spring-boot-loader/ ./
 COPY --from=builder build/application/ ./
-COPY app/target/app.jar /app/app.jar
 COPY export-vault-secrets.sh /init-scripts/10-export-vault-secrets.sh
 COPY run-java.sh /
 
