@@ -1,13 +1,12 @@
 package no.nav.dokdistadmin;
 
 
-import no.nav.dokdistadmin.config.DokdistadminProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Import;
 
-@EnableConfigurationProperties({
-		DokdistadminProperties.class
+@Import({
+		CoreConfig.class
 })
 @SpringBootApplication
 public class Application {
