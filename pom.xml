@@ -22,7 +22,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
-		<token-support.version>2.1.8</token-support.version>
+		<token-support.version>3.0.0</token-support.version>
 		<springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
 		<oracle.version>19.16.0.0</oracle.version>
 		<maven-toolchains.version>3.0.0</maven-toolchains.version>
