@@ -1,6 +1,6 @@
 FROM ghcr.io/navikt/baseimages/temurin:17 as builder
 WORKDIR build
-COPY app/target/app.jar /app/app.jar
+COPY app/target/app.jar app.jar
 RUN java -Djarmode=layertools -jar app.jar extract
 
 FROM ghcr.io/navikt/baseimages/temurin:17-appdynamics
