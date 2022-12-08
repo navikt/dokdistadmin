@@ -18,8 +18,8 @@
 	<modules>
 		<module>core</module>
 		<module>app</module>
-		<module>dokdistadmin-repository</module>
-		<module>dokdistadmin-domain</module>
+		<module>repository</module>
+		<module>domain</module>
 	</modules>
 
 	<properties>
@@ -48,12 +48,12 @@
 			</dependency>
 			<dependency>
 				<groupId>no.nav.dokdistadmin</groupId>
-				<artifactId>dokdistadmin-domain</artifactId>
+				<artifactId>domain</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>no.nav.dokdistadmin</groupId>
-				<artifactId>dokdistadmin-repository</artifactId>
+				<artifactId>repository</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
