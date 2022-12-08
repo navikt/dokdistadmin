@@ -1,11 +1,7 @@
 package no.nav.dokdistadmin.repository;
 
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.when;
-
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -16,6 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Test util methods

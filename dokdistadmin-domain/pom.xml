@@ -22,11 +22,6 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-jpa_2.2_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
 
 		<!-- Test -->
 		<dependency>
