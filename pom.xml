@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.0</version>
+		<version>2.7.6</version>
 	</parent>
 
 	<groupId>no.nav.dokdistadmin</groupId>
@@ -18,18 +18,33 @@
 	<modules>
 		<module>core</module>
 		<module>app</module>
+		<module>dokdistadmin-repository</module>
+		<module>dokdistadmin-domain</module>
 	</modules>
 
 	<properties>
 		<java.version>17</java.version>
 
 		<logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
-		<token-support.version>3.0.0</token-support.version>
+		<token-support.version>2.1.9</token-support.version>
 		<springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
 		<oracle.version>19.16.0.0</oracle.version>
 
+		<hibernate.version>5.3.20.Final</hibernate.version>
+		<hibernate-validator.version>6.0.21.Final</hibernate-validator.version>
+		<hibernate.commons.annotations.version>5.0.5.Final</hibernate.commons.annotations.version>
+		<geronimo-jpa_2.2_spec.version>1.0</geronimo-jpa_2.2_spec.version>
+		<guava.version>30.1-jre</guava.version>
+
 		<!-- Plugins -->
 		<maven-toolchains.version>3.1.0</maven-toolchains.version>
+
+		<!-- Test -->
+		<mockito-core.version>3.10.0</mockito-core.version>
+		<junit.version>4.13.2</junit.version>
+		<atomikos.version>4.0.6</atomikos.version>
+
+
 	</properties>
 
 	<dependencyManagement>
@@ -42,6 +57,16 @@
 			<dependency>
 				<groupId>no.nav.dokdistadmin</groupId>
 				<artifactId>app</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.dokdistadmin</groupId>
+				<artifactId>dokdistadmin-domain</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.dokdistadmin</groupId>
+				<artifactId>dokdistadmin-repository</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -64,6 +89,84 @@
 				<artifactId>logstash-logback-encoder</artifactId>
 				<version>${logstash-logback-encoder.version}</version>
 			</dependency>
+
+			<!-- Hibernate dependencies -->
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-core</artifactId>
+				<version>${hibernate.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-entitymanager</artifactId>
+				<version>${hibernate.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-validator</artifactId>
+				<version>${hibernate-validator.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate.common</groupId>
+				<artifactId>hibernate-commons-annotations</artifactId>
+				<version>${hibernate.commons.annotations.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.geronimo.specs</groupId>
+				<artifactId>geronimo-jpa_2.2_spec</artifactId>
+				<version>${geronimo-jpa_2.2_spec.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
+			</dependency>
+
+			<!-- Test -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${mockito-core.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.atomikos</groupId>
+				<artifactId>transactions-jms</artifactId>
+				<version>${atomikos.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.atomikos</groupId>
+				<artifactId>transactions-jta</artifactId>
+				<version>${atomikos.version}</version>
+				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>org.apache.geronimo.specs</groupId>
+						<artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>com.atomikos</groupId>
+				<artifactId>transactions-jdbc</artifactId>
+				<version>${atomikos.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+
+
 		</dependencies>
 	</dependencyManagement>
 
