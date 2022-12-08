@@ -6,7 +6,6 @@ import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.Feilkvittering;
 import no.nav.dokdistadmin.domain.exception.DuplicateResponseException;
-import no.nav.dokdistadmin.domain.util.Constants;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import org.slf4j.MDC;
 
@@ -22,6 +21,7 @@ import java.util.List;
 import static java.time.LocalDateTime.now;
 import static no.nav.dokdistadmin.domain.ArkivSystemCode.JOARK;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
+import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 /**
  * JPA2 implementation of DokumentDistribusjonRepository
@@ -121,7 +121,7 @@ public class Jpa2DokumentDistribusjonRepository extends AbstractJpa2Repository i
         Query query = entityManager.createQuery(jpql);
         query.setParameter("dokumentStatus", dokumentStatus);
         query.setParameter("distribusjonInfo", distribusjonInfo);
-        query.setParameter("endretAv", MDC.get(Constants.USER_ID));
+        query.setParameter("endretAv", MDC.get(USER_ID));
         query.executeUpdate();
     }
 
@@ -136,7 +136,7 @@ public class Jpa2DokumentDistribusjonRepository extends AbstractJpa2Repository i
         Query query = entityManager.createQuery(jpql);
         query.setParameter("dokumentStatus", EKSPEDERT);
         query.setParameter("distribusjonInfo", distribusjonInfo);
-        query.setParameter("endretAv", MDC.get(Constants.USER_ID));
+        query.setParameter("endretAv", MDC.get(USER_ID));
         query.executeUpdate();
     }
 
@@ -297,7 +297,7 @@ public class Jpa2DokumentDistribusjonRepository extends AbstractJpa2Repository i
 
 		Query query = entityManager.createQuery(jpql)
                 .setParameter("dokumentInfoIds", dokumentInfoIds)
-                .setParameter("endretAv", MDC.get(Constants.USER_ID));
+                .setParameter("endretAv", MDC.get(USER_ID));
 
 		query.executeUpdate();
 	}

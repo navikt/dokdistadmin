@@ -1,10 +1,5 @@
 package no.nav.dokdistadmin.repository.support.itest;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import no.nav.dokdistadmin.domain.FilInfo;
 import no.nav.dokdistadmin.domain.FilStatusCode;
 import no.nav.dokdistadmin.domain.FilTypeCode;
@@ -13,16 +8,17 @@ import no.nav.dokdistadmin.domain.KommunikasjonRetningCode;
 import no.nav.dokdistadmin.domain.builder.FilInfoBuilder;
 import no.nav.dokdistadmin.repository.FilInfoRepository;
 import no.nav.dokdistadmin.repository.RepositoryTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
-/**
- * Tests for Jpa2FilInfoRepository.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
+import static no.nav.dokdistadmin.domain.FilStatusCode.FEILET;
+import static no.nav.dokdistadmin.domain.FilTypeCode.KVITTERING_PRINT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 public class Jpa2FilInfoRepositoryTest extends RepositoryTest {
 
 	private static final String FILNAVN = "fil.pdf";
@@ -31,24 +27,24 @@ public class Jpa2FilInfoRepositoryTest extends RepositoryTest {
 	private FilInfoRepository filInfoRepository;
 
 	@Test
-	public void shouldPersistFilInfo() throws Exception {
+	public void shouldPersistFilInfo() {
 		FilInfo filInfo = buildFilInfo();
 
 		filInfoRepository.saveNewFilInfo(filInfo);
 
-		assertThat(filInfo.getFilInfoId(), is(notNullValue()));
+		assertNotNull(filInfo.getFilInfoId());
 	}
 
 	@Test
 	public void shouldUpdateFilInfo() {
 		FilInfo persisted = buildAndPersistFilInfo();
 		entityManager.detach(persisted);
-		persisted.setFilType(FilTypeCode.KVITTERING_PRINT);
+		persisted.setFilType(KVITTERING_PRINT);
 
 		filInfoRepository.updateFilInfo(persisted);
 
 		FilInfo foundFilInfo = filInfoRepository.findFilInfoById(persisted.getFilInfoId());
-		assertThat(foundFilInfo.getFilType(), is(FilTypeCode.KVITTERING_PRINT));
+		assertEquals(KVITTERING_PRINT, foundFilInfo.getFilType());
 	}
 
 	@Test
@@ -57,14 +53,14 @@ public class Jpa2FilInfoRepositoryTest extends RepositoryTest {
 
 		FilInfo foundFilInfo = filInfoRepository.findFilInfoById(persistedFilInfo.getFilInfoId());
 
-		assertThat(foundFilInfo, is(persistedFilInfo));
+		assertEquals(persistedFilInfo, foundFilInfo);
 	}
 
 	@Test
 	public void shouldNotFindFilInfoAndReturnNull() {
 		FilInfo foundFilInfo = filInfoRepository.findFilInfoById(100L);
 
-		assertThat(foundFilInfo, is(nullValue()));
+		assertNull(foundFilInfo);
 	}
 
 	@Test
@@ -72,16 +68,16 @@ public class Jpa2FilInfoRepositoryTest extends RepositoryTest {
 		FilInfo persistedFilInfo = buildAndPersistFilInfo();
 		FilInfo foundFilInfo = filInfoRepository.findFilInfoByFilnavn(FILNAVN);
 
-		assertThat(foundFilInfo, is(persistedFilInfo));
+		assertEquals(persistedFilInfo, foundFilInfo);
 	}
 
 	@Test
 	public void shouldSetFilInfoStatus() {
 		FilInfo persistedFilInfo = buildAndPersistFilInfo();
-		filInfoRepository.updateFilInfoStatus(persistedFilInfo.getFilInfoId(), FilStatusCode.FEILET);
+		filInfoRepository.updateFilInfoStatus(persistedFilInfo.getFilInfoId(), FEILET);
 		FilInfo foundFilInfo = filInfoRepository.findFilInfoById(persistedFilInfo.getFilInfoId());
 
-		assertThat(foundFilInfo.getFilStatus(), is(FilStatusCode.FEILET));
+		assertEquals(FEILET, foundFilInfo.getFilStatus());
 	}
 
 	private FilInfo buildFilInfo() {

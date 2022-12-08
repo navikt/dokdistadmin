@@ -1,25 +1,20 @@
 package no.nav.dokdistadmin.repository;
 
+import no.nav.dokdistadmin.config.RepositoryTestConfig;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.MDC;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import no.nav.dokdistadmin.config.RepositoryTestConfig;
-import no.nav.dokdistadmin.domain.util.Constants;
+import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.slf4j.MDC;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-
-/**
- * Base class for repository tests.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { RepositoryTestConfig.class })
 @Transactional
 public abstract class RepositoryTest {
@@ -27,10 +22,10 @@ public abstract class RepositoryTest {
 	@PersistenceContext
 	protected EntityManager entityManager;
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
-		if (MDC.get(Constants.USER_ID) == null) {
-			MDC.put(Constants.USER_ID, "repoTest");
+		if (MDC.get(USER_ID) == null) {
+			MDC.put(USER_ID, "repoTest");
 		}
 		cleanDatabase();
 	}
@@ -43,9 +38,9 @@ public abstract class RepositoryTest {
 		entityManager.createQuery("delete from DistribusjonInfo").executeUpdate();
 	}
 	
-	@After
+	@AfterEach
 	public void tearDown() {
-		MDC.remove(Constants.USER_ID);
+		MDC.remove(USER_ID);
 	}
 	
 }

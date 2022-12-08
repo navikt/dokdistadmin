@@ -1,10 +1,10 @@
 package no.nav.dokdistadmin.domain.builder;
 
+import org.slf4j.MDC;
+
 import javax.persistence.EntityManager;
 
-import no.nav.dokdistadmin.domain.util.Constants;
-
-import org.slf4j.MDC;
+import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 
 /**
@@ -25,7 +25,7 @@ public abstract class Builder<T> {
 	}
 
 	public T buildAndPersist(EntityManager entityManager) {
-		MDC.put(Constants.USER_ID, userId);
+		MDC.put(USER_ID, userId);
 		
 		T objectToPersist = build();
 		entityManager.persist(objectToPersist);

@@ -16,7 +16,7 @@ import no.nav.dokdistadmin.domain.builder.FilInfoBuilder;
 import no.nav.dokdistadmin.domain.exception.DuplicateResponseException;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.RepositoryTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
@@ -32,13 +32,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-/**
- * Tests for Jpa2DokumentDistribusjonRepository.
- *
- * @author Joakim Bjørnstad, Visma Consulting
- */
 public class Jpa2DokumentDistribusjonRepositoryTest extends RepositoryTest {
 
 	private static final String DISTRIBUSJON_ID = "123";
@@ -165,7 +160,7 @@ public class Jpa2DokumentDistribusjonRepositoryTest extends RepositoryTest {
 	}
 
 	@Test
-	public void shouldUpdateDokumentInfosStatus() throws Exception {
+	public void shouldUpdateDokumentInfosStatus() {
 		DistribusjonInfo distribusjonInfo = createDistribusjonInfo()
 				.dokumentInfos(DokumentInfoBuilder.with()
 						.dokumentId("234")
@@ -186,7 +181,7 @@ public class Jpa2DokumentDistribusjonRepositoryTest extends RepositoryTest {
 	}
 
 	@Test
-	public void shouldUpdateDokumentInfosStatusToEkspedert() throws Exception {
+	public void shouldUpdateDokumentInfosStatusToEkspedert() {
 		DistribusjonInfo distribusjonInfo = createDistribusjonInfo()
 				.dokumentInfos(createDokumentInfo().build())
 				.dokumentInfos(createDokumentInfo().build())

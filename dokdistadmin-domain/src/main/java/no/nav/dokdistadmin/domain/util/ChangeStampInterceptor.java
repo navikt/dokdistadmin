@@ -5,15 +5,13 @@ import java.io.Serializable;
 import no.nav.dokdistadmin.domain.AbstractDomainObject;
 import no.nav.dokdistadmin.domain.ChangeStamp;
 
+import no.nav.dokdistadmin.utils.MDCConstants;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 import org.slf4j.MDC;
 
-/**
- * Interceptor that handles domain objects' changestamp.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
+import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
+
 public class ChangeStampInterceptor extends EmptyInterceptor {
 
     private static final long serialVersionUID = 973776995128953194L;
@@ -61,7 +59,7 @@ public class ChangeStampInterceptor extends EmptyInterceptor {
     }
 
     private static String getUserId() {
-        return MDC.get(Constants.USER_ID);
+        return MDC.get(USER_ID);
     }
     
 }
