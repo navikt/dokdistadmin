@@ -7,7 +7,6 @@ import com.atomikos.icatch.jta.UserTransactionManager;
 import com.atomikos.jdbc.AtomikosDataSourceBean;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.FilInfoRepository;
-import no.nav.dokdistadmin.repository.PingRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
 import no.nav.dokdistadmin.repository.support.Jpa2VarselInfoRepository;
 import org.hibernate.engine.transaction.jta.platform.internal.AbstractJtaPlatform;
@@ -48,11 +47,6 @@ public class RepositoryTestConfig  {
 	@Bean
 	public FilInfoRepository filInfoRepository() {
 		return new RepositoryConfig().filInfoRepository();
-	}
-
-	@Bean
-	public PingRepository pingRepository() {
-		return new RepositoryConfig().pingRepository();
 	}
 
 	@Bean

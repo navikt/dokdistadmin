@@ -2,11 +2,9 @@ package no.nav.dokdistadmin.config;
 
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.FilInfoRepository;
-import no.nav.dokdistadmin.repository.PingRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
 import no.nav.dokdistadmin.repository.support.Jpa2DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.support.Jpa2FilInfoRepository;
-import no.nav.dokdistadmin.repository.support.Jpa2PingRepository;
 import no.nav.dokdistadmin.repository.support.Jpa2VarselInfoRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,17 +43,12 @@ public class RepositoryConfig {
 	}
 
 	@Bean
-	public PingRepository pingRepository() {
-		return new Jpa2PingRepository();
-	}
-
-	@Bean
 	public PlatformTransactionManager transactionManager() {
 		return new JtaTransactionManager();
 	}
 
 	@Bean
-	public DataSource dataSource() throws NamingException {
+	public DataSource dataSource() {
 		return getJndiObject("java:/jboss/datasources/DokdistDS", DataSource.class);
 	}
 
