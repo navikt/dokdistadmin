@@ -3,12 +3,6 @@ package no.nav.dokdistadmin.domain.builder;
 import no.nav.dokdistadmin.domain.VarselInfo;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
 
-/**
- * Builder for VarselInfo.
- *
- * @author Joakim Bjørnstad, Visma Consulting
- */
-
 public class VarselInfoBuilder extends Builder<VarselInfo> {
 
 	private VarselInfoBuilder() {

@@ -136,7 +136,7 @@ public interface DokumentDistribusjonRepository {
 	 */
 	List<DistribusjonInfo> findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(EnumSet<DokumentStatusCode> dokumentStatusCodes, DistribusjonKanalCode distribusjonKanal, long antallTimer);
 
-	DistribusjonInfo findDistribusjonInfoByDokumentInfoId(Long dokumnentInfoId);
+	DistribusjonInfo findDistribusjonInfoByDokumentInfoId(Long dokumentInfoId);
 
 	Feilkvittering saveFeilkvittering(Feilkvittering feilkvittering);
 
