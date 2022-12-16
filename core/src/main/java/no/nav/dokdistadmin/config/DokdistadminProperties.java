@@ -41,13 +41,13 @@ public class DokdistadminProperties {
 	@Validated
 	public static class Database {
 		/**
-		 * Statisk pool verdi for dokkat databasen.
+		 * Statisk pool verdi for dokumentdistribusjon databasen.
 		 * <p>
 		 * Optimizing UCP behaviour https://docs.oracle.com/database/121/JJUCP/optimize.htm#JJUCP8143
 		 * About Optimizing Real-World Performance with Static Connection Pools
 		 * https://docs.oracle.com/en/database/oracle/oracle-database/19/jjucp/optimizing-real-world-performance.html
 		 * select STAT_NAME, to_char(VALUE) as VALUE, COMMENTS from v$osstat where stat_name IN ('NUM_CPUS','NUM_CPU_CORES','NUM_CPU_SOCKETS');
-		 * Dokmet har et tak på 500 tilkoblinger
+		 * Dokdistadmin har et tak på 500 tilkoblinger
 		 * Poolsize * max_pods må altså ikke overstige 500
 		 * Current er satt til max 60 * 4 = 240
 		 * @see no.nav.dokdistadmin.config.RepositoryConfig
