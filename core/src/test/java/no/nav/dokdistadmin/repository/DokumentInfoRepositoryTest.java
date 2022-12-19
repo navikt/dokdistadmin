@@ -134,8 +134,8 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 				PRINT,
 				LocalDateTime.now().minusHours(1L));
 
-		Assertions.assertEquals(1, result.size());
-		Assertions.assertEquals(DOKUMENT_ID_1, result.get(0).getDokumentId());
+		assertEquals(1, result.size());
+		assertEquals(DOKUMENT_ID_1, result.get(0).getDokumentId());
 
 		assertNotNull(result);
 	}
@@ -178,7 +178,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		var result = dokumentInfoRepository.findEkspedertDokumentInfo(PageRequest.of(0, 1));
 
-		Assertions.assertEquals(1, result.getContent().size());
-		Assertions.assertEquals("2", result.getContent().get(0).getDokumentId());
+		assertEquals(1, result.getContent().size());
+		assertEquals("2", result.getContent().get(0).getDokumentId());
 	}
 }

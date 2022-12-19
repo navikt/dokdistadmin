@@ -4,11 +4,6 @@ import no.nav.dokdistadmin.domain.ChangeStamp;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.Postadresse;
 
-/**
- * Builder for Postadresse
- *
- * @author Magnar Brandsdal, Visma Consulting.
- */
 public class PostadresseBuilder extends Builder<Postadresse> {
 	private Long postadresseId;
 	private long version;

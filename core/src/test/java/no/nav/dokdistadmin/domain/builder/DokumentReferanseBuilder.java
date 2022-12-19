@@ -4,11 +4,6 @@ import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentReferanse;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 
-/**
- * Builder for DokumentReferanse.
- *
- * @author Joakim Bjørnstad, Visma Consulting
- */
 public class DokumentReferanseBuilder extends Builder<DokumentReferanse> {
 
 	private DokumentReferanseBuilder() {

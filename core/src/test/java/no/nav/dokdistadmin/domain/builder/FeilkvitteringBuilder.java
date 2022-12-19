@@ -6,11 +6,6 @@ import no.nav.dokdistadmin.domain.Feilkvittering;
 
 import java.time.LocalDateTime;
 
-/**
- * Builder for Feilkvittering
- *
- * @author Andreas Berg Skomedal, Visma Consulting.
- */
 public class FeilkvitteringBuilder extends Builder<Feilkvittering> {
 
 	public FeilkvitteringBuilder() {

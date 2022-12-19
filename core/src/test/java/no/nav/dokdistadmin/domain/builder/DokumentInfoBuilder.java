@@ -17,11 +17,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Builder for DokumentInfo
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 public class DokumentInfoBuilder extends Builder<DokumentInfo> {
 
 	private DokumentInfoBuilder() {

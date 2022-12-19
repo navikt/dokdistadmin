@@ -7,12 +7,6 @@ import javax.persistence.EntityManager;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 
-/**
- * Base class for builders.
- * 
- * @author Thomas Eugen Bjørge, Visma Consulting
- * @param <T> The type to build.
- */
 public abstract class Builder<T> {
 
 	private String userId = "builderUserId";

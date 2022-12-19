@@ -17,11 +17,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Builder for DistribusjonInfo.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 public class DistribusjonInfoBuilder extends Builder<DistribusjonInfo> {
 
 	private DistribusjonInfoBuilder() {

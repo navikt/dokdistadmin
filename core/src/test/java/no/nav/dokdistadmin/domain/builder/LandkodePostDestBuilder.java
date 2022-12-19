@@ -2,11 +2,6 @@ package no.nav.dokdistadmin.domain.builder;
 
 import no.nav.dokdistadmin.domain.LandkodePostDest;
 
-/**
- * Builder for LandkodePostDest
- *
- * @author Andreas Berg Skomedal, Visma Consulting.
- */
 public class LandkodePostDestBuilder extends Builder<LandkodePostDest> {
 
 	private String landkode;

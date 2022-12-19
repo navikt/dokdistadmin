@@ -46,7 +46,7 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 		var updated = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
-		Assertions.assertEquals(DistribusjonStatusCode.OVERSENDT, updated.getDistribusjonStatus());
+		assertEquals(DistribusjonStatusCode.OVERSENDT, updated.getDistribusjonStatus());
 
 	}
 
@@ -58,8 +58,8 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
 		assertNotNull(result);
-		Assertions.assertEquals(distribusjonInfo.getDistribusjonInfoId(), result.getDistribusjonInfoId());
-		Assertions.assertEquals(DISTRIBUSJON_ID, result.getDistribusjonId());
+		assertEquals(distribusjonInfo.getDistribusjonInfoId(), result.getDistribusjonInfoId());
+		assertEquals(DISTRIBUSJON_ID, result.getDistribusjonId());
 	}
 
 
@@ -87,7 +87,7 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjoninfo.getDistribusjonId());
 
-		Assertions.assertTrue(result.getDokumentInfos().stream().
+		assertTrue(result.getDokumentInfos().stream().
 				allMatch(it -> it.getAvstemtArkivDato() != null && it.getChangeStamp().getEndretAv() != null));
 	}
 
@@ -111,7 +111,7 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjoninfo.getDistribusjonId());
 
-		Assertions.assertTrue(result.getDokumentInfos().stream().
+		assertTrue(result.getDokumentInfos().stream().
 				allMatch(it -> it.getDokumentStatus() == DokumentStatusCode.OVERSENDT && it.getChangeStamp().getEndretAv() != null));
 	}
 
@@ -135,7 +135,7 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjoninfo.getDistribusjonId());
 
-		Assertions.assertTrue(result.getDokumentInfos().stream().allMatch(
+		assertTrue(result.getDokumentInfos().stream().allMatch(
 				it -> it.getDokumentStatus() == DokumentStatusCode.EKSPEDERT
 					&& it.getChangeStamp().getEndretAv() != null
 					&& it.getEkspedertDato() != null

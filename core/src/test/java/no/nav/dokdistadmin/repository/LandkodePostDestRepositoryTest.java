@@ -18,7 +18,7 @@ class LandkodePostDestRepositoryTest extends AbstractRepositoryTest {
 
 		var result = landkodePostDestRepository.findLandkodePostDestByLandkode(LANDKODE_NO);
 
-		Assertions.assertEquals(POST_DESTINATION, result.getPostDest());
+		assertEquals(POST_DESTINATION, result.getPostDest());
 	}
 
 	private LandkodePostDestBuilder createLandKodePostDestination() {

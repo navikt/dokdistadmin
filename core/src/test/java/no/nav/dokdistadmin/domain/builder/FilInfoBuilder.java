@@ -9,11 +9,6 @@ import no.nav.dokdistadmin.domain.KommunikasjonRetningCode;
 
 import java.time.LocalDateTime;
 
-/**
- * Builder for FilInfo.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 public class FilInfoBuilder extends Builder<FilInfo> {
 
 	private FilInfoBuilder() {
