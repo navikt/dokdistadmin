@@ -1,6 +1,7 @@
 package no.nav.dokdistadmin.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -24,26 +25,23 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import static lombok.AccessLevel.NONE;
+
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "DISTRIBUSJON_INFO")
 public class DistribusjonInfo extends AbstractDomainObject {
 
-	/**
-	 * Serialization UID
-	 */
 	private static final long serialVersionUID = -5070446598451545062L;
-
-	/**
-	 * Sequence definition for this entity.
-	 */
 	private static final String DIST_INFO_SEQ = "DISTRIBUSJON_INFO_SEQ";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = DIST_INFO_SEQ)
 	@SequenceGenerator(name = DIST_INFO_SEQ, sequenceName = DIST_INFO_SEQ, allocationSize = 1)
 	@Column(name = "distribusjon_info_id", nullable = false)
+	@Setter(NONE)
 	private Long distribusjonInfoId;
 
 	@Column(name = "distribusjon_id", nullable = false)
@@ -115,28 +113,11 @@ public class DistribusjonInfo extends AbstractDomainObject {
 			inverseJoinColumns = {@JoinColumn(name = "fil_info_id")})
 	private Set<FilInfo> filInfos = new HashSet<>();
 
-	/**
-	 * Constructs a new DistribusjonInfo.
-	 */
-	public DistribusjonInfo() {
-	}
-
-	/**
-	 * Constructs a new DistribusjonInfo.
-	 *
-	 * @param distribusjonInfoId The ID.
-	 * @param version The version.
-	 */
 	public DistribusjonInfo(Long distribusjonInfoId, long version) {
 		this.distribusjonInfoId = distribusjonInfoId;
 		setVersion(version);
 	}
 
-	/**
-	 * Add a DokumentInfo to the dokumentInfo Set and set the bidirectional reference.
-	 *
-	 * @param dokumentInfo The DokumentInfo to add.
-	 */
 	public void addDokumentInfo(DokumentInfo dokumentInfo) {
 		if (dokumentInfo != null) {
 			this.dokumentInfos.add(dokumentInfo);
@@ -148,11 +129,6 @@ public class DistribusjonInfo extends AbstractDomainObject {
 		return Collections.unmodifiableSet(dokumentInfos);
 	}
 
-	/**
-	 * Add a FilInfo to the FilInfo Set and set the bidirectional reference.
-	 *
-	 * @param filInfo The FilInfo to add.
-	 */
 	public void addFilInfo(FilInfo filInfo) {
 		if (filInfo != null) {
 			this.filInfos.add(filInfo);
