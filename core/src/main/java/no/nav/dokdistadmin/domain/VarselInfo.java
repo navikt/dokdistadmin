@@ -13,11 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-/**
- * Domain object for VarselInfo.
- *
- * @author Joakim Bjørnstad, Visma Consulting
- */
 @Entity
 @Table(name = "VARSEL_INFO")
 public class VarselInfo extends AbstractDomainObject {

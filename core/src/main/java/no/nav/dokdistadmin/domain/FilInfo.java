@@ -15,11 +15,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Domain object for FilInfo.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 @Entity
 @Table(name = "FIL_INFO")
 public class FilInfo extends AbstractDomainObject {

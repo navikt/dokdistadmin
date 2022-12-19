@@ -1,12 +1,6 @@
 package no.nav.dokdistadmin.domain;
 
-/**
- * Valid codes for filType.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 public enum FilTypeCode {
-
 	//SITS
 	BEST_INFO_PRINT,
 	PRINTFIL,
@@ -17,5 +11,4 @@ public enum FilTypeCode {
 
 	//SDP
 	BEST_INFO_SDP
-
 }

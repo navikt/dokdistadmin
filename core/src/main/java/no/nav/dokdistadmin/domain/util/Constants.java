@@ -1,10 +1,5 @@
 package no.nav.dokdistadmin.domain.util;
 
-/**
- * Constants used across application layers.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 public final class Constants {
 
 	public static final String USER_ID = "brevOgArkivUserId";

@@ -7,11 +7,6 @@ import javax.persistence.Embedded;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
-/**
- * Base class for domain objects.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 @MappedSuperclass
 @SuppressWarnings("serial")
 public abstract class AbstractDomainObject implements Serializable {

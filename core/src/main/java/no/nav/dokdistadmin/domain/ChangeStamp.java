@@ -9,11 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
-/**
- * ChangeStamp used to track changes in domain objects.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 @Builder
 @Embeddable
 @AllArgsConstructor

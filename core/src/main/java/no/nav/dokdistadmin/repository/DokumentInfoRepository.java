@@ -23,11 +23,11 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 	DokumentInfo findDokumentInfoByArkivkode(String arkivkode);
 
 	@Query("""
-					select dok from DokumentInfo dok, DistribusjonInfo dis
-					where dok.dokumentStatus IN (:dokumentStatusList)
-					and dok.distribusjonInfo = dis
-					and dis.distribusjonKanal = :distribusjonKanal
-					and dok.changeStamp.opprettetDato >= :opprettetEtter
+			select dok from DokumentInfo dok, DistribusjonInfo dis
+				where dok.dokumentStatus IN (:dokumentStatusList)
+				and dok.distribusjonInfo = dis
+				and dis.distribusjonKanal = :distribusjonKanal
+				and dok.changeStamp.opprettetDato >= :opprettetEtter
 			""")
 	List<DokumentInfo> findDokumentInfoByDokumentStatusAndDistribusjonKanal(
 			@Param("dokumentStatusList") List<DokumentStatusCode> dokumentStatusList,
@@ -35,16 +35,16 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			@Param("opprettetEtter") LocalDateTime opprettetEtter);
 
 	@Query("""
-				select dok from  DokumentInfo dok  inner join DistribusjonInfo dist on dist.distribusjonInfoId = dok.distribusjonInfo.distribusjonInfoId
-						left outer join VarselInfo  vai on vai.dokumentInfo.dokumentInfoId = dok.dokumentInfoId
-			                left outer join Postadresse pa on pa.postadresseId = dok.postadresse.postadresseId
-			                 where dok.dokumentStatus = 'EKSPEDERT'
-			                 and dok.avstemtArkivDato is null
-			                 and dok.arkivSystem = 'JOARK'
-			                 and dok.arkivkode is not null
-			                 and dok.ekspedertDato is not null
-			                 and dok.ekspedertDato >= '2022-10-01'
-			                 order by dok.ekspedertDato
+			select dok from  DokumentInfo dok  inner join DistribusjonInfo dist on dist.distribusjonInfoId = dok.distribusjonInfo.distribusjonInfoId
+					left outer join VarselInfo  vai on vai.dokumentInfo.dokumentInfoId = dok.dokumentInfoId
+						left outer join Postadresse pa on pa.postadresseId = dok.postadresse.postadresseId
+						 where dok.dokumentStatus = 'EKSPEDERT'
+						 and dok.avstemtArkivDato is null
+						 and dok.arkivSystem = 'JOARK'
+						 and dok.arkivkode is not null
+						 and dok.ekspedertDato is not null
+						 and dok.ekspedertDato >= '2022-10-01'
+						 order by dok.ekspedertDato
 			""")
 	Page<DokumentInfo> findEkspedertDokumentInfo(Pageable pageable);
 

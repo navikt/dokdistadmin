@@ -27,9 +27,8 @@ import java.util.Properties;
 @EntityScan(basePackages = {
 		"no.nav.dokdistadmin.domain"
 })
-@EnableJpaRepositories(basePackageClasses = {
-		DokumentDistribusjonRepository.class,
-		DokumentInfoRepository.class
+@EnableJpaRepositories(basePackages = {
+		"no.nav.dokdistadmin.repository"
 })
 @EnableConfigurationProperties({DataSourceProperties.class, DokdistadminProperties.class})
 public class RepositoryConfig {
@@ -43,7 +42,7 @@ public class RepositoryConfig {
 		poolDataSource.setURL(dataSourceProperties.getUrl());
 		poolDataSource.setUser(dataSourceProperties.getUsername());
 		poolDataSource.setPassword(dataSourceProperties.getPassword());
-		poolDataSource.registerConnectionInitializationCallback(connection -> connection.setSchema("dokumentdistribusjon"));
+		poolDataSource.registerConnectionInitializationCallback(connection -> connection.setSchema("dokdistadmin"));
 
 		Properties connProperties = new Properties();
 		connProperties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");

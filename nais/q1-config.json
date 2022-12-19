@@ -3,7 +3,7 @@
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
   "SPRING_DATASOURCE_URL": "jdbc:oracle:thin:@a01dbfl042.adeo.no:1521/dokdist_q1",
-  "DOKDISTADMIN_DB":"/oracle/data/dev/creds/dokdist_q1-user",
+  "DOKDISTADMIN_DB":"/oracle/data/dev/creds/dokdistadmin_q1-user",
   "SRVDOKDISTADMIN": "/serviceuser/data/dev/srvdokumentdistribusjon",
   "APPDYNAMICS": "/apikey/appdynamics/dev",
   "APPD_NAME": "dokdistadmin_q1",

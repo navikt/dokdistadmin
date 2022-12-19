@@ -15,11 +15,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
-/**
- * Domain object Feilkvittering
- *
- * @author Andreas Berg Skomedal, Visma Consulting.
- */
 @Entity
 @Table(name = "FEILKVITTERING")
 public class Feilkvittering extends AbstractDomainObject {

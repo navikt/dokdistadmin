@@ -1,12 +1,6 @@
 package no.nav.dokdistadmin.domain;
 
-/**
- * Valid codes for KanalBehandling.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 public enum KanalBehandlingCode {
-
 	//SITS
 	A_C5_X_D_UP,
 	A_C5_X_D_UP_F,
@@ -36,5 +30,4 @@ public enum KanalBehandlingCode {
 	ORDRE,
 	KREDITNOTA,
 	PURRING
-
 }

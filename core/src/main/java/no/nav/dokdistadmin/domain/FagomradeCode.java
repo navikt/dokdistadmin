@@ -1,10 +1,5 @@
 package no.nav.dokdistadmin.domain;
 
-/**
- * Valid codes for Fagomrade.
- *
- * @author Thomas Eugen Bjørge, Visma Consulting
- */
 public enum FagomradeCode {
 	/** Bidrag */
 	BID,

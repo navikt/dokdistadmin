@@ -1,12 +1,6 @@
 package no.nav.dokdistadmin.domain;
 
-/**
- * Valid codes for Sikkerhetsniva.
- *
- * @author Joakim Bjørnstad, Visma Consulting
- */
 public enum SikkerhetsnivaCode {
-
 	NIVA_3("3"),
 	NIVA_4("4");
 

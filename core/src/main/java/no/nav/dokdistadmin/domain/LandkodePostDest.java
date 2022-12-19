@@ -7,11 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Mapping for LANDKODE_POST_DEST table
- *
- * @author Andreas Skomedal, Visma Consulting
- */
 @Entity
 @Immutable
 @Table(name = "K_LANDKODE_POST_DEST")

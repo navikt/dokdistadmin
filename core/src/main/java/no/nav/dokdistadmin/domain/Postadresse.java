@@ -10,11 +10,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-/**
- * Domain object for Postadresse.
- *
- * @author Magnar Brandsdal, Visma Consulting
- */
 @Entity
 @Table(name = "POSTADRESSE")
 public class Postadresse extends AbstractDomainObject {

@@ -13,11 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-/**
- * Domain object for DokumentReferanse.
- *
- * @author Joakim Bjørnstad, Visma Consulting
- */
 @Entity
 @Table(name = "DOKUMENT_REFERANSE")
 public class DokumentReferanse extends AbstractDomainObject {
