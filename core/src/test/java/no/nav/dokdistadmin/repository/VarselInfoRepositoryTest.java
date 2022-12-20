@@ -3,7 +3,6 @@ package no.nav.dokdistadmin.repository;
 import no.nav.dokdistadmin.config.AbstractRepositoryTest;
 import no.nav.dokdistadmin.domain.VarselInfo;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
-import no.nav.dokdistadmin.domain.builder.VarselInfoBuilder;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,7 +19,7 @@ class VarselInfoRepositoryTest extends AbstractRepositoryTest {
 	}
 
 	private static VarselInfo createSMSVarselInfo() {
-		return VarselInfoBuilder.with()
+		return VarselInfo.builder()
 				.mobiltelefonNummer(MOBILTELEFONNUMMER)
 				.varslingKanal(VarslingKanalCode.MOBILTELEFON)
 				.varslingstekst(MELDING)

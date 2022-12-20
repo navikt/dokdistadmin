@@ -1,6 +1,8 @@
 package no.nav.dokdistadmin.domain;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,17 +19,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.io.Serial;
 import java.time.LocalDateTime;
 
 import static lombok.AccessLevel.NONE;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "FEILKVITTERING")
 public class Feilkvittering extends AbstractDomainObject {
 
+	@Serial
 	private static final long serialVersionUID = 8794614861864861348L;
 	private static final String FEILKVITTERING_SEQ = "FEILKVITTERING_SEQ";
 
@@ -39,13 +45,13 @@ public class Feilkvittering extends AbstractDomainObject {
 	private Long feilkvitteringId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_feil_type")
+	@Column(name = "k_feil_type", length = 20)
 	private FeilTypeCode feiltype;
 
-	@Column(name = "feilpart")
+	@Column(name = "feilpart", length = 20)
 	private String feilpart;
 
-	@Column(name = "detaljer")
+	@Column(name = "detaljer", length = 1000)
 	private String detaljer;
 
 	@Column(name = "feilet_tidspunkt")

@@ -47,7 +47,7 @@ public abstract class AbstractRepositoryTest {
 		emptyDatabases();
 	}
 
-	public void emptyDatabases(){
+	public void emptyDatabases() {
 		varselInfoRepository.deleteAll();
 		landkodePostDestRepository.deleteAll();
 		feilkvitteringRepository.deleteAll();

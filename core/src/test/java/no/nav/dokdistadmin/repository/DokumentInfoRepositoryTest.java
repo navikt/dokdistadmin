@@ -3,13 +3,12 @@ package no.nav.dokdistadmin.repository;
 import no.nav.dokdistadmin.config.AbstractRepositoryTest;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
-import no.nav.dokdistadmin.domain.builder.DokumentInfoBuilder;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
@@ -32,12 +31,9 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldSaveDokumentInfo() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo("").build());
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
-		DokumentInfo dokumentInfo = DokumentInfoBuilder.with()
-				.dokumentId(DOKUMENT_ID_1)
-				.dokumentStatus(OPPRETTET)
-				.build();
+		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
 
 		var result = dokumentInfoRepository.save(dokumentInfo);
@@ -47,13 +43,9 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfo() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo("").build());
-		commitAndBeginNewTransaction();
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
-		DokumentInfo dokumentInfo = DokumentInfoBuilder.with()
-				.dokumentId(DOKUMENT_ID_1)
-				.dokumentStatus(OPPRETTET)
-				.build();
+		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
 		dokumentInfoRepository.save(dokumentInfo);
 
@@ -64,31 +56,22 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfoByDokumentInfoId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo("").build());
-		commitAndBeginNewTransaction();
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
-		DokumentInfo dokumentInfo = DokumentInfoBuilder.with()
-				.dokumentId(DOKUMENT_ID_1)
-				.dokumentStatus(OPPRETTET)
-				.build();
+		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
-		var savedDokumentInfo = dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.save(dokumentInfo);
 
-		var result = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(savedDokumentInfo.getDokumentInfoId());
+		var result = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfo.getDokumentInfoId());
 
 		assertNotNull(result);
 	}
 
 	@Test
 	void shouldFindDokumentInfoByKonversasjonId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo("").build());
-		commitAndBeginNewTransaction();
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
-		DokumentInfo dokumentInfo = DokumentInfoBuilder.with()
-				.dokumentId(DOKUMENT_ID_1)
-				.dokumentStatus(OPPRETTET)
-				.konversasjonsId(KONVERSASJON_ID)
-				.build();
+		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
 		dokumentInfoRepository.save(dokumentInfo);
 
@@ -99,15 +82,11 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfoByJournalpostId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo("").build());
-		commitAndBeginNewTransaction();
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
-		DokumentInfo dokumentInfo = DokumentInfoBuilder.with()
-				.dokumentId(DOKUMENT_ID_1)
-				.dokumentStatus(OPPRETTET)
-				.arkivkode(JOURNALPOST_ID)
-				.build();
+		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
+		dokumentInfo.setArkivkode(JOURNALPOST_ID);
 		dokumentInfoRepository.save(dokumentInfo);
 
 		var result = dokumentInfoRepository.findDokumentInfoByArkivkode(JOURNALPOST_ID);
@@ -117,17 +96,23 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfoByDokumentStatusAndDistribusjonKanal() {
-		var distribusjon = createDistribusjonInfo("").dokumentInfos(
-				DokumentInfoBuilder.with()
+		var distribusjon = TestUtils.createDistribusjonInfo();
+		dokumentDistribusjonRepository.save(distribusjon);
+
+		var dokumentInfos = Set.of(
+				DokumentInfo.builder()
 						.dokumentId(DOKUMENT_ID_1)
 						.dokumentStatus(OPPRETTET)
+						.distribusjonInfo(distribusjon)
 						.build(),
-				DokumentInfoBuilder.with()
+				DokumentInfo.builder()
 						.dokumentId(DOKUMENT_ID_2)
 						.dokumentStatus(OVERSENDT)
+						.distribusjonInfo(distribusjon)
 						.build()
-		).build();
-		dokumentDistribusjonRepository.save(distribusjon);
+		);
+
+		dokumentInfoRepository.saveAll(dokumentInfos);
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
 				List.of(OPPRETTET),
@@ -142,39 +127,53 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldFindEkspedertDokumentInfo() {
-		dokumentDistribusjonRepository.save(createDistribusjonInfo("")
-				.dokumentInfos(
-						createDokumentInfo("1")
-								.dokumentStatus(OVERSENDT)
-								.arkivSystem(ArkivSystemCode.JOARK)
-								.arkivkode(JOURNALPOST_ID)
-								.ekspedertDato(GYLDIG_EKSPEDERTDATO)
-								.build(),
-						createDokumentInfo("2")
-								.dokumentStatus(EKSPEDERT)
-								.arkivSystem(ArkivSystemCode.JOARK)
-								.arkivkode(JOURNALPOST_ID)
-								.ekspedertDato(GYLDIG_EKSPEDERTDATO)
-								.build(),
-						createDokumentInfo("3")
-								.dokumentStatus(EKSPEDERT)
-								.arkivSystem(ArkivSystemCode.JOARK)
-								.arkivkode(JOURNALPOST_ID)
-								.ekspedertDato(UGYLDIG_EKSPEDERTDATO)
-								.build(),
-						createDokumentInfo("4")
-								.dokumentStatus(EKSPEDERT)
-								.arkivSystem(ArkivSystemCode.INGEN)
-								.arkivkode(JOURNALPOST_ID)
-								.ekspedertDato(GYLDIG_EKSPEDERTDATO)
-								.build(),
-						createDokumentInfo("5")
-								.dokumentStatus(EKSPEDERT)
-								.arkivSystem(ArkivSystemCode.JOARK)
-								.arkivkode(JOURNALPOST_ID)
-								.ekspedertDato(GYLDIG_EKSPEDERTDATO.plusDays(1))
-								.build()
-				).build());
+		var distribusjonInfo = createDistribusjonInfo();
+		dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		var dokumentInfoList = Set.of(
+				DokumentInfo.builder()
+						.dokumentId("1")
+						.dokumentStatus(OVERSENDT)
+						.arkivSystem(ArkivSystemCode.JOARK)
+						.arkivkode(JOURNALPOST_ID)
+						.ekspedertDato(GYLDIG_EKSPEDERTDATO)
+						.distribusjonInfo(distribusjonInfo)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId("2")
+						.dokumentStatus(EKSPEDERT)
+						.arkivSystem(ArkivSystemCode.JOARK)
+						.arkivkode(JOURNALPOST_ID)
+						.ekspedertDato(GYLDIG_EKSPEDERTDATO)
+						.distribusjonInfo(distribusjonInfo)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId("3")
+						.dokumentStatus(EKSPEDERT)
+						.arkivSystem(ArkivSystemCode.JOARK)
+						.arkivkode(JOURNALPOST_ID)
+						.ekspedertDato(UGYLDIG_EKSPEDERTDATO)
+						.distribusjonInfo(distribusjonInfo)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId("4")
+						.dokumentStatus(EKSPEDERT)
+						.arkivSystem(ArkivSystemCode.INGEN)
+						.arkivkode(JOURNALPOST_ID)
+						.ekspedertDato(GYLDIG_EKSPEDERTDATO)
+						.distribusjonInfo(distribusjonInfo)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId("5")
+						.dokumentStatus(EKSPEDERT)
+						.arkivSystem(ArkivSystemCode.JOARK)
+						.arkivkode(JOURNALPOST_ID)
+						.ekspedertDato(GYLDIG_EKSPEDERTDATO.plusDays(1))
+						.distribusjonInfo(distribusjonInfo)
+						.build()
+		);
+
+		dokumentInfoRepository.saveAll(dokumentInfoList);
 
 		var result = dokumentInfoRepository.findEkspedertDokumentInfo(PageRequest.of(0, 1));
 

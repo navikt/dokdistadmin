@@ -2,7 +2,6 @@ package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.config.AbstractRepositoryTest;
 import no.nav.dokdistadmin.domain.FilInfo;
-import no.nav.dokdistadmin.domain.builder.FilInfoBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -34,7 +33,7 @@ class FilinfoRepositoryTest extends AbstractRepositoryTest {
 	}
 
 	private FilInfo createFilInfo() {
-		return FilInfoBuilder.with()
+		return FilInfo.builder()
 				.filnavn(FILNAVN)
 				.filType(BEST_INFO_PRINT)
 				.sendtDato(LocalDateTime.now())

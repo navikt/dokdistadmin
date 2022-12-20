@@ -1,32 +1,19 @@
 package no.nav.dokdistadmin.config;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Positive;
-
 import lombok.Data;
-import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Positive;
 
 @Data
 @Validated
 @ConfigurationProperties("dokdistadmin")
 public class DokdistadminProperties {
 
-	private final Serviceuser serviceuser = new Serviceuser();
 	private final AzureEndpoint mqgateway = new AzureEndpoint();
 	private final Database database = new Database();
-
-
-	@Data
-	@Validated
-	public static class Serviceuser {
-		@NotEmpty
-		private String username;
-		@NotEmpty
-		@ToString.Exclude
-		private String password;
-	}
 
 	@Data
 	@Validated

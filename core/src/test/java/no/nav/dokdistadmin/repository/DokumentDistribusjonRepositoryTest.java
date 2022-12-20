@@ -5,23 +5,21 @@ import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
-import no.nav.dokdistadmin.domain.builder.DokumentInfoBuilder;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.RETURPOSTBEHANDLET;
 import static no.nav.dokdistadmin.repository.TestUtils.DISTRIBUSJON_ID;
+import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_2;
-import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_3;
 import static no.nav.dokdistadmin.repository.TestUtils.createDistribusjonInfo;
-import static no.nav.dokdistadmin.repository.TestUtils.createDistribusjonInfoWithDokumentInfo;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,16 +31,16 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldSaveDistribusjonInfo() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo().build());
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
 		assertNotNull(distribusjonInfo.getDistribusjonInfoId());
 	}
 
 	@Test
 	public void shouldUpdateDistribusjonInfo() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDokumentInfo().build());
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 		distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.OVERSENDT);
-		commitTransaction();
+		dokumentDistribusjonRepository.save(distribusjonInfo);
 
 		var updated = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
@@ -52,8 +50,8 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldFindDistribusjonInfoByDistribusjonId() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo().build());
-		commitTransaction();
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		dokumentDistribusjonRepository.save(distribusjonInfo);
 
 		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
@@ -65,18 +63,21 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldUpdateDokumentInfosAvstemtArkivDato() {
-		DistribusjonInfo distribusjoninfo = createDistribusjonInfo().dokumentInfos(
-				DokumentInfoBuilder.with()
-						.dokumentId(DOKUMENT_ID_2)
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		var dokumentInfoList = Set.of(
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
 						.dokumentStatus(DokumentStatusCode.OVERSENDT)
 						.build(),
-				DokumentInfoBuilder.with()
-						.dokumentId(DOKUMENT_ID_3)
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_2)
 						.dokumentStatus(DokumentStatusCode.OVERSENDT)
 						.build()
-		).build();
+		);
+
+		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
 		dokumentDistribusjonRepository.save(distribusjoninfo);
-		commitAndBeginNewTransaction();
 
 		var dokumentInfoIdList = distribusjoninfo.getDokumentInfos().stream()
 				.map(DokumentInfo::getDokumentInfoId)
@@ -93,18 +94,21 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldUpdateStatusForAllDokumentInfosRelatedTo() {
-		DistribusjonInfo distribusjoninfo = createDistribusjonInfo().dokumentInfos(
-				DokumentInfoBuilder.with()
-						.dokumentId(DOKUMENT_ID_2)
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		var dokumentInfoList = Set.of(
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
 						.dokumentStatus(DokumentStatusCode.OPPRETTET)
 						.build(),
-				DokumentInfoBuilder.with()
-						.dokumentId(DOKUMENT_ID_3)
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_2)
 						.dokumentStatus(DokumentStatusCode.OPPRETTET)
 						.build()
-		).build();
+		);
+
+		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
 		dokumentDistribusjonRepository.save(distribusjoninfo);
-		commitAndBeginNewTransaction();
 
 		dokumentDistribusjonRepository.updateStatusForAllDokumentInfosRelatedTo(distribusjoninfo, DokumentStatusCode.OVERSENDT, USER_ID);
 		commitAndBeginNewTransaction();
@@ -117,18 +121,21 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldUpdateStatusToEkspedertForAllDokumentInfosRelatedTo() {
-		DistribusjonInfo distribusjoninfo = createDistribusjonInfo().dokumentInfos(
-				DokumentInfoBuilder.with()
-						.dokumentId(DOKUMENT_ID_2)
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		var dokumentInfoList = Set.of(
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
 						.dokumentStatus(DokumentStatusCode.OPPRETTET)
 						.build(),
-				DokumentInfoBuilder.with()
-						.dokumentId(DOKUMENT_ID_3)
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_2)
 						.dokumentStatus(DokumentStatusCode.OPPRETTET)
 						.build()
-		).build();
+		);
+
+		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
 		dokumentDistribusjonRepository.save(distribusjoninfo);
-		commitAndBeginNewTransaction();
 
 		dokumentDistribusjonRepository.updateStatusToEkspedertForAllDokumentInfosRelatedTo(distribusjoninfo, USER_ID);
 		commitAndBeginNewTransaction();
@@ -146,8 +153,14 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 	@Test
 	public void shouldFindDistribusjonInfoByDokumentStatusAndDistribusjonKanalWithRightAge() {
 		//Opprett en distribusjonInfo med distribution_datetime = now
-		DistribusjonInfo info = createDistribusjonInfoWithDokumentInfo().build();
-		dokumentDistribusjonRepository.save(info);
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		distribusjoninfo.addDokumentInfo(DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
+						.dokumentStatus(DokumentStatusCode.OPPRETTET)
+						.build());
+		dokumentDistribusjonRepository.save(distribusjoninfo);
+
 		commitAndBeginNewTransaction();
 
 		//Hent alle distribusjonIder som er eldre enn en time

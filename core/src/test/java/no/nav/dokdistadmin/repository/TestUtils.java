@@ -1,9 +1,9 @@
 package no.nav.dokdistadmin.repository;
 
+import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
+import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
-import no.nav.dokdistadmin.domain.builder.DistribusjonInfoBuilder;
-import no.nav.dokdistadmin.domain.builder.DokumentInfoBuilder;
 
 import java.time.LocalDateTime;
 
@@ -15,34 +15,27 @@ public class TestUtils {
 	public static final String DISTRIBUSJON_ID = "123";
 	public static final String DOKUMENT_ID_1 = "1111";
 	public static final String DOKUMENT_ID_2 = "2222";
-	public static final String DOKUMENT_ID_3 = "3333";
 	public static final String KONVERSASJONSID = "879";
 
-	public static DistribusjonInfoBuilder createDistribusjonInfo() {
-		return createDistribusjonInfo("");
-	}
-
-	public static DistribusjonInfoBuilder createDistribusjonInfoWithDokumentInfo() {
-		return createDistribusjonInfo("").dokumentInfos(createDokumentInfo().build());
-	}
-
-	public static DistribusjonInfoBuilder createDistribusjonInfo(String idPadding) {
-		return DistribusjonInfoBuilder.with()
-				.distribusjonId(DISTRIBUSJON_ID + idPadding)
+	public static DistribusjonInfo createDistribusjonInfo() {
+		return DistribusjonInfo.builder()
+				.distribusjonId(DISTRIBUSJON_ID)
 				.distribusjonDato(LocalDateTime.now())
 				.distribusjonKanal(PRINT)
 				.distribusjonStatus(DistribusjonStatusCode.OPPRETTET)
-				.modus(P);
+				.modus(P)
+				.build();
 	}
 
-	public static DokumentInfoBuilder createDokumentInfo() {
+	public static DokumentInfo createDokumentInfo() {
 		return createDokumentInfo(DOKUMENT_ID_1);
 	}
 
-	public static DokumentInfoBuilder createDokumentInfo(String dokumentId) {
-		return DokumentInfoBuilder.with()
+	public static DokumentInfo createDokumentInfo(String dokumentId) {
+		return DokumentInfo.builder()
 				.dokumentId(dokumentId)
 				.dokumentStatus(DokumentStatusCode.OPPRETTET)
-				.konversasjonsId(KONVERSASJONSID);
+				.konversasjonId(KONVERSASJONSID)
+				.build();
 	}
 }

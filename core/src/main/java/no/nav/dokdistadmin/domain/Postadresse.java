@@ -1,5 +1,7 @@
 package no.nav.dokdistadmin.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,16 +14,20 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.io.Serial;
 
 import static lombok.AccessLevel.NONE;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "POSTADRESSE")
 public class Postadresse extends AbstractDomainObject {
 
+	@Serial
 	private static final long serialVersionUID = -874551566707739121L;
 	private static final String POSTADRESSE_SEQ = "POSTADRESSE_SEQ";
 
@@ -32,22 +38,22 @@ public class Postadresse extends AbstractDomainObject {
 	@Setter(NONE)
 	private Long postadresseId;
 
-	@Column(name = "adresselinje1")
+	@Column(name = "adresselinje1", length = 200)
 	private String adresselinje1;
 
-	@Column(name = "adresselinje2")
+	@Column(name = "adresselinje2", length = 200)
 	private String adresselinje2;
 
-	@Column(name = "adresselinje3")
+	@Column(name = "adresselinje3", length = 200)
 	private String adresselinje3;
 
-	@Column(name = "postnummer")
+	@Column(name = "postnummer", length = 20)
 	private String postnummer;
 
-	@Column(name = "poststed")
+	@Column(name = "poststed", length = 200)
 	private String poststed;
 
-	@Column(name = "k_landkode", nullable = false)
+	@Column(name = "k_landkode", nullable = false, length = 20)
 	private String landkode;
 
 	@OneToOne(mappedBy = "postadresse")

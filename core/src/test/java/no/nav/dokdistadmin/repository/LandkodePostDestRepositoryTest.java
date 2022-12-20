@@ -1,8 +1,7 @@
 package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.config.AbstractRepositoryTest;
-import no.nav.dokdistadmin.domain.builder.LandkodePostDestBuilder;
-import org.junit.jupiter.api.Assertions;
+import no.nav.dokdistadmin.domain.LandkodePostDest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,17 +13,18 @@ class LandkodePostDestRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void findLandkodePostDestByLandkode() {
-		landkodePostDestRepository.save(createLandKodePostDestination().build());
+		landkodePostDestRepository.save(createLandKodePostDestination());
 
 		var result = landkodePostDestRepository.findLandkodePostDestByLandkode(LANDKODE_NO);
 
 		assertEquals(POST_DESTINATION, result.getPostDest());
 	}
 
-	private LandkodePostDestBuilder createLandKodePostDestination() {
-		return LandkodePostDestBuilder.with()
+	private LandkodePostDest createLandKodePostDestination() {
+		return LandkodePostDest.builder()
 				.landkode(LANDKODE_NO)
-				.postDest(POST_DESTINATION);
+				.postDest(POST_DESTINATION)
+				.build();
 	}
 
 }

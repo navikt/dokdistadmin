@@ -1,5 +1,7 @@
 package no.nav.dokdistadmin.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,16 +18,20 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.io.Serial;
 
 import static lombok.AccessLevel.NONE;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "VARSEL_INFO")
 public class VarselInfo extends AbstractDomainObject {
 
+	@Serial
 	private static final long serialVersionUID = -3793260172915981033L;
 	private static final String VARSEL_INFO_SEQ = "VARSEL_INFO_SEQ";
 
@@ -36,20 +42,20 @@ public class VarselInfo extends AbstractDomainObject {
 	@Setter(NONE)
 	private Long varselInfoId;
 
-	@Column(name = "varslingstekst")
+	@Column(name = "varslingstekst", length = 500)
 	private String varslingstekst;
 
-	@Column(name = "epost_adresse")
+	@Column(name = "epost_adresse", length = 100)
 	private String epostAdresse;
 
-	@Column(name = "mobiltelefon_nummer")
+	@Column(name = "mobiltelefon_nummer", length = 20)
 	private String mobiltelefonNummer;
 
 	@Column(name = "antall_repetisjoner")
 	private Integer antallRepetisjoner;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_varsling_kanal", nullable = false)
+	@Column(name = "k_varsling_kanal", nullable = false, length = 20)
 	private VarslingKanalCode varslingKanal;
 
 	@ManyToOne(fetch = FetchType.LAZY)

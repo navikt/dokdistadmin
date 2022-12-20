@@ -1,18 +1,19 @@
 package no.nav.dokdistadmin.domain.util;
 
-import java.io.Serializable;
-
 import no.nav.dokdistadmin.domain.AbstractDomainObject;
 import no.nav.dokdistadmin.domain.ChangeStamp;
-
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 import org.slf4j.MDC;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 public class ChangeStampInterceptor extends EmptyInterceptor {
 
+    @Serial
     private static final long serialVersionUID = 973776995128953194L;
 
     @Override

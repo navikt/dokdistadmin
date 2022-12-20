@@ -1,5 +1,7 @@
 package no.nav.dokdistadmin.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,11 +36,14 @@ import static lombok.AccessLevel.NONE;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "DOKUMENT_INFO")
 public class DokumentInfo extends AbstractDomainObject {
 
+	@Serial
 	private static final long serialVersionUID = 8076259094807605880L;
 	private static final String DOK_INFO_SEQ = "DOKUMENT_INFO_SEQ";
 
@@ -48,19 +54,19 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Setter(NONE)
 	private Long dokumentInfoId;
 
-	@Column(name = "dokument_id", nullable = false)
+	@Column(name = "dokument_id", nullable = false, length = 40)
 	private String dokumentId;
 
-	@Column(name = "mottaker_id")
+	@Column(name = "mottaker_id", length = 20)
 	private String mottakerId;
 
-	@Column(name = "mottaker_navn")
+	@Column(name = "mottaker_navn", length = 200)
 	private String mottakerNavn;
 
-	@Column(name = "arkivkode")
+	@Column(name = "arkivkode", length = 40)
 	private String arkivkode;
 
-	@Column(name = "k_best_fagsystem")
+	@Column(name = "k_best_fagsystem", length = 20)
 	private String bestillendeFagsystem;
 
 	@Column(name = "avstemt_arkiv_dato")
@@ -75,29 +81,29 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name = "ekspedert_dato")
 	private LocalDateTime ekspedertDato;
 
-	@Column(name = "brevkode")
+	@Column(name = "brevkode", length = 20)
 	private String brevkode;
 
-	@Column(name = "konversasjon_id")
+	@Column(name = "konversasjon_id", length = 50)
 	private String konversasjonId;
 
-	@Column(name = "avsender_id")
+	@Column(name = "avsender_id", length = 20)
 	private String avsenderId;
 
-	@Column(name = "digital_distributor_id")
+	@Column(name = "digital_distributor_id", length = 20)
 	private String digitalDistributorId;
 
-	@Column(name = "digital_postkasse_adresse")
+	@Column(name = "digital_postkasse_adresse", length = 100)
 	private String digitalPostkasseAdresse;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_mottaker_id_type")
+	@Column(name = "k_mottaker_id_type", length = 20)
 	private MottakerIdTypeCode mottakerIdType;
 
-	@Column(name = "forsendelse_tittel")
+	@Column(name = "forsendelse_tittel", length = 1500)
 	private String forsendelseTittel;
 
-	@Column(name = "batch_id")
+	@Column(name = "batch_id", length = 50)
 	private String batchId;
 
 	@Column(name = "apningskvittering")
@@ -113,26 +119,26 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name="avstemt_dato")
 	private LocalDateTime avstemtDato;
 
-	@Column(name="avstemt_referanse")
+	@Column(name="avstemt_referanse", length = 20)
 	private String avstemtReferanse;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_dokument_status", nullable = false)
+	@Column(name = "k_dokument_status", nullable = false, length = 20)
 	private DokumentStatusCode dokumentStatus;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_fagomrade")
+	@Column(name = "k_fagomrade", length = 20)
 	private FagomradeCode fagomrade;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_arkiv_system")
+	@Column(name = "k_arkiv_system", length = 20)
 	private ArkivSystemCode arkivSystem;
 
-	@Column(name = "k_brev_prod_app")
+	@Column(name = "k_brev_prod_app", length = 20)
 	private String brevProduksjonApplikasjon;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_sikkerhetsniva")
+	@Column(name = "k_sikkerhetsniva", length = 20)
 	private SikkerhetsnivaCode sikkerhetsniva;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -143,12 +149,15 @@ public class DokumentInfo extends AbstractDomainObject {
 	@JoinColumn(name = "postadresse_id")
 	private Postadresse postadresse;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "dokumentInfo", cascade = {PERSIST, MERGE, REFRESH})
 	private Set<DokumentReferanse> dokumentReferanses = new HashSet<>();
 
+	@Builder.Default
 	@OneToMany(mappedBy = "dokumentInfo", cascade = {PERSIST, MERGE, REFRESH})
 	private Set<VarselInfo> varselInfos = new HashSet<>();
 
+	@Builder.Default
 	@ManyToMany(cascade = {PERSIST, MERGE, REFRESH})
 	@JoinTable(
 			name = "DOK_INFO_FIL_INFO",
@@ -156,6 +165,7 @@ public class DokumentInfo extends AbstractDomainObject {
 			inverseJoinColumns = {@JoinColumn(name = "fil_info_id")})
 	private Set<FilInfo> filInfos = new HashSet<>();
 
+	@Builder.Default
 	@OneToMany(mappedBy = "dokumentInfo", cascade = {PERSIST, MERGE, REFRESH})
 	private Set<Feilkvittering> feilkvitterings = new HashSet<>();
 
@@ -163,10 +173,6 @@ public class DokumentInfo extends AbstractDomainObject {
 	public DokumentInfo(Long dokumentInfoId, long version) {
 		this.dokumentInfoId = dokumentInfoId;
 		setVersion(version);
-	}
-
-	public void assignInitialValues() {
-		this.dokumentStatus = DokumentStatusCode.OPPRETTET;
 	}
 
 	public void addDokumentReferanse(DokumentReferanse dokumentReferanse) {

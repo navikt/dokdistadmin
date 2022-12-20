@@ -45,8 +45,6 @@ spec:
   vault:
     enabled: true
     paths:
-      - kvPath: {{ SRVDOKDISTADMIN }}
-        mountPath: /var/run/secrets/nais.io/srvdokumentdistribusjon
       - kvPath: {{ DOKDISTADMIN_DB }}
         mountPath: /var/run/secrets/nais.io/dokdistDB
       - kvPath: {{ APPDYNAMICS }}
