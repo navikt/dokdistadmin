@@ -3,11 +3,11 @@
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
   "SPRING_DATASOURCE_URL": "jdbc:oracle:thin:@a01dbfl042.adeo.no:1521/dokdist_q1",
-  "DOKDISTADMIN_DB":"/oracle/data/dev/creds/dokdist_q1-user",
-  "SRVDOKDISTADMIN": "/serviceuser/data/dev/srvdokumentdistribusjon",
+  "DOKDISTADMIN_DB":"/oracle/data/dev/creds/dokdistadmin_q1-user",
   "APPDYNAMICS": "/apikey/appdynamics/dev",
   "APPD_NAME": "dokdistadmin_q1",
   "INGRESSES": [
+    "https://dokdistadmin-q1.dev-fss-pub.nais.io",
     "https://dokdistadmin-q1.dev.intern.nav.no"
   ],
   "AZURE_IAC_RULES": [

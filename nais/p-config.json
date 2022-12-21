@@ -1,10 +1,9 @@
 {
   "APP_NAME": "dokdistadmin",
-  "MIN_REPLICAS": 2,
+  "MIN_REPLICAS": 4,
   "MAX_REPLICAS": 10,
   "SPRING_DATASOURCE_URL": "jdbc:oracle:thin:@a01dbfl050.adeo.no:1521/dokumentdistribusjon_ha",
-  "DOKDISTADMIN_DB":"/oracle/data/prod/creds/dokumentdistribusjon-user",
-  "SRVDOKDISTADMIN": "/serviceuser/data/prod/srvdokumentdistribusjon",
+  "DOKDISTADMIN_DB":"/oracle/data/prod/creds/dokdistadmin-user",
   "APPDYNAMICS": "/apikey/appdynamics/prod",
   "APPD_NAME": "dokdistadmin",
   "INGRESSES": [
@@ -23,7 +22,7 @@
       "cluster": "prod-fss"
     },
     {
-      "app": "dokdistditnav",
+      "app": "dokdistdittnav",
       "namespace": "teamdokumenthandtering",
       "cluster": "prod-fss"
     },
