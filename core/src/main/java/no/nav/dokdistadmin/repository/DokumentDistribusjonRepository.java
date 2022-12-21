@@ -20,7 +20,9 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 	@Query("""
 			update DokumentInfo dok
 				set dok.avstemtArkivDato = current_timestamp,
-				dok.changeStamp.endretAv = :endretAv
+				dok.changeStamp.endretAv = :endretAv,
+				dok.changeStamp.endretDato = current_timestamp,
+				dok.version = dok.version + 1
 				where dok.dokumentInfoId in :dokumentInfoIds
 			""")
 	void updateDokumentInfosAvstemtArkivDato(
