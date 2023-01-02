@@ -22,11 +22,10 @@ import static java.util.Collections.singletonList;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createEkspederteForsendelser;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -64,7 +63,7 @@ class EkspederteForsendelserServiceTest {
 	}
 
 	@Test
-	void shouldReturnNullWhenNoEkspedertDokumentInfoFound() {
+	void shouldReturnEmptyListWhenNoEkspedertDokumentInfoFound() {
 		PageImpl<DokumentInfo> page = new PageImpl<>(emptyList());
 
 		Mockito.when(dokumentInfoRepository.findEkspedertDokumentInfo(PageRequest.of(0, MAX_FORSENDELSER)))
@@ -72,7 +71,7 @@ class EkspederteForsendelserServiceTest {
 
 		var result = ekspederteForsendelserService.hentEkspederteForsendelser(MAX_FORSENDELSER);
 
-		assertNull(result);
+		assertTrue(result.forsendelser().isEmpty());
 	}
 
 	@Test
@@ -84,16 +83,6 @@ class EkspederteForsendelserServiceTest {
 		doNothing().when(dokumentDistribusjonRepository).updateDokumentInfosAvstemtArkivDato(anyList(), anyString());
 
 		ekspederteForsendelserService.avstemEkspederteForsendelser(avstemEkspederteForsendelserRequest);
-	}
-
-	@Test
-	void shouldAvstemEkspederteForsendelserWhenNoForsendelser() {
-		var avstemEkspederteForsendelserRequest = new AvstemEkspederteForsendelserRequest(emptyList());
-
-		ekspederteForsendelserService.avstemEkspederteForsendelser(avstemEkspederteForsendelserRequest);
-
-		verify(dokumentDistribusjonRepository, never()).updateDokumentInfosAvstemtArkivDato(anyList(), anyString());
-
 	}
 
 	@Test

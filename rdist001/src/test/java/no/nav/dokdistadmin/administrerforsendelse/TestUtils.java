@@ -13,7 +13,6 @@ import no.nav.dokdistadmin.domain.Feilkvittering;
 import no.nav.dokdistadmin.domain.ModusCode;
 import no.nav.dokdistadmin.domain.Postadresse;
 import no.nav.dokdistadmin.domain.VarselInfo;
-import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Clock;
@@ -26,8 +25,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
 import static no.nav.dokdistadmin.domain.ModusCode.P;
@@ -262,6 +259,22 @@ public class TestUtils {
 		return dokumentInfo;
 	}
 
+	public static DistribusjonInfo createDistribusjonInfoWithoutDokumentInfo() {
+		DistribusjonInfo distribusjonInfo = DistribusjonInfo.builder()
+				.distribusjonInfoId(DISTRIBUSJONINFO_ID_2)
+				.originalDistribusjonId(DISTRIBUSJON_ID_2)
+				.distribusjonId(DISTRIBUSJON_ID_2)
+				.distribusjonKanal(DISTRIBUSJON_KANAL_2_SDP)
+				.distribusjonStatus(DISTRIBUSJON_STATUS_2)
+				.produksjonDato(OPPRETTET_DATO_2)
+				.distribusjonDato(DISTRIBUSJON_DATO_2)
+				.modus(P)
+				.build();
+		distribusjonInfo.setChangeStamp(ChangeStamp.builder().opprettetAv("tdisk07").opprettetDato(OPPRETTET_DATO_2).build());
+		return distribusjonInfo;
+	}
+
+
 	public static DistribusjonInfo createDistribusjonInfo() {
 		DistribusjonInfo distribusjonInfo = DistribusjonInfo.builder()
 				.distribusjonInfoId(DISTRIBUSJONINFO_ID_2)
@@ -279,6 +292,24 @@ public class TestUtils {
 	}
 
 	public static DokumentInfo createDokumentInfo() {
+		DokumentInfo dokumentInfo = DokumentInfo.builder()
+				.dokumentInfoId(DOKUMENTINFO_ID_2)
+				.dokumentId(DISTRIBUSJON_ID_2)
+				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM_2)
+				.dokumentStatus(DOKUMENT_STATUS_2)
+				.mottakerId(MOTTAKER_ID_2)
+				.fagomrade(FAGOMRADE_CODE_2)
+				.konversasjonId(KONVERSASJON_ID_2)
+				.arkivkode(ARKIV_KODE_2)
+				.brevProduksjonApplikasjon(BREVPRODUKSJON_APPLIKASJONCODE)
+				.build();
+		dokumentInfo.setChangeStamp(ChangeStamp.builder().opprettetAv("tdisk07").opprettetDato(OPPRETTET_DATO_2).build());
+		dokumentInfo.getChangeStamp().updatedBy(DOKDISTDPI);
+		return dokumentInfo;
+	}
+
+
+	public static DokumentInfo createDokumentInfoWithFilinfo() {
 		DokumentInfo dokumentInfo = DokumentInfo.builder()
 				.dokumentInfoId(DOKUMENTINFO_ID_2)
 				.dokumentId(DISTRIBUSJON_ID_2)

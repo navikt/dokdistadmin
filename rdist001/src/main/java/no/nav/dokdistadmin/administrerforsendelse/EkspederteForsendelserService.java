@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRequest.Forsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.map.HentEkspederteForsendelserMapper;
-import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.slf4j.MDC;
@@ -13,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
+import static java.lang.Integer.MAX_VALUE;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 @Slf4j
@@ -37,25 +36,17 @@ public class EkspederteForsendelserService {
 	@Transactional(readOnly = true)
 	public HentEkspederteForsendelserResponse hentEkspederteForsendelser(int maksForsendelser) {
 
-			List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findEkspedertDokumentInfo(PageRequest.of(0, maksForsendelser)).getContent();
-			// TODO: Sjekk korleis det fungerer når det er 0 treff
-			if (dokumentInfoList.isEmpty()) {
-				return null;
-			}
-			return mapper.map(dokumentInfoList);
+		var pageRequest = PageRequest.of(0, maksForsendelser == 0 ? MAX_VALUE : maksForsendelser);
+
+		return mapper.map(dokumentInfoRepository.findEkspedertDokumentInfo(pageRequest).getContent());
 	}
 
 	@Transactional
 	public void avstemEkspederteForsendelser(AvstemEkspederteForsendelserRequest avstemEkspederteForsendelserRequest) {
 
-		List<Long> forsendelseIds = avstemEkspederteForsendelserRequest.forsendelser().stream()
-				.filter(Objects::nonNull)
-				.map(Forsendelse::forsendelseId)
+		List<Long> forsendelseIds = avstemEkspederteForsendelserRequest.getForsendelser().stream()
+				.map(Forsendelse::getForsendelseId)
 				.toList();
-
-		if (forsendelseIds.isEmpty()) {
-			return;
-		}
 
 		List<List<Long>> forsendelserIdsCollection = Lists.partition(forsendelseIds, MAX_UPDATE_PER_CALL);
 

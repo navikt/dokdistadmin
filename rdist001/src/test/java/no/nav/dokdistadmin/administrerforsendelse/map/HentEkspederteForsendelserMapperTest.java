@@ -5,6 +5,8 @@ import no.nav.dokdistadmin.administrerforsendelse.HentEkspederteForsendelserResp
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ADRESSELINJE_1;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ADRESSELINJE_2;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ADRESSELINJE_3;
@@ -22,6 +24,7 @@ import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HentEkspederteForsendelserMapperTest {
 
@@ -83,5 +86,12 @@ public class HentEkspederteForsendelserMapperTest {
 		assertEquals(ARKIV_KODE, forsendelse.getJournalpostId());
 		assertEquals(PRINT, forsendelse.getDistribusjonsKanal());
 		assertNull(forsendelse.getPostadresse());
+	}
+
+	@Test
+	public void shouldMapToEmptyListWhenEmptyInput() {
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(Collections.emptyList());
+
+		assertTrue(ekspederteForsendelserResponse.forsendelser().isEmpty());
 	}
 }

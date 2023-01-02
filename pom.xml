@@ -26,11 +26,14 @@
 
 		<logstash-logback-encoder.version>7.2</logstash-logback-encoder.version>
 		<token-support.version>2.1.9</token-support.version>
-		<springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
+		<springdoc-openapi-ui.version>1.6.14</springdoc-openapi-ui.version>
 		<oracle.version>19.16.0.0</oracle.version>
 		<guava.version>31.1-jre</guava.version>
 
 		<h2.version>1.4.200</h2.version>
+
+		<!-- Test -->
+		<spring-cloud-contract-wiremock.version>3.1.5</spring-cloud-contract-wiremock.version>
 
 		<!-- Plugins -->
 		<maven-toolchains.version>3.1.0</maven-toolchains.version>
@@ -38,11 +41,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>no.nav.dokdistadmin</groupId>
-				<artifactId>app</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>no.nav.dokdistadmin</groupId>
 				<artifactId>core</artifactId>
@@ -60,18 +58,30 @@
 				<version>${guava.version}</version>
 			</dependency>
 
-			<!--NAV token support-->
 			<dependency>
 				<groupId>no.nav.security</groupId>
 				<artifactId>token-validation-spring</artifactId>
 				<version>${token-support.version}</version>
 			</dependency>
 
-			<!-- logging -->
 			<dependency>
 				<groupId>net.logstash.logback</groupId>
 				<artifactId>logstash-logback-encoder</artifactId>
 				<version>${logstash-logback-encoder.version}</version>
+			</dependency>
+
+			<!-- Test -->
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-contract-wiremock</artifactId>
+				<version>${spring-cloud-contract-wiremock.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.security</groupId>
+				<artifactId>token-validation-spring-test</artifactId>
+				<version>${token-support.version}</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
