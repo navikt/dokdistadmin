@@ -33,6 +33,7 @@ import java.util.Properties;
 @EnableConfigurationProperties({DataSourceProperties.class, DokdistadminProperties.class})
 public class RepositoryConfig {
 
+
 	@Bean
 	@Primary
 	DataSource dataSource(final DataSourceProperties dataSourceProperties,
@@ -42,7 +43,8 @@ public class RepositoryConfig {
 		poolDataSource.setURL(dataSourceProperties.getUrl());
 		poolDataSource.setUser(dataSourceProperties.getUsername());
 		poolDataSource.setPassword(dataSourceProperties.getPassword());
-		poolDataSource.registerConnectionInitializationCallback(connection -> connection.setSchema("dokdistadmin"));
+		poolDataSource.registerConnectionInitializationCallback(connection ->
+				connection.setSchema(dokdistadminProperties.getDatabase().getSchema()));
 
 		Properties connProperties = new Properties();
 		connProperties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");

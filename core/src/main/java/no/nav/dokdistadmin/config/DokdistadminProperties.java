@@ -47,5 +47,8 @@ public class DokdistadminProperties {
 		 */
 		@Positive
 		private int poolsize = 80;
+
+		@NotEmpty
+		private String schema;
 	}
 }
