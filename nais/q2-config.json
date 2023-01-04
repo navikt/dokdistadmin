@@ -12,29 +12,14 @@
   ],
   "AZURE_IAC_RULES": [
     {
-      "app": "dokdistfordeling",
+      "app": "dokdistavstemming",
       "namespace": "teamdokumenthandtering",
       "cluster": "dev-fss"
     },
     {
-      "app": "dokdistdpi-2",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "dokdistdittnav",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "dokdistsentralprint",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "dokdisteformidling",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
+      "app": "ida",
+      "namespace": "traktor",
+      "cluster": "prod-fss"
     }
   ]
 }
