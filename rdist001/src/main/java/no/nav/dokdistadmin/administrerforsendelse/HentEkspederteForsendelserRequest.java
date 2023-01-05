@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
 @Data
@@ -12,5 +13,6 @@ import javax.validation.constraints.PositiveOrZero;
 public class HentEkspederteForsendelserRequest {
 
 	@PositiveOrZero(message = "maksForsendelser må være et positivt tall")
-	private int maksForsendelser;
+	@NotNull(message = "maksForsendelser kan ikke være 'null'")
+	private Integer maksForsendelser;
 }

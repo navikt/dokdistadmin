@@ -3,13 +3,18 @@ package no.nav.dokdistadmin.administrerforsendelse;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @Protected
@@ -44,6 +49,14 @@ public class AdministrerForsendelseController {
 
 		return ResponseEntity.ok().build();
 	}
+
+	@ResponseStatus(BAD_REQUEST)
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<String> invalidInputHandler(MethodArgumentNotValidException exception) {
+		var message = exception.getAllErrors().get(0).getDefaultMessage();
+		return new ResponseEntity<>(message, BAD_REQUEST);
+	}
+
 
 //	//TODO sjekk at regex dekker null og blank
 //	@GetMapping("/administrerforsendelse/{forsendelseId}")

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Transactional
 @SpringBootTest(
@@ -73,18 +75,15 @@ public class Rdist001ITest {
 	private void setupDatabase() {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithoutDokumentInfo());
 
-		DokumentInfo dokumentInfo1 = getDokumentInfo();
-		DokumentInfo dokumentInfo2 = getDokumentInfo();
-		DokumentInfo dokumentInfo3 = getDokumentInfo();
-		distribusjonInfo.addDokumentInfo(dokumentInfo1);
-		distribusjonInfo.addDokumentInfo(dokumentInfo2);
-		distribusjonInfo.addDokumentInfo(dokumentInfo3);
+		distribusjonInfo.addDokumentInfo(getValidEkspedertDokumentInfo());
+		distribusjonInfo.addDokumentInfo(getValidEkspedertDokumentInfo());
+		distribusjonInfo.addDokumentInfo(getValidEkspedertDokumentInfo());
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 	}
 
-	private static DokumentInfo getDokumentInfo() {
+	private static DokumentInfo getValidEkspedertDokumentInfo() {
 		var dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDokumentStatus(DokumentStatusCode.EKSPEDERT);
 		dokumentInfo.setArkivSystem(ArkivSystemCode.JOARK);
@@ -135,25 +134,38 @@ public class Rdist001ITest {
 				.expectStatus().isNoContent();
 	}
 
-	@Test
-	void skalGiBadRequestDersomMaksForsendelserErUgyldig() {
+	@ParameterizedTest
+	@CsvSource({
+			"{\"ukjentFelt\": \"2\"}, maksForsendelser kan ikke være 'null'",
+			"{\"maksForsendelser\": null}, maksForsendelser kan ikke være 'null'",
+			"{\"maksForsendelser\": -1}, maksForsendelser må være et positivt tall"
+	})
+	void skalGiBadRequestDersomMaksForsendelserErUgyldigEllerMangler(String jsonRequest, String expectedResponse) {
 		setupDatabase();
 
-		webTestClient.method(GET)
+		var response = webTestClient.method(GET)
 				.uri("/rest/v1/administrerforsendelse/hentekspederteforsendelser")
 				.headers(headers -> headers.setBearerAuth(jwt()))
-				.bodyValue(new HentEkspederteForsendelserRequest(-1))
+				.contentType(APPLICATION_JSON)
+				.bodyValue(jsonRequest)
 				.exchange()
-				.expectStatus().isBadRequest();
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertEquals(expectedResponse, response);
 	}
+
 
 	@Test
 	void skalAvstemmeEkspederteForsendelser() {
 		setupDatabase();
 
-		var forsendelse1 = new Forsendelse(1L);
-		var forsendelse2 = new Forsendelse(2L);
-		var request = new AvstemEkspederteForsendelserRequest(List.of(forsendelse1, forsendelse2));
+		var request = new AvstemEkspederteForsendelserRequest(List.of(
+				new Forsendelse(1L),
+				new Forsendelse(2L)
+		));
 
 		webTestClient.put()
 				.uri("/rest/v1/administrerforsendelse/avstemekspederteforsendelser")
