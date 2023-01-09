@@ -28,7 +28,7 @@ public class AdministrerForsendelseController {
 		this.ekspederteForsendelserService = ekspederteForsendelserService;
 	}
 
-	// TODO: Vurder å endre fra body til pathParam
+	// TODO: Vurder å endre fra body til pathParam eller queryParam
 	@GetMapping("/hentekspederteforsendelser")
 	public ResponseEntity<HentEkspederteForsendelserResponse> hentEkspederteForsendelser(@RequestBody @Valid HentEkspederteForsendelserRequest hentEkspederteForsendelserRequest) {
 		log.info("rdist001 har mottatt kall om å hente ekspederte forsendelser");
@@ -42,7 +42,6 @@ public class AdministrerForsendelseController {
 	@PutMapping("/avstemekspederteforsendelser")
 	public ResponseEntity<Void> avstemEkspederteForsendelser(@RequestBody @Valid AvstemEkspederteForsendelserRequest forsendelserRequest) {
 		log.info("rdist001 har mottatt kall om å avstemme {} ekspederte forsendelser", forsendelserRequest.getForsendelser().size());
-		//TODO Her har vi fjernet returnering av no_content dersom input er ugldig, husk å sjekke i dokdistavstemming
 
 		ekspederteForsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
 		log.info("rdist001 har avstemt ekspederte forsendelser");

@@ -2,14 +2,12 @@ package no.nav.dokdistadmin.administrerforsendelse;
 
 import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRequest.Forsendelse;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
+import no.nav.dokdistadmin.config.Oauth2Test;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
-import no.nav.security.mock.oauth2.MockOAuth2Server;
-import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -45,16 +42,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 		classes = {ApplicationTestConfig.class},
 		webEnvironment = RANDOM_PORT)
 @AutoConfigureWebTestClient
-@EnableMockOAuth2Server
 @AutoConfigureTestDatabase
 @ActiveProfiles({"itest"})
-public class Rdist001ITest {
+public class Rdist001ITest extends Oauth2Test {
 
 	@Autowired
 	public WebTestClient webTestClient;
-
-	@Autowired
-	public MockOAuth2Server mockOAuth2Server;
 
 	@Autowired
 	protected DokumentInfoRepository dokumentInfoRepository;
@@ -143,6 +136,8 @@ public class Rdist001ITest {
 	void skalGiBadRequestDersomMaksForsendelserErUgyldigEllerMangler(String jsonRequest, String expectedResponse) {
 		setupDatabase();
 
+
+
 		var response = webTestClient.method(GET)
 				.uri("/rest/v1/administrerforsendelse/hentekspederteforsendelser")
 				.headers(headers -> headers.setBearerAuth(jwt()))
@@ -177,7 +172,7 @@ public class Rdist001ITest {
 
 	@ParameterizedTest
 	@MethodSource
-	void skalGiBadRequestDersomAvstemmeEkspederteForsendelserErUgyldig(List<Forsendelse> forsendelser) {
+	void skalGiBadRequestDersomAvstemEkspederteForsendelserErUgyldig(List<Forsendelse> forsendelser) {
 		setupDatabase();
 
 		var request = new AvstemEkspederteForsendelserRequest(forsendelser);
@@ -190,7 +185,7 @@ public class Rdist001ITest {
 				.expectStatus().isBadRequest();
 	}
 
-	private static Stream<Arguments> skalGiBadRequestDersomAvstemmeEkspederteForsendelserErUgyldig() {
+	private static Stream<Arguments> skalGiBadRequestDersomAvstemEkspederteForsendelserErUgyldig() {
 		return Stream.of(
 				Arguments.of(Collections.emptyList()),
 				Arguments.of(List.of(new Forsendelse(0L)))
@@ -203,23 +198,4 @@ public class Rdist001ITest {
 		TestTransaction.start();
 	}
 
-	private String jwt() {
-		return jwt("azurev2");
-	}
-
-	private String jwt(String issuer) {
-		String audience = "gosys";
-		return mockOAuth2Server.issueToken(
-				issuer,
-				"gosys-clientid",
-				new DefaultOAuth2TokenCallback(
-						issuer,
-						"subject",
-						"JWT",
-						List.of(audience),
-						new HashMap<>(),
-						60
-				)
-		).serialize();
-	}
 }
