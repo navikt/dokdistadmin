@@ -53,7 +53,7 @@ public class AdministrerForsendelseController {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<String> invalidInputHandler(MethodArgumentNotValidException exception) {
 		var message = exception.getAllErrors().get(0).getDefaultMessage();
-		return new ResponseEntity<>(message, BAD_REQUEST);
+		return ResponseEntity.badRequest().body(message);
 	}
 
 
