@@ -1,8 +1,8 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
 import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRequest.Forsendelse;
+import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
-import no.nav.dokdistadmin.config.Oauth2Test;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
@@ -32,7 +32,9 @@ import java.util.stream.Stream;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithoutDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
+import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -44,7 +46,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @AutoConfigureWebTestClient
 @AutoConfigureTestDatabase
 @ActiveProfiles({"itest"})
-public class Rdist001ITest extends Oauth2Test {
+public class Rdist001ITest extends AbstractOauth2Test {
 
 	@Autowired
 	public WebTestClient webTestClient;
@@ -99,6 +101,7 @@ public class Rdist001ITest extends Oauth2Test {
 				.getResponseBody()
 				.blockFirst();
 
+		assertNotNull(response);
 		assertEquals(forventetAntallForsendelser, response.forsendelser().size());
 	}
 
@@ -136,8 +139,6 @@ public class Rdist001ITest extends Oauth2Test {
 	void skalGiBadRequestDersomMaksForsendelserErUgyldigEllerMangler(String jsonRequest, String expectedResponse) {
 		setupDatabase();
 
-
-
 		var response = webTestClient.method(GET)
 				.uri("/rest/v1/administrerforsendelse/hentekspederteforsendelser")
 				.headers(headers -> headers.setBearerAuth(jwt()))
@@ -168,6 +169,24 @@ public class Rdist001ITest extends Oauth2Test {
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk();
+	}
+
+	@Test
+	void skalTrunkereUserIdOgSetteEndretAv() {
+		setupDatabase();
+
+		var request = new AvstemEkspederteForsendelserRequest(List.of(
+				new Forsendelse(1L)
+		));
+
+		webTestClient.put()
+				.uri("/rest/v1/administrerforsendelse/avstemekspederteforsendelser")
+				.headers(headers -> headers.setBearerAuth(jwtWithoutAzpNameClaim()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isOk();
+
+		assertEquals(truncate(OID, 20), dokumentInfoRepository.findDokumentInfoByDokumentInfoId(1L).getChangeStamp().getEndretAv());
 	}
 
 	@ParameterizedTest

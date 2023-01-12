@@ -1,6 +1,5 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRequest.Forsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.map.HentEkspederteForsendelserMapper;
@@ -12,14 +11,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
-import static java.lang.Integer.MAX_VALUE;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class EkspederteForsendelserService {
-	private static final int MAX_UPDATE_PER_CALL = 1000;
+	private static final int BATCH_SIZE = 1000;
+	private static final int MAX_FORSENDELSER = 10000;
 
 	private final DokumentInfoRepository dokumentInfoRepository;
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
@@ -33,10 +38,9 @@ public class EkspederteForsendelserService {
 		this.mapper = new HentEkspederteForsendelserMapper();
 	}
 
-	@Transactional(readOnly = true)
 	public HentEkspederteForsendelserResponse hentEkspederteForsendelser(int maksForsendelser) {
 
-		var pageRequest = PageRequest.of(0, maksForsendelser == 0 ? MAX_VALUE : maksForsendelser);
+		var pageRequest = PageRequest.of(0, maksForsendelser == 0 ? MAX_FORSENDELSER : maksForsendelser);
 
 		return mapper.map(dokumentInfoRepository.findEkspedertDokumentInfo(pageRequest).getContent());
 	}
@@ -48,11 +52,13 @@ public class EkspederteForsendelserService {
 				.map(Forsendelse::getForsendelseId)
 				.toList();
 
-		List<List<Long>> forsendelserIdsCollection = Lists.partition(forsendelseIds, MAX_UPDATE_PER_CALL);
+		//Del opp liste med forsendelseIder i partisjoner med størrelse lik BATCH_SIZE
+		Map<Integer, List<Long>> forsendelseIdPartisjoner = IntStream.range(0, forsendelseIds.size()).boxed()
+				.collect(groupingBy(partition -> (partition / BATCH_SIZE), mapping(forsendelseIds::get, toList())));
 
-		forsendelserIdsCollection.forEach(ids -> {
-			dokumentDistribusjonRepository.updateDokumentInfosAvstemtArkivDato(ids, MDC.get(USER_ID));
-			log.info("avstemEkspederteForsendelser har oppdatert avstemtArkivDato på totalt {} forsendelser", ids.size());
+		forsendelseIdPartisjoner.forEach((key, value) -> {
+			dokumentDistribusjonRepository.updateDokumentInfosAvstemtArkivDato(value, MDC.get(USER_ID));
+			log.info("avstemEkspederteForsendelser har oppdatert avstemtArkivDato på totalt {} forsendelser", value.size());
 		});
 	}
 

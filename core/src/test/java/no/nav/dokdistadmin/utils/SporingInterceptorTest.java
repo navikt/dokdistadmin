@@ -1,8 +1,7 @@
 package no.nav.dokdistadmin.utils;
 
+import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
-import no.nav.dokdistadmin.config.Oauth2Test;
-import no.nav.dokdistadmin.exception.functional.MissingClaimException;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
@@ -16,13 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {ApplicationTestConfig.class})
 @ActiveProfiles({"itest"})
-class SporingInterceptorTest extends Oauth2Test {
+class SporingInterceptorTest extends AbstractOauth2Test {
 
 	@Autowired
 	private SporingInterceptor sporingInterceptor;
@@ -31,19 +28,17 @@ class SporingInterceptorTest extends Oauth2Test {
 	private TokenValidationContextHolder tokenValidationContextHolder;
 
 	@Test
-	void shouldGetUserId() {
+	void shouldGetUserIdAsAzpName() {
 		setupTokenValidationContext(jwt());
 
 		assertEquals("dokdistadmin", sporingInterceptor.getUserId());
 	}
 
 	@Test
-	void shouldThrowOnMissingAzpNameClaim() {
+	void shouldGetUserIdAsOID() {
 		setupTokenValidationContext(jwtWithoutAzpNameClaim());
 
-		var result = assertThrows(MissingClaimException.class, () -> sporingInterceptor.getUserId());
-
-		assertTrue(result.getMessage().contains("Azure-token mangler 'azp_name' claim"));
+		assertEquals(OID, sporingInterceptor.getUserId());
 	}
 
 	private void setupTokenValidationContext(String tokenAsString) {

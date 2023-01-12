@@ -1,7 +1,7 @@
 package no.nav.dokdistadmin.utils;
 
-import no.nav.dokdistadmin.exception.functional.MissingClaimException;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
+import no.nav.security.token.support.core.jwt.JwtTokenClaims;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,12 +12,14 @@ import java.util.Arrays;
 
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.truncate;
 
 @Component
 public class SporingInterceptor implements HandlerInterceptor {
 
 	private static final String ISSUER_AZUREV2 = "azurev2";
 	private static final String AZURE_NAV_CUSTOM_CLAIM_AZP_NAME = "azp_name";
+	private static final String CLAIM_OID = "oid";
 	private final TokenValidationContextHolder tokenValidationContextHolder;
 
 	public SporingInterceptor(TokenValidationContextHolder tokenValidationContextHolder) {
@@ -37,22 +39,21 @@ public class SporingInterceptor implements HandlerInterceptor {
 	}
 
 	public void handleMdc() {
-		//TODO Finn ut hva vi gjør her dersom azp_name claimet mangler i token,
-		// eller dersom det er lengre enn 20 tegn (som er max for endret_av kolonnen)
-		MDC.put(USER_ID, getUserId());
+		MDC.put(USER_ID, truncate(getUserId(), 20));
 	}
 
 	public String getUserId() {
-		String azp_name_claim = tokenValidationContextHolder.getTokenValidationContext()
+		JwtTokenClaims claims = tokenValidationContextHolder.getTokenValidationContext()
 				.getJwtToken(ISSUER_AZUREV2)
-				.getJwtTokenClaims()
-				.getStringClaim(AZURE_NAV_CUSTOM_CLAIM_AZP_NAME);
+				.getJwtTokenClaims();
 
-		if (isBlank(azp_name_claim)) {
-			throw new MissingClaimException("Azure-token mangler 'azp_name' claim");
+		String azpNameClaim = claims.getStringClaim(AZURE_NAV_CUSTOM_CLAIM_AZP_NAME);
+
+		if (isBlank(azpNameClaim)) {
+			return claims.getStringClaim(CLAIM_OID);
 		}
 
-		return Arrays.stream(azp_name_claim.split(":"))
+		return Arrays.stream(azpNameClaim.split(":"))
 				.reduce((first, second) -> second)
 				.orElseThrow();
 	}
