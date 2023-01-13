@@ -4,6 +4,7 @@ import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRe
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
+import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
@@ -35,6 +36,7 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -67,7 +69,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		dokumentDistribusjonRepository.deleteAll();
 	}
 
-	private void setupDatabase() {
+	private DistribusjonInfo setupDatabase() {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithoutDokumentInfo());
 
 		distribusjonInfo.addDokumentInfo(getValidEkspedertDokumentInfo());
@@ -76,6 +78,8 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
+
+		return distribusjonInfo;
 	}
 
 	private static DokumentInfo getValidEkspedertDokumentInfo() {
@@ -105,13 +109,13 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		assertEquals(forventetAntallForsendelser, response.forsendelser().size());
 	}
 
-	// Gitt N treff i databasen
+	// Gitt N treff i databasen (forsendelser som oppfyller kravene)
 	// (x, y) der x = maksForsendelser, y = forventetAntallForsendelser
 	private static Stream<Arguments> skalHenteEkspederteForsendelser() {
 		return Stream.of(
-				Arguments.of(0, 3), // maksForsendelser lik 0 -> returner alle treff i db
+				Arguments.of(0, 3), // maksForsendelser lik 0 -> returner MAX_FORSENDELSER = 10000 i db
 				Arguments.of(2, 2), // maksForsendelser < N -> returner maksForsendelser fra db
-				Arguments.of(4, 3) // maksForsendelser > N -> returner alle treff i db
+				Arguments.of(4, 3) // maksForsendelser > N -> returner N treff i db
 		);
 	}
 
@@ -156,11 +160,12 @@ public class Rdist001ITest extends AbstractOauth2Test {
 
 	@Test
 	void skalAvstemmeEkspederteForsendelser() {
-		setupDatabase();
+		var persistertDistribusjoninfo = setupDatabase();
+		var dokumentinfoIdList = persistertDistribusjoninfo.getDokumentInfos().stream().map(DokumentInfo::getDokumentInfoId).toList();
 
 		var request = new AvstemEkspederteForsendelserRequest(List.of(
-				new Forsendelse(1L),
-				new Forsendelse(2L)
+				new Forsendelse(dokumentinfoIdList.get(0)),
+				new Forsendelse(dokumentinfoIdList.get(1))
 		));
 
 		webTestClient.put()
@@ -169,14 +174,19 @@ public class Rdist001ITest extends AbstractOauth2Test {
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk();
+
+		assertNotNull(dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentinfoIdList.get(0)).getAvstemtArkivDato());
+		assertNotNull(dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentinfoIdList.get(1)).getAvstemtArkivDato());
+		assertNull(dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentinfoIdList.get(2)).getAvstemtArkivDato());
 	}
 
 	@Test
 	void skalTrunkereUserIdOgSetteEndretAv() {
-		setupDatabase();
+		var persistertDistribusjoninfo = setupDatabase();
 
+		var dokumentinfoId = persistertDistribusjoninfo.getDokumentInfos().iterator().next().getDokumentInfoId();
 		var request = new AvstemEkspederteForsendelserRequest(List.of(
-				new Forsendelse(1L)
+				new Forsendelse(dokumentinfoId)
 		));
 
 		webTestClient.put()
@@ -186,7 +196,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 				.exchange()
 				.expectStatus().isOk();
 
-		assertEquals(truncate(OID, 20), dokumentInfoRepository.findDokumentInfoByDokumentInfoId(1L).getChangeStamp().getEndretAv());
+		assertEquals(truncate(OID, 20), dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentinfoId).getChangeStamp().getEndretAv());
 	}
 
 	@ParameterizedTest
