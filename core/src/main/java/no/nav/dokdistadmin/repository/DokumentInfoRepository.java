@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.web.PageableDefault;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +44,7 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 						 and dok.arkivSystem = 'JOARK'
 						 and dok.arkivkode is not null
 						 and dok.ekspedertDato is not null
-						 and dok.ekspedertDato >= '2022-10-01'
+						 and dok.ekspedertDato >= TO_DATE('2022-10-01', 'yyyy-mm-dd')
 						 order by dok.ekspedertDato
 			""")
 	Page<DokumentInfo> findEkspedertDokumentInfo(Pageable pageable);

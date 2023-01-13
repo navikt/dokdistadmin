@@ -11,12 +11,15 @@
 	</parent>
 
 	<artifactId>app</artifactId>
-	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>no.nav.dokdistadmin</groupId>
 			<artifactId>core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>no.nav.dokdistadmin</groupId>
+			<artifactId>rdist001</artifactId>
 		</dependency>
 	</dependencies>
 

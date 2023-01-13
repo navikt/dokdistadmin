@@ -4,6 +4,7 @@
   "MAX_REPLICAS": 2,
   "SPRING_DATASOURCE_URL":"jdbc:oracle:thin:@a01dbfl042.adeo.no:1521/dokdist_q2",
   "DOKDISTADMIN_DB":"/oracle/data/dev/creds/dokdistadmin_q2-user",
+  "DOKDISTADMIN_DATABASE_SCHEMA":"dkomp",
   "APPDYNAMICS": "/apikey/appdynamics/dev",
   "APPD_NAME": "dokdistadmin",
   "INGRESSES": [
@@ -12,27 +13,7 @@
   ],
   "AZURE_IAC_RULES": [
     {
-      "app": "dokdistfordeling",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "dokdistdpi-2",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "dokdistdittnav",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "dokdistsentralprint",
-      "namespace": "teamdokumenthandtering",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "dokdisteformidling",
+      "app": "dokdistavstemming",
       "namespace": "teamdokumenthandtering",
       "cluster": "dev-fss"
     }

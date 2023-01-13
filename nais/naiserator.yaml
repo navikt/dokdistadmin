@@ -11,6 +11,8 @@ spec:
       value: {{ APPD_NAME }}
     - name: SPRING_DATASOURCE_URL
       value: {{ SPRING_DATASOURCE_URL }}
+    - name: DOKDISTADMIN_DATABASE_SCHEMA
+      value: {{ DOKDISTADMIN_DATABASE_SCHEMA }}
   image: {{ image }}
   ingresses:
     {{#each INGRESSES}}

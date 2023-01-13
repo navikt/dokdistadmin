@@ -29,7 +29,6 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 			@Param("dokumentInfoIds") List<Long> dokumentInfoIds,
 			@Param("endretAv") String endretAv);
 
-
 	@Modifying
 	@Query("""
 			update DokumentInfo di set di.dokumentStatus = :dokumentstatus,
