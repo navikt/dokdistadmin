@@ -7,8 +7,11 @@ import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.domain.VarselInfo;
+import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
+import no.nav.dokdistadmin.repository.VarselInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,12 +31,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithoutDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.truncate;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -50,6 +56,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ActiveProfiles({"itest"})
 public class Rdist001ITest extends AbstractOauth2Test {
 
+	private static AtomicInteger EKSPEDERT_COUNTER = new AtomicInteger(0);
+
 	@Autowired
 	public WebTestClient webTestClient;
 
@@ -59,12 +67,17 @@ public class Rdist001ITest extends AbstractOauth2Test {
 	@Autowired
 	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
 
+	@Autowired
+	protected VarselInfoRepository varselInfoRepository;
+
+
 	@BeforeEach
 	void setup() {
 		if (MDC.get(USER_ID) == null) {
 			MDC.put(USER_ID, "Rdist001ITest");
 		}
 
+		varselInfoRepository.deleteAll();
 		dokumentInfoRepository.deleteAll();
 		dokumentDistribusjonRepository.deleteAll();
 	}
@@ -86,7 +99,17 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		var dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDokumentStatus(DokumentStatusCode.EKSPEDERT);
 		dokumentInfo.setArkivSystem(ArkivSystemCode.JOARK);
-		dokumentInfo.setEkspedertDato(LocalDateTime.now());
+		dokumentInfo.setEkspedertDato(LocalDateTime.now().minusSeconds(EKSPEDERT_COUNTER.getAndIncrement()));
+		dokumentInfo.addVarselInfo(VarselInfo.builder()
+				.epostAdresse("navn.navnesen@nav.no")
+				.varslingKanal(VarslingKanalCode.EPOST)
+				.varslingstekst("Varsel til deg")
+				.build());
+		dokumentInfo.addVarselInfo(VarselInfo.builder()
+				.mobiltelefonNummer("99999999")
+				.varslingKanal(VarslingKanalCode.MOBILTELEFON)
+				.varslingstekst("Varsel til deg")
+				.build());
 		return dokumentInfo;
 	}
 
@@ -107,6 +130,9 @@ public class Rdist001ITest extends AbstractOauth2Test {
 
 		assertNotNull(response);
 		assertEquals(forventetAntallForsendelser, response.forsendelser().size());
+		assertThat(response.forsendelser())
+				.extracting(EkspederteForsendelse::getForsendelseId)
+				.doesNotHaveDuplicates();
 	}
 
 	// Gitt N treff i databasen (forsendelser som oppfyller kravene)
