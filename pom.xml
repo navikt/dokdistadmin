@@ -82,6 +82,12 @@
 				<version>${token-support.version}</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.github.gavlyukovskiy</groupId>
+				<artifactId>datasource-proxy-spring-boot-starter</artifactId>
+				<version>${datasource-proxy-spring-boot-starter.version}</version>
+				<scope>test</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
