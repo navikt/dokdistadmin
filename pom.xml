@@ -33,6 +33,7 @@
 
 		<!-- Test -->
 		<spring-cloud-contract-wiremock.version>3.1.5</spring-cloud-contract-wiremock.version>
+		<datasource-proxy-spring-boot-starter.version>1.8.1</datasource-proxy-spring-boot-starter.version>
 
 		<!-- Plugins -->
 		<maven-toolchains.version>3.1.0</maven-toolchains.version>

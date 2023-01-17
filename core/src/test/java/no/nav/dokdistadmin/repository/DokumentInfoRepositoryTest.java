@@ -18,6 +18,7 @@ import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_2;
 import static no.nav.dokdistadmin.repository.TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.repository.TestUtils.createDokumentInfo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -175,9 +176,14 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		dokumentInfoRepository.saveAll(dokumentInfoList);
 
-		var result = dokumentInfoRepository.findEkspedertDokumentInfo(PageRequest.of(0, 1));
+		var result = dokumentInfoRepository.findEkspedertDokumentInfo(1);
 
-		assertEquals(1, result.getContent().size());
-		assertEquals("2", result.getContent().get(0).getDokumentId());
+		assertThat(result).hasSize(1);
+		assertThat(result).doesNotContainNull();
+
+		List<DokumentInfo> dokumentInfos = dokumentInfoRepository.fetchEkspedertDokumentInfo(result);
+		assertThat(dokumentInfos)
+				.extracting(DokumentInfo::getDokumentId)
+				.containsExactly("2");
 	}
 }

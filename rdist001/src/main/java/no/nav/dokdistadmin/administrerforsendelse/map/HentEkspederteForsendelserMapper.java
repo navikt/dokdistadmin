@@ -40,7 +40,7 @@ public class HentEkspederteForsendelserMapper {
 				.toList());
 	}
 
-	private EkspederteForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
+	public EkspederteForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
 		return EkspederteForsendelse.builder()
 				.forsendelseId(Objects.requireNonNull(dokumentInfo.getDokumentInfoId(), "ForsendelseId kan ikke være null"))
 				.journalpostId(dokumentInfo.getArkivkode())
