@@ -31,20 +31,20 @@ public class AdministrerForsendelseController {
 	// TODO: Vurder å endre fra body til pathParam eller queryParam
 	@GetMapping("/hentekspederteforsendelser")
 	public ResponseEntity<HentEkspederteForsendelserResponse> hentEkspederteForsendelser(@RequestBody @Valid HentEkspederteForsendelserRequest hentEkspederteForsendelserRequest) {
-		log.info("rdist001 har mottatt kall om å hente ekspederte forsendelser");
+		log.info("hentekspederteforsendelser har mottatt kall om å hente ekspederte forsendelser");
 
 		HentEkspederteForsendelserResponse ekspederteForsendelser = ekspederteForsendelserService.hentEkspederteForsendelser(hentEkspederteForsendelserRequest.getMaksForsendelser());
-		log.info("rdist001 har hentet {} ekspederte forsendelser.", ekspederteForsendelser.forsendelser().size());
+		log.info("hentekspederteforsendelser har hentet {} ekspederte forsendelser.", ekspederteForsendelser.forsendelser().size());
 
 		return ekspederteForsendelser.forsendelser().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(ekspederteForsendelser);
 	}
 
 	@PutMapping("/avstemekspederteforsendelser")
 	public ResponseEntity<Void> avstemEkspederteForsendelser(@RequestBody @Valid AvstemEkspederteForsendelserRequest forsendelserRequest) {
-		log.info("rdist001 har mottatt kall om å avstemme {} ekspederte forsendelser", forsendelserRequest.getForsendelser().size());
+		log.info("avstemekspederteforsendelser har mottatt kall om å avstemme {} ekspederte forsendelser", forsendelserRequest.getForsendelser().size());
 
 		ekspederteForsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
-		log.info("rdist001 har avstemt ekspederte forsendelser");
+		log.info("avstemekspederteforsendelser har avstemt ekspederte forsendelser");
 
 		return ResponseEntity.ok().build();
 	}

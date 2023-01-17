@@ -1,8 +1,6 @@
 package no.nav.dokdistadmin.config;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
-import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.net.ns.SQLnetDef;
 import oracle.ucp.jdbc.PoolDataSource;
@@ -20,6 +18,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 @Slf4j
 @Configuration
@@ -45,20 +45,22 @@ public class RepositoryConfig {
 		poolDataSource.setPassword(dataSourceProperties.getPassword());
 		poolDataSource.registerConnectionInitializationCallback(connection ->
 				connection.setSchema(dokdistadminProperties.getDatabase().getSchema()));
+		poolDataSource.setMaxConnectionReuseTime(MINUTES.toSeconds(30));
+		// Behøver ikke sette setSQLForValidateConnection pga UCP gjør intern ping mot Oracle
+		poolDataSource.setValidateConnectionOnBorrow(true);
+		poolDataSource.setSecondsToTrustIdleConnection((int) MINUTES.toSeconds(3));
 
-		Properties connProperties = new Properties();
-		connProperties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");
-		connProperties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
+		Properties properties = new Properties();
+		properties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");
+		properties.setProperty("oracle.jdbc.implicitStatementCacheSize", "100");
+		properties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
+
 		int poolsize = dokdistadminProperties.getDatabase().getPoolsize();
 		log.info("Setter dokdistadmin database poolsize=" + poolsize);
-
 		poolDataSource.setInitialPoolSize(poolsize);
 		poolDataSource.setMinPoolSize(poolsize);
 		poolDataSource.setMaxPoolSize(poolsize);
-		poolDataSource.setMaxConnectionReuseTime(300); // 5min
-		poolDataSource.setMaxConnectionReuseCount(1000);
-		poolDataSource.setConnectionProperties(connProperties);
-
+		poolDataSource.setConnectionProperties(properties);
 		return poolDataSource;
 	}
 

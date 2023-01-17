@@ -13,7 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Long> {
+public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Long>, CustomDokumentInfoRepository {
 
 	DokumentInfo findDokumentInfoByDokumentId(String dokumentId);
 
@@ -34,19 +34,5 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			@Param("dokumentStatusList") List<DokumentStatusCode> dokumentStatusList,
 			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal,
 			@Param("opprettetEtter") LocalDateTime opprettetEtter);
-
-	@Query("""
-			select dok from  DokumentInfo dok  inner join DistribusjonInfo dist on dist.distribusjonInfoId = dok.distribusjonInfo.distribusjonInfoId
-					left outer join VarselInfo  vai on vai.dokumentInfo.dokumentInfoId = dok.dokumentInfoId
-						left outer join Postadresse pa on pa.postadresseId = dok.postadresse.postadresseId
-						 where dok.dokumentStatus = 'EKSPEDERT'
-						 and dok.avstemtArkivDato is null
-						 and dok.arkivSystem = 'JOARK'
-						 and dok.arkivkode is not null
-						 and dok.ekspedertDato is not null
-						 and dok.ekspedertDato >= TO_DATE('2022-10-01', 'yyyy-mm-dd')
-						 order by dok.ekspedertDato
-			""")
-	Page<DokumentInfo> findEkspedertDokumentInfo(Pageable pageable);
 
 }
