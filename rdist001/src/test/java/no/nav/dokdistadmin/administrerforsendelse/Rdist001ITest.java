@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +29,29 @@ import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.SDP;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithDistribusjonKanalWithoutDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithoutDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumentInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumentInfoWithStatusCode;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -70,6 +79,8 @@ public class Rdist001ITest extends AbstractOauth2Test {
 	@Autowired
 	protected VarselInfoRepository varselInfoRepository;
 
+	@Autowired
+	protected EntityManager entityManager;
 
 	@BeforeEach
 	void setup() {
@@ -97,7 +108,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 
 	private static DokumentInfo getValidEkspedertDokumentInfo() {
 		var dokumentInfo = createDokumentInfo();
-		dokumentInfo.setDokumentStatus(DokumentStatusCode.EKSPEDERT);
+		dokumentInfo.setDokumentStatus(EKSPEDERT);
 		dokumentInfo.setArkivSystem(ArkivSystemCode.JOARK);
 		dokumentInfo.setEkspedertDato(LocalDateTime.now().minusSeconds(EKSPEDERT_COUNTER.getAndIncrement()));
 		dokumentInfo.addVarselInfo(VarselInfo.builder()
@@ -204,6 +215,113 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		assertNotNull(dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentinfoIdList.get(0)).getAvstemtArkivDato());
 		assertNotNull(dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentinfoIdList.get(1)).getAvstemtArkivDato());
 		assertNull(dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentinfoIdList.get(2)).getAvstemtArkivDato());
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {
+			"SDP, -1",
+			"SDP, ikkeEtTall"})
+	void skalReturnereBadRequestForUgyldigeRequests(String distribusjonkanal, String antallTimer) {
+
+		var response = webTestClient.get()
+				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", distribusjonkanal, antallTimer))
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus()
+				.isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertNotNull(response);
+	}
+
+	@ParameterizedTest
+	@EnumSource(
+			value = DokumentStatusCode.class,
+			names = {"EKSPEDERT", "FEILET", "RETURPOSTBEHANDLET"},
+			mode = EXCLUDE
+	)
+	void skalHenteUekspederteForsendelser(DokumentStatusCode dokumentStatusCode) {
+		var distribusjonkanal = PRINT;
+		var antallTimer = 0L;
+
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanalWithoutDokumentInfo(distribusjonkanal));
+		distribusjonInfo.addDokumentInfo(createDokumentInfoWithStatusCode(dokumentStatusCode));
+		dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", distribusjonkanal, antallTimer))
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody(HentUekspederteForsendelserResponse.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertNotNull(response);
+		assertThat(response.getUekspederteForsendelser().size()).isOne();
+	}
+
+	@ParameterizedTest
+	@EnumSource(
+			value = DokumentStatusCode.class,
+			names = {"EKSPEDERT", "FEILET", "RETURPOSTBEHANDLET"}
+	)
+	void skalIkkeHenteEkspederteForsendelser(DokumentStatusCode dokumentStatusCode) {
+		var distribusjonkanal = PRINT;
+		var antallTimer = 0L;
+
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanalWithoutDokumentInfo(distribusjonkanal));
+		distribusjonInfo.addDokumentInfo(createDokumentInfoWithStatusCode(dokumentStatusCode));
+		dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		webTestClient.get()
+				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", distribusjonkanal, antallTimer))
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus()
+				.isNoContent();
+	}
+
+	@Test
+	void skalHenteUekspederteForsendelserEldreEnnAntallTimer() {
+		var antallTimer = 4L;
+
+		var distribusjonSomSkalHentes = dokumentDistribusjonRepository.save(createDistribusjonInfoWithoutDokumentInfo());
+		var distribusjonSomErForNy = dokumentDistribusjonRepository.save(createDistribusjonInfoWithoutDokumentInfo());
+
+		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(OPPRETTET));
+		distribusjonSomErForNy.addDokumentInfo(createDokumentInfoWithStatusCode(OPPRETTET));
+		dokumentDistribusjonRepository.saveAll(List.of(distribusjonSomSkalHentes, distribusjonSomErForNy));
+
+		var id = distribusjonSomSkalHentes.getDistribusjonInfoId();
+
+		entityManager.createQuery("update DistribusjonInfo di set di.changeStamp.opprettetDato = :tid where di.distribusjonInfoId=:id")
+				.setParameter("tid", LocalDateTime.now().minusHours(antallTimer + 1))
+				.setParameter("id", id)
+				.executeUpdate();
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", SDP, antallTimer))
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody(HentUekspederteForsendelserResponse.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertNotNull(response);
+		assertThat(response.getUekspederteForsendelser().size()).isOne();
+		assertEquals(distribusjonSomSkalHentes.getDistribusjonId(), response.getUekspederteForsendelser().get(0).getDistribusjonId());
 	}
 
 	@Test

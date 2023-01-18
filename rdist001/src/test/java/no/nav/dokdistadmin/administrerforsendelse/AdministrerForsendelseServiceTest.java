@@ -23,13 +23,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class EkspederteForsendelserServiceTest {
+class AdministrerForsendelseServiceTest {
 
 	@Mock
 	DokumentDistribusjonRepository dokumentDistribusjonRepository;
 
 	@InjectMocks
-	EkspederteForsendelserService ekspederteForsendelserService;
+	AdministrerForsendelseService ekspederteForsendelserService;
 
 	@BeforeEach
 	void setup() {

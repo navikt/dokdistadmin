@@ -62,12 +62,12 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 				where dok.dokumentStatus not in :dokumentStatus
 			   	and dok.avstemtDato is null
 				and dist.distribusjonKanal = :distribusjonKanal
-				and dist.changeStamp.opprettetDato between :etterAntallDagerSiden and :foerAntallTimerSiden
+				and dist.changeStamp.opprettetDato between :opprettetEtter and :opprettetFoer
 			 	order by dist.distribusjonInfoId, dok.dokumentId
 			""")
 	List<DistribusjonInfo> findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
 			@Param("dokumentStatus") EnumSet<DokumentStatusCode> dokumentStatus,
 			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal,
-			@Param("etterAntallDagerSiden") LocalDateTime etterAntallDagerSiden,
-			@Param("foerAntallTimerSiden") LocalDateTime foerAntallTimerSiden);
+			@Param("opprettetEtter") LocalDateTime opprettetEtter,
+			@Param("opprettetFoer") LocalDateTime opprettetFoer);
 }
