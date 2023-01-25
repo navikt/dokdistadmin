@@ -260,11 +260,15 @@ public class TestUtils {
 	}
 
 	public static DistribusjonInfo createDistribusjonInfoWithoutDokumentInfo() {
+		return createDistribusjonInfoWithDistribusjonKanalWithoutDokumentInfo(DISTRIBUSJON_KANAL_2_SDP);
+	}
+
+	public static DistribusjonInfo createDistribusjonInfoWithDistribusjonKanalWithoutDokumentInfo(DistribusjonKanalCode distribusjonKanalCode) {
 		DistribusjonInfo distribusjonInfo = DistribusjonInfo.builder()
 				.distribusjonInfoId(DISTRIBUSJONINFO_ID_2)
 				.originalDistribusjonId(DISTRIBUSJON_ID_2)
 				.distribusjonId(DISTRIBUSJON_ID_2)
-				.distribusjonKanal(DISTRIBUSJON_KANAL_2_SDP)
+				.distribusjonKanal(distribusjonKanalCode)
 				.distribusjonStatus(DISTRIBUSJON_STATUS_2)
 				.produksjonDato(OPPRETTET_DATO_2)
 				.distribusjonDato(DISTRIBUSJON_DATO_2)
@@ -292,11 +296,15 @@ public class TestUtils {
 	}
 
 	public static DokumentInfo createDokumentInfo() {
+		return createDokumentInfoWithStatusCode(DOKUMENT_STATUS_2);
+	}
+
+	public static DokumentInfo createDokumentInfoWithStatusCode(DokumentStatusCode dokumentStatusCode) {
 		DokumentInfo dokumentInfo = DokumentInfo.builder()
 				.dokumentInfoId(DOKUMENTINFO_ID_2)
 				.dokumentId(DISTRIBUSJON_ID_2)
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM_2)
-				.dokumentStatus(DOKUMENT_STATUS_2)
+				.dokumentStatus(dokumentStatusCode)
 				.mottakerId(MOTTAKER_ID_2)
 				.fagomrade(FAGOMRADE_CODE_2)
 				.konversasjonId(KONVERSASJON_ID_2)

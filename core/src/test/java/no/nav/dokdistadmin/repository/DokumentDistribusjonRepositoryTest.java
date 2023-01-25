@@ -161,9 +161,13 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
 		distribusjoninfo.addDokumentInfo(DokumentInfo.builder()
-						.dokumentId(DOKUMENT_ID_1)
-						.dokumentStatus(DokumentStatusCode.OPPRETTET)
-						.build());
+				.dokumentId(DOKUMENT_ID_1)
+				.dokumentStatus(DokumentStatusCode.OPPRETTET)
+				.build());
+		distribusjoninfo.addDokumentInfo(DokumentInfo.builder()
+				.dokumentId(DOKUMENT_ID_2)
+				.dokumentStatus(DokumentStatusCode.OPPRETTET)
+				.build());
 		dokumentDistribusjonRepository.save(distribusjoninfo);
 
 		commitAndBeginNewTransaction();

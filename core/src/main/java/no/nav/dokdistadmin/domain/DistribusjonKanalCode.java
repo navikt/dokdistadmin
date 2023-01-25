@@ -1,5 +1,9 @@
 package no.nav.dokdistadmin.domain;
 
+import no.nav.dokdistadmin.exception.functional.UgyldigInputException;
+
+import static java.lang.String.format;
+
 public enum DistribusjonKanalCode {
 	PRINT,
 	SDP,
@@ -8,5 +12,13 @@ public enum DistribusjonKanalCode {
 	PRINT_DITTNAV,
 	DITTNAV,
 	TRYGDERETTEN,
-	DPVT
+	DPVT;
+
+	public static DistribusjonKanalCode fromString(String distribusjonkanal) {
+		try {
+			return DistribusjonKanalCode.valueOf(distribusjonkanal.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new UgyldigInputException(format("%s er ikke en gyldig distribusjonkanal", distribusjonkanal));
+		}
+	}
 }
