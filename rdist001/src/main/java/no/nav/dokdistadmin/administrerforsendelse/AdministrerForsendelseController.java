@@ -59,11 +59,13 @@ public class AdministrerForsendelseController {
 			@PathVariable String distribusjonkanal,
 			@PathVariable @PositiveOrZero(message = "antallTimer må være et positivt tall") Long antallTimer) {
 
-		log.info("hentuekspederteforsendelser har mottatt kall om å hente forsendelser som ikke har mottatt kvittering fra dokumentdistribusjon. distribusjonKanal={}, antallTimer={}",
+		log.info("hentuekspederteforsendelser har mottatt kall om å hente uekspederte forsendelser med distribusjonKanal={}, som er eldre enn {} timer",
 				distribusjonkanal, antallTimer);
 
 		HentUekspederteForsendelserResponse uekspederteForsendelser = ekspederteForsendelserService.hentUekspederteForsendelser(distribusjonkanal, antallTimer);
-		log.info("rdist001 har hentet forsendelse som ikke har mottatt kvittering med distribusjonkanal={}, antallTimer={}", distribusjonkanal, antallTimer);
+
+		log.info("hentuekspederteforsendelser har hentet {} uekspederte forsendelser med distribusjonkanal={}, som er eldre enn {} timer",
+				uekspederteForsendelser.getUekspederteForsendelser().size(), distribusjonkanal, antallTimer);
 
 		return uekspederteForsendelser.getUekspederteForsendelser().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(uekspederteForsendelser);
 	}
@@ -74,7 +76,7 @@ public class AdministrerForsendelseController {
 			ConstraintViolationException.class,
 			MethodArgumentTypeMismatchException.class
 	})
-	public ResponseEntity<String> methodArgumentNotValidExceptionHandler(Exception exception) {
+	public ResponseEntity<String> inputValidationExceptionHandler(Exception exception) {
 		if (exception instanceof MethodArgumentNotValidException e) {
 			return ResponseEntity.badRequest().body(e.getAllErrors().get(0).getDefaultMessage());
 		} else {

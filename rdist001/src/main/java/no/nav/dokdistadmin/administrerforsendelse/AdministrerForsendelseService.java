@@ -93,7 +93,6 @@ public class AdministrerForsendelseService {
 				.collect(groupingBy(partition -> (partition / BATCH_SIZE), mapping(list::get, toList())));
 	}
 
-	@Transactional(readOnly = true)
 	public HentUekspederteForsendelserResponse hentUekspederteForsendelser(String distribusjonkanal, Long antallTimer) {
 		DistribusjonKanalCode distribusjonkanalCode = DistribusjonKanalCode.fromString(distribusjonkanal);
 
@@ -102,8 +101,6 @@ public class AdministrerForsendelseService {
 
 		List<DistribusjonInfo> distribusjonInfoList = dokumentDistribusjonRepository.findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
 				EKSPEDERTSTATUSER, distribusjonkanalCode, opprettetEtter, opprettetFoer);
-
-		log.info("Fant antall={} forsendelser i dokdistDb med distribusjonsKanal={} som er eldre enn antallTimer={}", distribusjonInfoList.size(), distribusjonkanal, antallTimer);
 
 		return hentUekspederteForsendelserMapper.map(distribusjonInfoList);
 	}

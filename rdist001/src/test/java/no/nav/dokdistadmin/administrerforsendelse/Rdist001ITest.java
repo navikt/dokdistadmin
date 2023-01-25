@@ -45,6 +45,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumen
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -297,6 +298,8 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		var distribusjonSomErForNy = dokumentDistribusjonRepository.save(createDistribusjonInfoWithoutDokumentInfo());
 
 		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(OPPRETTET));
+		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(OVERSENDT));
+		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(EKSPEDERT));
 		distribusjonSomErForNy.addDokumentInfo(createDokumentInfoWithStatusCode(OPPRETTET));
 		dokumentDistribusjonRepository.saveAll(List.of(distribusjonSomSkalHentes, distribusjonSomErForNy));
 
@@ -321,6 +324,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 
 		assertNotNull(response);
 		assertThat(response.getUekspederteForsendelser().size()).isOne();
+		assertThat(response.getUekspederteForsendelser().get(0).getDokumenter()).hasSize(2);
 		assertEquals(distribusjonSomSkalHentes.getDistribusjonId(), response.getUekspederteForsendelser().get(0).getDistribusjonId());
 	}
 

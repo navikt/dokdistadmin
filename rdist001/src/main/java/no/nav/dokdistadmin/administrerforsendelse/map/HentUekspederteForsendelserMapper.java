@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class HentUekspederteForsendelserMapper {
 
@@ -21,12 +20,12 @@ public class HentUekspederteForsendelserMapper {
 		return HentUekspederteForsendelserResponse.builder()
 				.uekspederteForsendelser(
 						distribusjonInfoList.stream()
-								.map(this::map)
+								.map(this::mapDistribusjonInfo)
 								.toList())
 				.build();
 	}
 
-	public UekspedertForsendelse map(DistribusjonInfo distribusjonInfo) {
+	public UekspedertForsendelse mapDistribusjonInfo(DistribusjonInfo distribusjonInfo) {
 		return UekspedertForsendelse.builder()
 				.distribusjonId(distribusjonInfo.getDistribusjonId())
 				.distribusjonKanal(distribusjonInfo.getDistribusjonKanal().name())
@@ -39,20 +38,23 @@ public class HentUekspederteForsendelserMapper {
 
 	List<HentUekspederteForsendelserResponse.DokumentInfo> mapDokumentInfoList(Set<DokumentInfo> dokumentInfos) {
 		return dokumentInfos.stream()
-				.map(dokumentInfo ->
-						HentUekspederteForsendelserResponse.DokumentInfo.builder()
-								.forsendelseId(String.valueOf(dokumentInfo.getDokumentInfoId()))
-								.dokumentId(dokumentInfo.getDokumentId())
-								.dokumentStatus(dokumentInfo.getDokumentStatus().name())
-								.bestillendeFagsystem(dokumentInfo.getBestillendeFagsystem())
-								.fagomradeCode(dokumentInfo.getFagomrade() == null ? null : dokumentInfo.getFagomrade().name())
-								.journalpostId(dokumentInfo.getArkivkode())
-								.konversasjonId(dokumentInfo.getKonversasjonId())
-								.brevProduksjonApplikasjon(dokumentInfo.getBrevProduksjonApplikasjon())
-								.avstemtDato(convertDateTimeToString(dokumentInfo.getAvstemtDato()))
-								.avstemtReferanse(dokumentInfo.getAvstemtReferanse())
-								.build()
-				).collect(Collectors.toList());
+				.map(this::mapDokumentInfo)
+				.toList();
+	}
+
+	HentUekspederteForsendelserResponse.DokumentInfo mapDokumentInfo(DokumentInfo dokumentInfo) {
+		return HentUekspederteForsendelserResponse.DokumentInfo.builder()
+				.forsendelseId(String.valueOf(dokumentInfo.getDokumentInfoId()))
+				.dokumentId(dokumentInfo.getDokumentId())
+				.dokumentStatus(dokumentInfo.getDokumentStatus().name())
+				.bestillendeFagsystem(dokumentInfo.getBestillendeFagsystem())
+				.fagomradeCode(dokumentInfo.getFagomrade() == null ? null : dokumentInfo.getFagomrade().name())
+				.journalpostId(dokumentInfo.getArkivkode())
+				.konversasjonId(dokumentInfo.getKonversasjonId())
+				.brevProduksjonApplikasjon(dokumentInfo.getBrevProduksjonApplikasjon())
+				.avstemtDato(convertDateTimeToString(dokumentInfo.getAvstemtDato()))
+				.avstemtReferanse(dokumentInfo.getAvstemtReferanse())
+				.build();
 	}
 
 	public String convertDateTimeToString(LocalDateTime localDateTime) {

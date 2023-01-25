@@ -1,18 +1,15 @@
 package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
-import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 
-public interface DokumentDistribusjonRepository extends CrudRepository<DistribusjonInfo, Long> {
+public interface DokumentDistribusjonRepository extends CrudRepository<DistribusjonInfo, Long>, CustomDokumentDistribusjonRepository {
 
 	DistribusjonInfo getDistribusjonInfoByDistribusjonId(String distribusjonId);
 
@@ -56,18 +53,4 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 			@Param("distribusjoninfo") DistribusjonInfo distribusjoninfo,
 			@Param("endretAv") String endretAv);
 
-	@Query("""
-			select dist
-				from DistribusjonInfo dist join fetch dist.dokumentInfos dok
-				where dok.dokumentStatus not in :dokumentStatus
-			   	and dok.avstemtDato is null
-				and dist.distribusjonKanal = :distribusjonKanal
-				and dist.changeStamp.opprettetDato between :opprettetEtter and :opprettetFoer
-			 	order by dist.distribusjonInfoId, dok.dokumentId
-			""")
-	List<DistribusjonInfo> findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
-			@Param("dokumentStatus") EnumSet<DokumentStatusCode> dokumentStatus,
-			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal,
-			@Param("opprettetEtter") LocalDateTime opprettetEtter,
-			@Param("opprettetFoer") LocalDateTime opprettetFoer);
 }
