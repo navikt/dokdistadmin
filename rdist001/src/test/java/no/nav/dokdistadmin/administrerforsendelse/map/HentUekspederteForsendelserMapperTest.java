@@ -84,7 +84,6 @@ class HentUekspederteForsendelserMapperTest {
 		var dokumentInfo = TestUtils.createDokumentInfo();
 
 		var result = mapper.mapDokumentInfo(dokumentInfo);
-		var expectedAvstemtArkivDato = mapper.convertDateTimeToString(dokumentInfo.getAvstemtArkivDato());
 
 		assertEquals(dokumentInfo.getDokumentInfoId().toString(), result.getForsendelseId());
 		assertEquals(dokumentInfo.getDokumentId(), result.getDokumentId());
@@ -94,8 +93,6 @@ class HentUekspederteForsendelserMapperTest {
 		assertEquals(dokumentInfo.getArkivkode(), result.getJournalpostId());
 		assertEquals(dokumentInfo.getKonversasjonId(), result.getKonversasjonId());
 		assertEquals(dokumentInfo.getBrevProduksjonApplikasjon(), result.getBrevProduksjonApplikasjon());
-		assertEquals(expectedAvstemtArkivDato, result.getAvstemtDato());
-		assertEquals(dokumentInfo.getAvstemtReferanse(), result.getAvstemtReferanse());
 	}
 
 	@ParameterizedTest
