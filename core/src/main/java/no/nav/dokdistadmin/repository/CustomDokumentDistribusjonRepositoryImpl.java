@@ -33,6 +33,7 @@ public class CustomDokumentDistribusjonRepositoryImpl implements CustomDokumentD
 							from DistribusjonInfo dist join fetch dist.dokumentInfos dok
 							where dok.dokumentStatus not in (:dokumentStatus)
 							and dok.avstemtDato is null
+							and dok.avstemtReferanse is null
 							and dist.distribusjonKanal = :distribusjonKanal
 							and dist.changeStamp.opprettetDato between :opprettetEtter and :opprettetFoer
 							order by dist.distribusjonInfoId, dok.dokumentId""", DistribusjonInfo.class)

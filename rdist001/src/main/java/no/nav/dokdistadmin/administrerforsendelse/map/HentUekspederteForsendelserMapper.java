@@ -52,8 +52,6 @@ public class HentUekspederteForsendelserMapper {
 				.journalpostId(dokumentInfo.getArkivkode())
 				.konversasjonId(dokumentInfo.getKonversasjonId())
 				.brevProduksjonApplikasjon(dokumentInfo.getBrevProduksjonApplikasjon())
-				.avstemtDato(convertDateTimeToString(dokumentInfo.getAvstemtDato()))
-				.avstemtReferanse(dokumentInfo.getAvstemtReferanse())
 				.build();
 	}
 
