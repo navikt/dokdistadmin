@@ -87,6 +87,19 @@ public class AdministrerForsendelseService {
 		}
 	}
 
+	@Transactional
+	public void avstemForsendelser(AvstemForsendelserRequest avstemForsendelserRequest) {
+
+		var forsendelser = avstemForsendelserRequest.getForsendelser().stream()
+				.map(it -> Long.valueOf(it.getForsendelseId()))
+				.toList();
+		var avstemtReferanse = avstemForsendelserRequest.getAvstemtReferanse();
+
+		var oppdaterteForsendelser = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, forsendelser, MDC.get(USER_ID));
+
+		log.info("avstemForsendelser har oppdatert {} forsendelser", oppdaterteForsendelser);
+	}
+
 	//Del opp liste med forsendelseIder i partisjoner med størrelse lik BATCH_SIZE
 	Map<Integer, List<Long>> partitionList(final List<Long> list) {
 		return IntStream.range(0, list.size()).boxed()

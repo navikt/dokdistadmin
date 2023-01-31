@@ -3,12 +3,10 @@ package no.nav.dokdistadmin.repository;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.web.PageableDefault;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +23,7 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 
 	@Query("""
 			select dok from DokumentInfo dok, DistribusjonInfo dis
-				where dok.dokumentStatus IN (:dokumentStatusList)
+				where dok.dokumentStatus in (:dokumentStatusList)
 				and dok.distribusjonInfo = dis
 				and dis.distribusjonKanal = :distribusjonKanal
 				and dok.changeStamp.opprettetDato >= :opprettetEtter
@@ -34,5 +32,21 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			@Param("dokumentStatusList") List<DokumentStatusCode> dokumentStatusList,
 			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal,
 			@Param("opprettetEtter") LocalDateTime opprettetEtter);
+
+
+	@Modifying
+	@Query("""
+			update DokumentInfo dok set
+			   dok.avstemtReferanse = :avstemtReferanse,
+			   dok.avstemtDato = current_timestamp,
+			   dok.changeStamp.endretAv = :endretAv,
+      		   dok.changeStamp.endretDato = current_timestamp
+			   where dok.dokumentInfoId in (:dokumentInfoIdList)
+			   and dok.avstemtReferanse is null
+			""")
+	int updateAvstemtReferanseAndAvstemtDatoForIdIn(
+			@Param("avstemtReferanse") String avstemtReferanse,
+			@Param("dokumentInfoIdList") List<Long> dokumentInfoIdList,
+			@Param("endretAv") String endretAv);
 
 }

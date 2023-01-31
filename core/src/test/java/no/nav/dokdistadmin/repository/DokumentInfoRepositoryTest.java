@@ -2,9 +2,9 @@ package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.config.AbstractRepositoryTest;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
+import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,9 +18,11 @@ import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_2;
 import static no.nav.dokdistadmin.repository.TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.repository.TestUtils.createDokumentInfo;
+import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
@@ -131,7 +133,84 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		var distribusjonInfo = createDistribusjonInfo();
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
-		var dokumentInfoList = Set.of(
+		var dokumentInfoList = getDokumentInfoSet(distribusjonInfo);
+
+		dokumentInfoRepository.saveAll(dokumentInfoList);
+
+		var result = dokumentInfoRepository.findEkspedertDokumentInfo(1);
+
+		assertThat(result).hasSize(1);
+		assertThat(result).doesNotContainNull();
+
+		List<DokumentInfo> dokumentInfos = dokumentInfoRepository.fetchEkspedertDokumentInfo(result);
+		assertThat(dokumentInfos)
+				.extracting(DokumentInfo::getDokumentId)
+				.containsExactly("2");
+	}
+
+	@Test
+	void shouldUpdateAllDokumentInfosInList() {
+		var avstemtReferanse = "avstemtReferanse";
+
+		var distribusjonInfo = createDistribusjonInfo();
+		dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		var dokumentInfoList = getDokumentInfoSet(distribusjonInfo);
+		dokumentInfoRepository.saveAll(dokumentInfoList);
+
+		var idList = dokumentInfoList.stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList();
+
+		dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, idList, USER_ID);
+
+		commitAndBeginNewTransaction();
+
+		var updatedDokumentInfoList = dokumentInfoRepository.findAllById(idList);
+
+		assertThat(updatedDokumentInfoList)
+				.allSatisfy(it -> {
+					assertThat(it.getAvstemtReferanse()).isEqualTo(avstemtReferanse);
+					assertThat(it.getAvstemtDato()).isNotNull();
+				});
+	}
+
+	@Test
+	void shouldOnlyUpdateDokumentInfoWithoutAvstemtReferanse() {
+		var avstemtReferanse = "avstemtReferanse";
+		var tidligereSattAvstemtReferanse = "ikkeNull";
+
+		var distribusjonInfo = createDistribusjonInfo();
+		dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		var dokumentInfoSkalOppdateres = createDokumentInfo();
+		dokumentInfoSkalOppdateres.setDistribusjonInfo(distribusjonInfo);
+		var dokumentInfoSkalIkkeOppdateres = createDokumentInfo();
+		dokumentInfoSkalIkkeOppdateres.setDistribusjonInfo(distribusjonInfo);
+		dokumentInfoSkalIkkeOppdateres.setAvstemtReferanse(tidligereSattAvstemtReferanse);
+
+		dokumentInfoRepository.saveAll(List.of(dokumentInfoSkalOppdateres, dokumentInfoSkalIkkeOppdateres));
+
+		var idList = List.of(dokumentInfoSkalOppdateres.getDokumentInfoId(), dokumentInfoSkalIkkeOppdateres.getDokumentInfoId());
+
+		var result = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, idList, USER_ID);
+
+		assertEquals(1, result);
+
+		commitAndBeginNewTransaction();
+
+		var oppdatertDokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoSkalOppdateres.getDokumentInfoId());
+		var ikkeOppdatertDokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoSkalIkkeOppdateres.getDokumentInfoId());
+
+		assertEquals(avstemtReferanse, oppdatertDokumentInfo.getAvstemtReferanse());
+		assertEquals(tidligereSattAvstemtReferanse, ikkeOppdatertDokumentInfo.getAvstemtReferanse());
+
+		assertNotNull(oppdatertDokumentInfo.getAvstemtDato());
+		assertNull(ikkeOppdatertDokumentInfo.getAvstemtDato());
+	}
+
+	private Set<DokumentInfo> getDokumentInfoSet(DistribusjonInfo distribusjonInfo) {
+		return Set.of(
 				DokumentInfo.builder()
 						.dokumentId("1")
 						.dokumentStatus(OVERSENDT)
@@ -174,16 +253,6 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 						.build()
 		);
 
-		dokumentInfoRepository.saveAll(dokumentInfoList);
-
-		var result = dokumentInfoRepository.findEkspedertDokumentInfo(1);
-
-		assertThat(result).hasSize(1);
-		assertThat(result).doesNotContainNull();
-
-		List<DokumentInfo> dokumentInfos = dokumentInfoRepository.fetchEkspedertDokumentInfo(result);
-		assertThat(dokumentInfos)
-				.extracting(DokumentInfo::getDokumentId)
-				.containsExactly("2");
 	}
+
 }

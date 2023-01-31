@@ -12,6 +12,7 @@ import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -367,6 +368,34 @@ public class Rdist001ITest extends AbstractOauth2Test {
 				Arguments.of(Collections.emptyList()),
 				Arguments.of(List.of(new Forsendelse(0L)))
 		);
+	}
+
+	@Test
+	void skalAvstemmeForsendelser() {
+		setupDatabase();
+
+		var dokumentInfoId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
+		var avstemtReferanse = "avstemtReferanse";
+
+		var request = new AvstemForsendelserRequest(avstemtReferanse, List.of(new AvstemForsendelserRequest.Forsendelse(dokumentInfoId.toString())));
+
+		webTestClient.put()
+				.uri("/rest/v1/administrerforsendelse/avstemforsendelser")
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isOk();
+
+		commitAndBeginNewTransaction();
+
+		var dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
+
+		Assertions.assertThat(dokumentInfo)
+				.isNotNull()
+				.satisfies(it -> {
+					assertThat(it.getAvstemtReferanse()).isEqualTo(avstemtReferanse);
+					assertThat(it.getAvstemtDato()).isNotNull();
+				});
 	}
 
 	public void commitAndBeginNewTransaction() {

@@ -49,7 +49,6 @@ public class AdministrerForsendelseController {
 		log.info("avstemekspederteforsendelser har mottatt kall om å avstemme {} ekspederte forsendelser", forsendelserRequest.getForsendelser().size());
 
 		ekspederteForsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
-		log.info("avstemekspederteforsendelser har avstemt ekspederte forsendelser");
 
 		return ResponseEntity.ok().build();
 	}
@@ -68,6 +67,16 @@ public class AdministrerForsendelseController {
 				uekspederteForsendelser.getUekspederteForsendelser().size(), distribusjonkanal, antallTimer);
 
 		return uekspederteForsendelser.getUekspederteForsendelser().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(uekspederteForsendelser);
+	}
+
+	@PutMapping("/avstemforsendelser")
+	public ResponseEntity<Void> avstemForsendelser(@RequestBody @Valid AvstemForsendelserRequest avstemForsendelserRequest) {
+
+		log.info("avstemforsendelser har mottatt kall om å oppdatere dokumentInfo med avstemtDato og avstemtReferanse={}", avstemForsendelserRequest.getAvstemtReferanse());
+
+		ekspederteForsendelserService.avstemForsendelser(avstemForsendelserRequest);
+
+		return ResponseEntity.ok().build();
 	}
 
 	@ResponseStatus(BAD_REQUEST)

@@ -13,6 +13,7 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 
 	DistribusjonInfo getDistribusjonInfoByDistribusjonId(String distribusjonId);
 
+	// TODO: Sjekk om noen av disse burde flyttes til DokumentInfoRepo
 	@Modifying
 	@Query("""
 			update DokumentInfo dok
