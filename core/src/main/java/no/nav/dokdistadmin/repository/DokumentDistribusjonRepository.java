@@ -23,7 +23,7 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 				dok.version = dok.version + 1
 				where dok.dokumentInfoId in :dokumentInfoIds
 			""")
-	void updateDokumentInfosAvstemtArkivDato(
+	int updateDokumentInfosAvstemtArkivDato(
 			@Param("dokumentInfoIds") List<Long> dokumentInfoIds,
 			@Param("endretAv") String endretAv);
 

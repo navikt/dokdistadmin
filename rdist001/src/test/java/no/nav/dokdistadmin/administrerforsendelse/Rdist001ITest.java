@@ -1,6 +1,5 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
-import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRequest.Forsendelse;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
@@ -67,7 +66,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ActiveProfiles({"itest"})
 public class Rdist001ITest extends AbstractOauth2Test {
 
-	private static AtomicInteger EKSPEDERT_COUNTER = new AtomicInteger(0);
+	private static final AtomicInteger EKSPEDERT_COUNTER = new AtomicInteger(0);
 
 	@Autowired
 	public WebTestClient webTestClient;
@@ -375,9 +374,9 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		setupDatabase();
 
 		var dokumentInfoId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
-		var avstemtReferanse = "avstemtReferanse";
+		var avstemtReferanse = "MMA-1234";
 
-		var request = new AvstemForsendelserRequest(avstemtReferanse, List.of(new AvstemForsendelserRequest.Forsendelse(dokumentInfoId.toString())));
+		var request = new AvstemForsendelserRequest(avstemtReferanse, List.of(new Forsendelse(dokumentInfoId)));
 
 		webTestClient.put()
 				.uri("/rest/v1/administrerforsendelse/avstemforsendelser")

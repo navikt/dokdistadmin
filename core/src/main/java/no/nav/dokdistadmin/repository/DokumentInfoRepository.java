@@ -37,12 +37,12 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 	@Modifying
 	@Query("""
 			update DokumentInfo dok set
-			   dok.avstemtReferanse = :avstemtReferanse,
-			   dok.avstemtDato = current_timestamp,
-			   dok.changeStamp.endretAv = :endretAv,
-      		   dok.changeStamp.endretDato = current_timestamp
-			   where dok.dokumentInfoId in (:dokumentInfoIdList)
-			   and dok.avstemtReferanse is null
+			   	dok.avstemtReferanse = :avstemtReferanse,
+			   	dok.avstemtDato = current_timestamp,
+				dok.changeStamp.endretAv = :endretAv,
+				dok.changeStamp.endretDato = current_timestamp
+				where dok.dokumentInfoId in (:dokumentInfoIdList)
+				and dok.avstemtReferanse is null
 			""")
 	int updateAvstemtReferanseAndAvstemtDatoForIdIn(
 			@Param("avstemtReferanse") String avstemtReferanse,

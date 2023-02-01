@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -16,19 +17,11 @@ import java.util.List;
 @NoArgsConstructor
 public class AvstemForsendelserRequest {
 
-    @NotEmpty
+    @NotEmpty(message = "avstemtReferanse kan ikke være null eller en tom streng")
     private String avstemtReferanse;
 
     @NotNull
+    @Valid
     private List<Forsendelse> forsendelser;
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Forsendelse {
-        private String forsendelseId;
-    }
-
 
 }

@@ -28,6 +28,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	private static final String KONVERSASJON_ID = "879";
 	private static final String JOURNALPOST_ID = "123456";
+	private static final String AVSTEMT_REFERANSE = "MMA-1234";
 
 	private static final LocalDateTime GYLDIG_EKSPEDERTDATO = LocalDateTime.of(2022, 10, 2, 0, 0);
 	private static final LocalDateTime UGYLDIG_EKSPEDERTDATO = LocalDateTime.of(2022, 9, 30, 0, 0);
@@ -150,8 +151,6 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldUpdateAllDokumentInfosInList() {
-		var avstemtReferanse = "avstemtReferanse";
-
 		var distribusjonInfo = createDistribusjonInfo();
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
@@ -162,7 +161,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 				.map(DokumentInfo::getDokumentInfoId)
 				.toList();
 
-		dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, idList, USER_ID);
+		dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(AVSTEMT_REFERANSE, idList, USER_ID);
 
 		commitAndBeginNewTransaction();
 
@@ -170,15 +169,14 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		assertThat(updatedDokumentInfoList)
 				.allSatisfy(it -> {
-					assertThat(it.getAvstemtReferanse()).isEqualTo(avstemtReferanse);
+					assertThat(it.getAvstemtReferanse()).isEqualTo(AVSTEMT_REFERANSE);
 					assertThat(it.getAvstemtDato()).isNotNull();
 				});
 	}
 
 	@Test
 	void shouldOnlyUpdateDokumentInfoWithoutAvstemtReferanse() {
-		var avstemtReferanse = "avstemtReferanse";
-		var tidligereSattAvstemtReferanse = "ikkeNull";
+		var tidligereSattAvstemtReferanse = "MMA-0001";
 
 		var distribusjonInfo = createDistribusjonInfo();
 		dokumentDistribusjonRepository.save(distribusjonInfo);
@@ -193,7 +191,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		var idList = List.of(dokumentInfoSkalOppdateres.getDokumentInfoId(), dokumentInfoSkalIkkeOppdateres.getDokumentInfoId());
 
-		var result = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, idList, USER_ID);
+		var result = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(AVSTEMT_REFERANSE, idList, USER_ID);
 
 		assertEquals(1, result);
 
@@ -202,7 +200,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		var oppdatertDokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoSkalOppdateres.getDokumentInfoId());
 		var ikkeOppdatertDokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoSkalIkkeOppdateres.getDokumentInfoId());
 
-		assertEquals(avstemtReferanse, oppdatertDokumentInfo.getAvstemtReferanse());
+		assertEquals(AVSTEMT_REFERANSE, oppdatertDokumentInfo.getAvstemtReferanse());
 		assertEquals(tidligereSattAvstemtReferanse, ikkeOppdatertDokumentInfo.getAvstemtReferanse());
 
 		assertNotNull(oppdatertDokumentInfo.getAvstemtDato());

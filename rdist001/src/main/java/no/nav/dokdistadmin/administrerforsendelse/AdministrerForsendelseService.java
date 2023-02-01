@@ -1,12 +1,10 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRequest.Forsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.map.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.map.HentUekspederteForsendelserMapper;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
-import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
@@ -16,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -57,53 +55,51 @@ public class AdministrerForsendelseService {
 		int topN = maksForsendelser == 0 ? MAX_FORSENDELSER : maksForsendelser;
 		List<Long> dokumentInfoIds = dokumentInfoRepository.findEkspedertDokumentInfo(topN);
 
-		if (dokumentInfoIds.size() > BATCH_SIZE) {
-			var partitioned = partitionList(dokumentInfoIds);
-			List<EkspederteForsendelse> result = new ArrayList<>();
-			partitioned.forEach((key, value) -> result.addAll(dokumentInfoRepository.fetchEkspedertDokumentInfo(value)
-					.stream().map(hentEkspederteForsendelserMapper::mapForsendelse).toList()));
-			return new HentEkspederteForsendelserResponse(result);
-		} else {
-			List<DokumentInfo> dokumentInfos = dokumentInfoRepository.fetchEkspedertDokumentInfo(dokumentInfoIds);
-			return hentEkspederteForsendelserMapper.map(dokumentInfos);
-		}
+		var partitioned = partitionList(dokumentInfoIds);
+
+		List<EkspederteForsendelse> result = new ArrayList<>();
+		partitioned.forEach(partition -> result.addAll(
+						dokumentInfoRepository.fetchEkspedertDokumentInfo(partition).stream()
+								.map(hentEkspederteForsendelserMapper::mapForsendelse)
+								.toList()
+				)
+		);
+
+		return new HentEkspederteForsendelserResponse(result);
 	}
 
 	@Transactional
 	public void avstemEkspederteForsendelser(AvstemEkspederteForsendelserRequest avstemEkspederteForsendelserRequest) {
-		List<Long> forsendelseIds = avstemEkspederteForsendelserRequest.getForsendelser().stream()
+		var forsendelser = avstemEkspederteForsendelserRequest.getForsendelser().stream()
 				.map(Forsendelse::getForsendelseId)
 				.toList();
 
-		if (forsendelseIds.size() > BATCH_SIZE) {
-			Map<Integer, List<Long>> forsendelseIdPartisjoner = partitionList(forsendelseIds);
-			forsendelseIdPartisjoner.forEach((key, value) -> {
-				dokumentDistribusjonRepository.updateDokumentInfosAvstemtArkivDato(value, MDC.get(USER_ID));
-				log.info("avstemEkspederteForsendelser har oppdatert avstemtArkivDato på totalt={} forsendelser", value.size());
-			});
-		} else {
-			dokumentDistribusjonRepository.updateDokumentInfosAvstemtArkivDato(forsendelseIds, MDC.get(USER_ID));
-			log.info("avstemEkspederteForsendelser har oppdatert avstemtArkivDato på totalt={} forsendelser", forsendelseIds.size());
-		}
+		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
+		forsendelseIdPartisjoner.forEach(partition -> {
+			var antallOppdaterteForsendelser = dokumentDistribusjonRepository.updateDokumentInfosAvstemtArkivDato(partition, MDC.get(USER_ID));
+			log.info("avstemEkspederteForsendelser har oppdatert avstemtArkivDato på {} forsendelser", antallOppdaterteForsendelser);
+		});
 	}
 
 	@Transactional
 	public void avstemForsendelser(AvstemForsendelserRequest avstemForsendelserRequest) {
-
-		var forsendelser = avstemForsendelserRequest.getForsendelser().stream()
-				.map(it -> Long.valueOf(it.getForsendelseId()))
-				.toList();
 		var avstemtReferanse = avstemForsendelserRequest.getAvstemtReferanse();
+		var forsendelser = avstemForsendelserRequest.getForsendelser().stream()
+				.map(Forsendelse::getForsendelseId)
+				.toList();
 
-		var oppdaterteForsendelser = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, forsendelser, MDC.get(USER_ID));
-
-		log.info("avstemForsendelser har oppdatert {} forsendelser", oppdaterteForsendelser);
+		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
+		forsendelseIdPartisjoner.forEach(partition -> {
+			var antallOppdaterteForsendelser = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, partition, MDC.get(USER_ID));
+			log.info("avstemForsendelser har oppdatert avstemtReferanse og avstemtDato på {} forsendelser", antallOppdaterteForsendelser);
+		});
 	}
 
-	//Del opp liste med forsendelseIder i partisjoner med størrelse lik BATCH_SIZE
-	Map<Integer, List<Long>> partitionList(final List<Long> list) {
+	// Del opp liste med forsendelseIder i partisjoner med størrelse lik BATCH_SIZE
+	Collection<List<Long>> partitionList(final List<Long> list) {
 		return IntStream.range(0, list.size()).boxed()
-				.collect(groupingBy(partition -> (partition / BATCH_SIZE), mapping(list::get, toList())));
+				.collect(groupingBy(partition -> (partition / BATCH_SIZE), mapping(list::get, toList())))
+				.values();
 	}
 
 	public HentUekspederteForsendelserResponse hentUekspederteForsendelser(String distribusjonkanal, Long antallTimer) {
