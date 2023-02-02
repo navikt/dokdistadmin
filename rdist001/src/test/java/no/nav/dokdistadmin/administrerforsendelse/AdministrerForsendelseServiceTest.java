@@ -78,7 +78,7 @@ class AdministrerForsendelseServiceTest {
 		List<Forsendelse> forsendelseList = createForsendelser(antallForsendelser);
 
 		var avstemEkspederteForsendelserRequest = new AvstemEkspederteForsendelserRequest(forsendelseList);
-		when(dokumentDistribusjonRepository.updateDokumentInfosAvstemtArkivDato(anyList(), anyString()))
+		when(dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(anyList(), anyString()))
 				.thenAnswer(i -> {
 					List<Long> forsendelser = i.getArgument(0);
 					return forsendelser.size();
@@ -86,7 +86,7 @@ class AdministrerForsendelseServiceTest {
 
 		ekspederteForsendelserService.avstemEkspederteForsendelser(avstemEkspederteForsendelserRequest);
 
-		verify(dokumentDistribusjonRepository, times(antallKallTilDb)).updateDokumentInfosAvstemtArkivDato(anyList(), anyString());
+		verify(dokumentInfoRepository, times(antallKallTilDb)).updateDokumentInfosAvstemtArkivDato(anyList(), anyString());
 	}
 
 	@ParameterizedTest

@@ -76,7 +76,7 @@ public class AdministrerForsendelseService {
 
 		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
 		forsendelseIdPartisjoner.forEach(partition -> {
-			var antallOppdaterteForsendelser = dokumentDistribusjonRepository.updateDokumentInfosAvstemtArkivDato(partition, MDC.get(USER_ID));
+			var antallOppdaterteForsendelser = dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(partition, MDC.get(USER_ID));
 			log.info("avstemEkspederteForsendelser har oppdatert avstemtArkivDato på {} forsendelser", antallOppdaterteForsendelser);
 		});
 	}

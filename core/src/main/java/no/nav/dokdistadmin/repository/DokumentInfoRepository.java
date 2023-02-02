@@ -1,5 +1,6 @@
 package no.nav.dokdistadmin.repository;
 
+import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
@@ -21,6 +22,19 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 
 	DokumentInfo findDokumentInfoByArkivkode(String arkivkode);
 
+	@Modifying
+	@Query("""
+			update DokumentInfo dok
+				set dok.avstemtArkivDato = current_timestamp,
+				dok.changeStamp.endretAv = :endretAv,
+				dok.changeStamp.endretDato = current_timestamp,
+				dok.version = dok.version + 1
+				where dok.dokumentInfoId in :dokumentInfoIds
+			""")
+	int updateDokumentInfosAvstemtArkivDato(
+			@Param("dokumentInfoIds") List<Long> dokumentInfoIds,
+			@Param("endretAv") String endretAv);
+
 	@Query("""
 			select dok from DokumentInfo dok, DistribusjonInfo dis
 				where dok.dokumentStatus in (:dokumentStatusList)
@@ -32,7 +46,6 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			@Param("dokumentStatusList") List<DokumentStatusCode> dokumentStatusList,
 			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal,
 			@Param("opprettetEtter") LocalDateTime opprettetEtter);
-
 
 	@Modifying
 	@Query("""
@@ -47,6 +60,32 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 	int updateAvstemtReferanseAndAvstemtDatoForIdIn(
 			@Param("avstemtReferanse") String avstemtReferanse,
 			@Param("dokumentInfoIdList") List<Long> dokumentInfoIdList,
+			@Param("endretAv") String endretAv);
+
+	@Modifying
+	@Query("""
+			update DokumentInfo di set di.dokumentStatus = :dokumentstatus,
+				di.changeStamp.endretAv = :endretAv,
+				di.changeStamp.endretDato = current_timestamp,
+				di.version = di.version + 1
+				where di.distribusjonInfo = :distribusjoninfo
+			""")
+	void updateStatusForAllDokumentInfosRelatedTo(
+			@Param("distribusjoninfo") DistribusjonInfo distribusjoninfo,
+			@Param("dokumentstatus") DokumentStatusCode dokumentstatus,
+			@Param("endretAv") String endretAv);
+
+	@Modifying
+	@Query("""
+			update DokumentInfo di set di.dokumentStatus = 'EKSPEDERT',
+				di.ekspedertDato = current_timestamp,
+				di.changeStamp.endretAv = :endretAv,
+				di.changeStamp.endretDato = current_timestamp,
+				di.version = di.version + 1
+				where di.distribusjonInfo = :distribusjoninfo
+			""")
+	void updateStatusToEkspedertForAllDokumentInfosRelatedTo(
+			@Param("distribusjoninfo") DistribusjonInfo distribusjoninfo,
 			@Param("endretAv") String endretAv);
 
 }

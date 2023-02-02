@@ -4,6 +4,7 @@ import no.nav.dokdistadmin.config.AbstractRepositoryTest;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
+import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
@@ -205,6 +207,100 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		assertNotNull(oppdatertDokumentInfo.getAvstemtDato());
 		assertNull(ikkeOppdatertDokumentInfo.getAvstemtDato());
+	}
+
+	@Test
+	void shouldUpdateDokumentInfosAvstemtArkivDato() {
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		var dokumentInfoList = Set.of(
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
+						.dokumentStatus(DokumentStatusCode.OVERSENDT)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_2)
+						.dokumentStatus(DokumentStatusCode.OVERSENDT)
+						.build()
+		);
+
+		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
+		dokumentDistribusjonRepository.save(distribusjoninfo);
+
+		var dokumentInfoIdList = distribusjoninfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList();
+
+		dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(dokumentInfoIdList, USER_ID);
+		commitAndBeginNewTransaction();
+
+		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjoninfo.getDistribusjonId());
+
+		assertTrue(result.getDokumentInfos().stream().
+				allMatch(it -> it.getAvstemtArkivDato() != null &&
+						it.getChangeStamp().getEndretAv() != null &&
+						it.getChangeStamp().getEndretDato() != null &&
+						it.getVersion() == 1));
+	}
+
+	@Test
+	void shouldUpdateStatusForAllDokumentInfosRelatedTo() {
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		var dokumentInfoList = Set.of(
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
+						.dokumentStatus(DokumentStatusCode.OPPRETTET)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_2)
+						.dokumentStatus(DokumentStatusCode.OPPRETTET)
+						.build()
+		);
+
+		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
+		dokumentDistribusjonRepository.save(distribusjoninfo);
+
+		dokumentInfoRepository.updateStatusForAllDokumentInfosRelatedTo(distribusjoninfo, DokumentStatusCode.OVERSENDT, USER_ID);
+		commitAndBeginNewTransaction();
+
+		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjoninfo.getDistribusjonId());
+
+		assertTrue(result.getDokumentInfos().stream().
+				allMatch(it -> it.getDokumentStatus() == DokumentStatusCode.OVERSENDT &&
+						it.getChangeStamp().getEndretAv() != null &&
+						it.getChangeStamp().getEndretDato() != null &&
+						it.getVersion() == 1));
+	}
+
+	@Test
+	void shouldUpdateStatusToEkspedertForAllDokumentInfosRelatedTo() {
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		var dokumentInfoList = Set.of(
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
+						.dokumentStatus(DokumentStatusCode.OPPRETTET)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_2)
+						.dokumentStatus(DokumentStatusCode.OPPRETTET)
+						.build()
+		);
+
+		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
+		dokumentDistribusjonRepository.save(distribusjoninfo);
+
+		dokumentInfoRepository.updateStatusToEkspedertForAllDokumentInfosRelatedTo(distribusjoninfo, USER_ID);
+		commitAndBeginNewTransaction();
+
+		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjoninfo.getDistribusjonId());
+
+		assertTrue(result.getDokumentInfos().stream().allMatch(
+				it -> it.getDokumentStatus() == DokumentStatusCode.EKSPEDERT &&
+						it.getChangeStamp().getEndretAv() != null &&
+						it.getChangeStamp().getEndretDato() != null &&
+						it.getVersion() == 1));
 	}
 
 	private Set<DokumentInfo> getDokumentInfoSet(DistribusjonInfo distribusjonInfo) {
