@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -69,30 +70,38 @@ public class AdministrerForsendelseService {
 	}
 
 	@Transactional
-	public void avstemEkspederteForsendelser(AvstemEkspederteForsendelserRequest avstemEkspederteForsendelserRequest) {
+	public int avstemEkspederteForsendelser(AvstemEkspederteForsendelserRequest avstemEkspederteForsendelserRequest) {
+		var userId = MDC.get(USER_ID);
 		var forsendelser = avstemEkspederteForsendelserRequest.getForsendelser().stream()
 				.map(Forsendelse::getForsendelseId)
 				.toList();
 
+		AtomicInteger antallOppdaterteForsendelser = new AtomicInteger();
+
 		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
-		forsendelseIdPartisjoner.forEach(partition -> {
-			var antallOppdaterteForsendelser = dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(partition, MDC.get(USER_ID));
-			log.info("avstemEkspederteForsendelser har oppdatert avstemtArkivDato på {} forsendelser", antallOppdaterteForsendelser);
-		});
+		forsendelseIdPartisjoner.forEach(partition ->
+			antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(partition, userId))
+		);
+
+		return antallOppdaterteForsendelser.get();
 	}
 
 	@Transactional
-	public void avstemForsendelser(AvstemForsendelserRequest avstemForsendelserRequest) {
+	public int avstemForsendelser(AvstemForsendelserRequest avstemForsendelserRequest) {
+		var userId = MDC.get(USER_ID);
 		var avstemtReferanse = avstemForsendelserRequest.getAvstemtReferanse();
 		var forsendelser = avstemForsendelserRequest.getForsendelser().stream()
 				.map(Forsendelse::getForsendelseId)
 				.toList();
 
+		AtomicInteger antallOppdaterteForsendelser = new AtomicInteger();
+
 		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
-		forsendelseIdPartisjoner.forEach(partition -> {
-			var antallOppdaterteForsendelser = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, partition, MDC.get(USER_ID));
-			log.info("avstemForsendelser har oppdatert avstemtReferanse og avstemtDato på {} forsendelser", antallOppdaterteForsendelser);
-		});
+		forsendelseIdPartisjoner.forEach(partition ->
+			antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, partition, userId))
+		);
+
+		return antallOppdaterteForsendelser.get();
 	}
 
 	// Del opp liste med forsendelseIder i partisjoner med størrelse lik BATCH_SIZE
