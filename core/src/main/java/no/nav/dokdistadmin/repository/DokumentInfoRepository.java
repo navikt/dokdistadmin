@@ -39,8 +39,7 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			update DokumentInfo dok
 				set dok.avstemtArkivDato = current_timestamp,
 				dok.changeStamp.endretAv = :endretAv,
-				dok.changeStamp.endretDato = current_timestamp,
-				dok.version = dok.version + 1
+				dok.changeStamp.endretDato = current_timestamp
 				where dok.dokumentInfoId in :dokumentInfoIds
 			""")
 	int updateDokumentInfosAvstemtArkivDato(
@@ -53,8 +52,7 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			   	dok.avstemtReferanse = :avstemtReferanse,
 			   	dok.avstemtDato = current_timestamp,
 				dok.changeStamp.endretAv = :endretAv,
-				dok.changeStamp.endretDato = current_timestamp,
-				dok.version = dok.version + 1
+				dok.changeStamp.endretDato = current_timestamp
 				where dok.dokumentInfoId in (:dokumentInfoIdList)
 				and dok.avstemtReferanse is null
 			""")
@@ -67,8 +65,7 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 	@Query("""
 			update DokumentInfo dok set dok.dokumentStatus = :dokumentstatus,
 				dok.changeStamp.endretAv = :endretAv,
-				dok.changeStamp.endretDato = current_timestamp,
-				dok.version = dok.version + 1
+				dok.changeStamp.endretDato = current_timestamp
 				where dok.distribusjonInfo = :distribusjoninfo
 			""")
 	void updateStatusForAllDokumentInfosRelatedTo(
@@ -81,8 +78,7 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			update DokumentInfo dok set dok.dokumentStatus = 'EKSPEDERT',
 				dok.ekspedertDato = current_timestamp,
 				dok.changeStamp.endretAv = :endretAv,
-				dok.changeStamp.endretDato = current_timestamp,
-				dok.version = dok.version + 1
+				dok.changeStamp.endretDato = current_timestamp
 				where dok.distribusjonInfo = :distribusjoninfo
 			""")
 	void updateStatusToEkspedertForAllDokumentInfosRelatedTo(

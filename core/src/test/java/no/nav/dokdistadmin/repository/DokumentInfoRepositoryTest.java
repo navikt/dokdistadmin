@@ -239,8 +239,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		assertTrue(result.getDokumentInfos().stream().
 				allMatch(it -> it.getAvstemtArkivDato() != null &&
 						it.getChangeStamp().getEndretAv() != null &&
-						it.getChangeStamp().getEndretDato() != null &&
-						it.getVersion() == 1));
+						it.getChangeStamp().getEndretDato() != null));
 	}
 
 	@Test
@@ -269,8 +268,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		assertTrue(result.getDokumentInfos().stream().
 				allMatch(it -> it.getDokumentStatus() == DokumentStatusCode.OVERSENDT &&
 						it.getChangeStamp().getEndretAv() != null &&
-						it.getChangeStamp().getEndretDato() != null &&
-						it.getVersion() == 1));
+						it.getChangeStamp().getEndretDato() != null));
 	}
 
 	@Test
@@ -299,8 +297,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		assertTrue(result.getDokumentInfos().stream().allMatch(
 				it -> it.getDokumentStatus() == DokumentStatusCode.EKSPEDERT &&
 						it.getChangeStamp().getEndretAv() != null &&
-						it.getChangeStamp().getEndretDato() != null &&
-						it.getVersion() == 1));
+						it.getChangeStamp().getEndretDato() != null));
 	}
 
 	private Set<DokumentInfo> getDokumentInfoSet(DistribusjonInfo distribusjonInfo) {
