@@ -1,11 +1,7 @@
-package no.nav.dokdistadmin.administrerforsendelse.map;
+package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.dokdistadmin.administrerforsendelse.EkspederteForsendelse;
-import no.nav.dokdistadmin.administrerforsendelse.HentEkspederteForsendelserResponse;
-import no.nav.dokdistadmin.administrerforsendelse.KontaktInfo;
-import no.nav.dokdistadmin.administrerforsendelse.VarselDigitalInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.Postadresse;

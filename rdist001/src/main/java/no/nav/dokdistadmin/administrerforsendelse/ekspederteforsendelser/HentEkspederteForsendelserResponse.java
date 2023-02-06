@@ -1,4 +1,4 @@
-package no.nav.dokdistadmin.administrerforsendelse;
+package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
 import java.util.List;
 

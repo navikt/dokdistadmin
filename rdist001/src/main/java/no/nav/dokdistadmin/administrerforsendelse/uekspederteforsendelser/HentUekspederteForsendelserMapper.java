@@ -1,7 +1,6 @@
-package no.nav.dokdistadmin.administrerforsendelse.map;
+package no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser;
 
-import no.nav.dokdistadmin.administrerforsendelse.HentUekspederteForsendelserResponse;
-import no.nav.dokdistadmin.administrerforsendelse.HentUekspederteForsendelserResponse.UekspedertForsendelse;
+import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse.UekspedertForsendelse;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import org.apache.commons.lang3.StringUtils;

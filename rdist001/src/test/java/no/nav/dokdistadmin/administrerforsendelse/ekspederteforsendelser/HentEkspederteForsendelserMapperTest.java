@@ -1,7 +1,5 @@
-package no.nav.dokdistadmin.administrerforsendelse.map;
+package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
-import no.nav.dokdistadmin.administrerforsendelse.EkspederteForsendelse;
-import no.nav.dokdistadmin.administrerforsendelse.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import org.junit.jupiter.api.Test;
 

@@ -1,8 +1,7 @@
-package no.nav.dokdistadmin.administrerforsendelse.map;
+package no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser;
 
-import no.nav.dokdistadmin.administrerforsendelse.HentUekspederteForsendelserResponse;
-import no.nav.dokdistadmin.administrerforsendelse.HentUekspederteForsendelserResponse.UekspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.TestUtils;
+import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse.UekspedertForsendelse;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -1,10 +1,11 @@
-package no.nav.dokdistadmin.administrerforsendelse;
+package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.nav.dokdistadmin.administrerforsendelse.Forsendelse;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;

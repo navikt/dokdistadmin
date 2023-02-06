@@ -1,4 +1,4 @@
-package no.nav.dokdistadmin.administrerforsendelse;
+package no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser;
 
 import lombok.Builder;
 import lombok.Data;
