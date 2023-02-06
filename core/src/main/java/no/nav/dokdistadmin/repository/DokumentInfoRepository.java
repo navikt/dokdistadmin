@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 
 public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Long>, CustomDokumentInfoRepository {
@@ -27,12 +28,11 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 				where dok.dokumentStatus in (:dokumentStatusList)
 				and dok.distribusjonInfo = dis
 				and dis.distribusjonKanal = :distribusjonKanal
-				and dok.changeStamp.opprettetDato >= :opprettetEtter
+				and dok.changeStamp.opprettetDato >= TO_DATE('2022-01-01', 'yyyy-mm-dd')
 			""")
 	List<DokumentInfo> findDokumentInfoByDokumentStatusAndDistribusjonKanal(
-			@Param("dokumentStatusList") List<DokumentStatusCode> dokumentStatusList,
-			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal,
-			@Param("opprettetEtter") LocalDateTime opprettetEtter);
+			@Param("dokumentStatusList") EnumSet<DokumentStatusCode> dokumentStatusList,
+			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal);
 
 	@Modifying
 	@Query("""

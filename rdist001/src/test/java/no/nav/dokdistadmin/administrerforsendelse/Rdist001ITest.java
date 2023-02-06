@@ -1,5 +1,6 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
+import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEformidlingforsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
@@ -10,6 +11,7 @@ import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
+import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.VarselInfo;
@@ -17,14 +19,16 @@ import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -49,6 +53,8 @@ import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistrib
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumentInfoWithStatusCode;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
@@ -58,6 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
@@ -73,6 +80,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class Rdist001ITest extends AbstractOauth2Test {
 
 	private static final AtomicInteger EKSPEDERT_COUNTER = new AtomicInteger(0);
+
+	private static final String HENTEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentekspederteforsendelser";
+	private static final String AVSTEMEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemekspederteforsendelser";
+	private static final String HENTUEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentuekspederteforsendelser";
+	private static final String AVSTEMFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemforsendelser";
+	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
 
 	@Autowired
 	public WebTestClient webTestClient;
@@ -137,7 +150,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		setupDatabase();
 
 		var response = webTestClient.method(GET)
-				.uri("/rest/v1/administrerforsendelse/hentekspederteforsendelser")
+				.uri(HENTEKSPEDERTEFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(new HentEkspederteForsendelserRequest(maksForsendelser))
 				.exchange()
@@ -171,7 +184,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		commitAndBeginNewTransaction();
 
 		webTestClient.method(GET)
-				.uri("/rest/v1/administrerforsendelse/hentekspederteforsendelser")
+				.uri(HENTEKSPEDERTEFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(new HentEkspederteForsendelserRequest(2))
 				.exchange()
@@ -188,7 +201,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		setupDatabase();
 
 		var response = webTestClient.method(GET)
-				.uri("/rest/v1/administrerforsendelse/hentekspederteforsendelser")
+				.uri(HENTEKSPEDERTEFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.contentType(APPLICATION_JSON)
 				.bodyValue(jsonRequest)
@@ -213,7 +226,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		));
 
 		webTestClient.put()
-				.uri("/rest/v1/administrerforsendelse/avstemekspederteforsendelser")
+				.uri(AVSTEMEKSPEDERTEFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(request)
 				.exchange()
@@ -231,7 +244,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 	void skalReturnereBadRequestForUgyldigeRequests(String distribusjonkanal, String antallTimer) {
 
 		var response = webTestClient.get()
-				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", distribusjonkanal, antallTimer))
+				.uri(format(HENTUEKSPEDERTEFORSENDELSER_URI + "/%s/%s", distribusjonkanal, antallTimer))
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus()
@@ -260,7 +273,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		commitAndBeginNewTransaction();
 
 		var response = webTestClient.get()
-				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", distribusjonkanal, antallTimer))
+				.uri(format(HENTUEKSPEDERTEFORSENDELSER_URI + "/%s/%s", distribusjonkanal, antallTimer))
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus()
@@ -289,7 +302,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		commitAndBeginNewTransaction();
 
 		webTestClient.get()
-				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", distribusjonkanal, antallTimer))
+				.uri(format(HENTUEKSPEDERTEFORSENDELSER_URI + "/%s/%s", distribusjonkanal, antallTimer))
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus()
@@ -319,7 +332,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		commitAndBeginNewTransaction();
 
 		var response = webTestClient.get()
-				.uri(format("/rest/v1/administrerforsendelse/hentuekspederteforsendelser/%s/%s", SDP, antallTimer))
+				.uri(format(HENTUEKSPEDERTEFORSENDELSER_URI + "/%s/%s", SDP, antallTimer))
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus()
@@ -344,7 +357,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		));
 
 		webTestClient.put()
-				.uri("/rest/v1/administrerforsendelse/avstemekspederteforsendelser")
+				.uri(AVSTEMEKSPEDERTEFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwtWithoutAzpNameClaim()))
 				.bodyValue(request)
 				.exchange()
@@ -361,7 +374,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		var request = new AvstemEkspederteForsendelserRequest(forsendelser);
 
 		webTestClient.put()
-				.uri("/rest/v1/administrerforsendelse/avstemekspederteforsendelser")
+				.uri(AVSTEMEKSPEDERTEFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(request)
 				.exchange()
@@ -385,7 +398,7 @@ public class Rdist001ITest extends AbstractOauth2Test {
 		var request = new AvstemForsendelserRequest(avstemtReferanse, List.of(new Forsendelse(dokumentInfoId)));
 
 		webTestClient.put()
-				.uri("/rest/v1/administrerforsendelse/avstemforsendelser")
+				.uri(AVSTEMFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(request)
 				.exchange()
@@ -395,12 +408,152 @@ public class Rdist001ITest extends AbstractOauth2Test {
 
 		var dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
 
-		Assertions.assertThat(dokumentInfo)
+		assertThat(dokumentInfo)
 				.isNotNull()
 				.satisfies(it -> {
 					assertThat(it.getAvstemtReferanse()).isEqualTo(avstemtReferanse);
 					assertThat(it.getAvstemtDato()).isNotNull();
 				});
+	}
+
+	@Test
+	void skalKunHenteEformidlingforsendelserMedDokumentstatusOversendtEllerBekreftet() {
+		var distribusjonSomSkalHentes = createDistribusjonInfoWithoutDokumentInfo();
+		distribusjonSomSkalHentes.setDistribusjonKanal(TRYGDERETTEN);
+
+		var opprettetDokument = createDokumentInfoWithStatusCode(OPPRETTET);
+		var oversendtDokument = createDokumentInfoWithStatusCode(OVERSENDT);
+		var ekspedertDokument = createDokumentInfoWithStatusCode(EKSPEDERT);
+		var bekreftetDokument = createDokumentInfoWithStatusCode(BEKREFTET);
+
+		opprettetDokument.setDokumentId("opprettetDokument");
+		oversendtDokument.setDokumentId("oversendtDokument");
+		ekspedertDokument.setDokumentId("ekspedertDokument");
+		bekreftetDokument.setDokumentId("bekreftetDokument");
+
+		distribusjonSomSkalHentes.addDokumentInfo(opprettetDokument);
+		distribusjonSomSkalHentes.addDokumentInfo(oversendtDokument);
+		distribusjonSomSkalHentes.addDokumentInfo(ekspedertDokument);
+		distribusjonSomSkalHentes.addDokumentInfo(bekreftetDokument);
+
+		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(HENTEFORMIDLINGFORSENDELSER_URI + "?distribusjonKanal=TRYGDERETTEN")
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentEformidlingforsendelserResponse.class)
+				.getResponseBody()
+				.blockFirst();
+
+		assertNotNull(response);
+		assertEquals(2, response.getForsendelser().size());
+
+		var forventetDokumentMedStatusOversendt = dokumentInfoRepository.findDokumentInfoByDokumentId(oversendtDokument.getDokumentId());
+		var forventetDokumentMedStatusBekreftet = dokumentInfoRepository.findDokumentInfoByDokumentId(bekreftetDokument.getDokumentId());
+		var forventedeIder = List.of(forventetDokumentMedStatusOversendt.getDokumentInfoId(), forventetDokumentMedStatusBekreftet.getDokumentInfoId());
+		var faktiskeIder = response.getForsendelser().stream().map(HentEformidlingforsendelserResponse.Forsendelse::getForsendelseId).toList();
+
+		assertThat(forventedeIder).containsExactlyInAnyOrderElementsOf(faktiskeIder);
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = DistribusjonKanalCode.class)
+	void skalHenteEformidlingforsendelserForGittDistribusjonskanal(DistribusjonKanalCode distribusjonskanal) {
+		var distribusjonSomSkalHentes = createDistribusjonInfoWithoutDokumentInfo();
+		distribusjonSomSkalHentes.setDistribusjonKanal(distribusjonskanal);
+
+		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(BEKREFTET));
+		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path(HENTEFORMIDLINGFORSENDELSER_URI)
+						.queryParam("distribusjonKanal", distribusjonskanal.name())
+						.build())
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentEformidlingforsendelserResponse.class)
+				.getResponseBody()
+				.blockFirst();
+
+		assertNotNull(response);
+		assertEquals(1, response.getForsendelser().size());
+	}
+
+	@Test
+	void skalIkkeHenteGamleEformidlingforsendelser() {
+		var distribusjonSomSkalHentes = createDistribusjonInfoWithoutDokumentInfo();
+		distribusjonSomSkalHentes.setDistribusjonKanal(TRYGDERETTEN);
+		var dokument = createDokumentInfoWithStatusCode(BEKREFTET);
+		distribusjonSomSkalHentes.addDokumentInfo(dokument);
+		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+
+		commitAndBeginNewTransaction();
+
+		entityManager.createQuery("update DokumentInfo dok set dok.changeStamp.opprettetDato = :tid where dok.dokumentId=:id")
+				.setParameter("tid", LocalDateTime.of(2021, 12, 31, 0, 0, 0))
+				.setParameter("id", dokument.getDokumentId())
+				.executeUpdate();
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(HENTEFORMIDLINGFORSENDELSER_URI + "?distribusjonKanal=TRYGDERETTEN")
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentEformidlingforsendelserResponse.class)
+				.getResponseBody()
+				.blockFirst();
+
+		assertNotNull(response);
+		assertTrue(response.getForsendelser().isEmpty());
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = DistribusjonKanalCode.class, names = {"TRYGDERETTEN"}, mode = EXCLUDE)
+	void skalIkkeHenteEformidlingforsendelserMedFeilDistribusjonskanal(DistribusjonKanalCode distribusjonskanal) {
+		var distribusjonSomSkalHentes = createDistribusjonInfoWithoutDokumentInfo();
+		distribusjonSomSkalHentes.setDistribusjonKanal(distribusjonskanal);
+
+		var dokument = createDokumentInfoWithStatusCode(BEKREFTET);
+		distribusjonSomSkalHentes.addDokumentInfo(dokument);
+		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(HENTEFORMIDLINGFORSENDELSER_URI + "?distribusjonKanal=TRYGDERETTEN")
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentEformidlingforsendelserResponse.class)
+				.getResponseBody()
+				.blockFirst();
+
+		assertNotNull(response);
+		assertTrue(response.getForsendelser().isEmpty());
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"?distribusjonKanal=UGYLDIG_KANAL",
+			"?kanalDistribusjon=TRYGDERETTEN",
+	})
+	@EmptySource
+	void skalReturnereBadRequestGittUgyldigEllerManglendeDistribusjonKanal(String pathParam) {
+		webTestClient.get()
+				.uri(HENTEFORMIDLINGFORSENDELSER_URI + pathParam)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isBadRequest();
 	}
 
 	public void commitAndBeginNewTransaction() {
