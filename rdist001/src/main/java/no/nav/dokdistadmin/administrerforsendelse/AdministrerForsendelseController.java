@@ -48,8 +48,9 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<Void> avstemEkspederteForsendelser(@RequestBody @Valid AvstemEkspederteForsendelserRequest forsendelserRequest) {
 		log.info("avstemekspederteforsendelser har mottatt kall om å avstemme {} ekspederte forsendelser", forsendelserRequest.getForsendelser().size());
 
-		ekspederteForsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
-		log.info("avstemekspederteforsendelser har avstemt ekspederte forsendelser");
+		var antallOppdaterteForsendelser = ekspederteForsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
+
+		log.info("avstemekspederteforsendelser har oppdatert avstemtArkivDato på {} forsendelser", antallOppdaterteForsendelser);
 
 		return ResponseEntity.ok().build();
 	}
@@ -68,6 +69,20 @@ public class AdministrerForsendelseController {
 				uekspederteForsendelser.getUekspederteForsendelser().size(), distribusjonkanal, antallTimer);
 
 		return uekspederteForsendelser.getUekspederteForsendelser().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(uekspederteForsendelser);
+	}
+
+	@PutMapping("/avstemforsendelser")
+	public ResponseEntity<Void> avstemForsendelser(@RequestBody @Valid AvstemForsendelserRequest avstemForsendelserRequest) {
+
+		log.info("avstemforsendelser har mottatt kall om å oppdatere {} forsendelser med avstemtDato og avstemtReferanse={}",
+				avstemForsendelserRequest.getForsendelser().size(),
+				avstemForsendelserRequest.getAvstemtReferanse());
+
+		var antallOppdaterteForsendelser = ekspederteForsendelserService.avstemForsendelser(avstemForsendelserRequest);
+
+		log.info("avstemforsendelser har oppdatert avstemtReferanse og avstemtDato på {} forsendelser", antallOppdaterteForsendelser);
+
+		return ResponseEntity.ok().build();
 	}
 
 	@ResponseStatus(BAD_REQUEST)

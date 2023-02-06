@@ -1,6 +1,5 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
-import no.nav.dokdistadmin.administrerforsendelse.AvstemEkspederteForsendelserRequest.Forsendelse;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
@@ -12,6 +11,7 @@ import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -66,7 +66,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ActiveProfiles({"itest"})
 public class Rdist001ITest extends AbstractOauth2Test {
 
-	private static AtomicInteger EKSPEDERT_COUNTER = new AtomicInteger(0);
+	private static final AtomicInteger EKSPEDERT_COUNTER = new AtomicInteger(0);
 
 	@Autowired
 	public WebTestClient webTestClient;
@@ -367,6 +367,34 @@ public class Rdist001ITest extends AbstractOauth2Test {
 				Arguments.of(Collections.emptyList()),
 				Arguments.of(List.of(new Forsendelse(0L)))
 		);
+	}
+
+	@Test
+	void skalAvstemmeForsendelser() {
+		setupDatabase();
+
+		var dokumentInfoId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
+		var avstemtReferanse = "MMA-1234";
+
+		var request = new AvstemForsendelserRequest(avstemtReferanse, List.of(new Forsendelse(dokumentInfoId)));
+
+		webTestClient.put()
+				.uri("/rest/v1/administrerforsendelse/avstemforsendelser")
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isOk();
+
+		commitAndBeginNewTransaction();
+
+		var dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
+
+		Assertions.assertThat(dokumentInfo)
+				.isNotNull()
+				.satisfies(it -> {
+					assertThat(it.getAvstemtReferanse()).isEqualTo(avstemtReferanse);
+					assertThat(it.getAvstemtDato()).isNotNull();
+				});
 	}
 
 	public void commitAndBeginNewTransaction() {
