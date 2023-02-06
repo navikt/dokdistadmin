@@ -1,5 +1,11 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;

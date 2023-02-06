@@ -1,8 +1,13 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.dokdistadmin.administrerforsendelse.map.HentEkspederteForsendelserMapper;
-import no.nav.dokdistadmin.administrerforsendelse.map.HentUekspederteForsendelserMapper;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserMapper;
+import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;

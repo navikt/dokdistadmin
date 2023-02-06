@@ -1,5 +1,7 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
