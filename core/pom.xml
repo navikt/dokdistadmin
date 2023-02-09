@@ -63,6 +63,11 @@
 			<artifactId>ucp11</artifactId>
 		</dependency>
 
+		<!-- Metrikker -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
 
 		<!-- Test -->
 		<dependency>
