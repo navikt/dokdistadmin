@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.Postadresse;
-import no.nav.dokdistadmin.exception.functional.DokdistJsonParseException;
+import no.nav.dokdistadmin.exception.functional.JsonParseException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
@@ -120,7 +120,7 @@ public class HentEkspederteForsendelserMapper {
 		try {
 			return objectMapper.writeValueAsString(varselInfoTo);
 		} catch (JsonProcessingException e) {
-			throw new DokdistJsonParseException("kan ikke prosess til json String", e);
+			throw new JsonParseException("kan ikke prosess til json String", e);
 		}
 	}
 
