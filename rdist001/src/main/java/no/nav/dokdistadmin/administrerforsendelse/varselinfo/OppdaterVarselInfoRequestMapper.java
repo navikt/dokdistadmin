@@ -23,7 +23,7 @@ public class OppdaterVarselInfoRequestMapper {
 				.toList();
 	}
 
-	static String mapVarslingstekst(Notifikasjon notifikasjon) {
+	private static String mapVarslingstekst(Notifikasjon notifikasjon) {
 		if (EPOST.equals(notifikasjon.getKanal())) {
 			return String.format("Tittel %s, Tekst %s", notifikasjon.getTittel(), notifikasjon.getTekst());
 		} else {
