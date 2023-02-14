@@ -12,7 +12,7 @@ public class OppdaterVarselInfoRequestMapper {
 
 	public static List<VarselInfo> mapOppdaterVarselInfoRequest(OppdaterVarselInfoRequest oppdaterVarselInfoRequest, DokumentInfo dokumentInfo) {
 
-		return oppdaterVarselInfoRequest.getNotifikasjonList().stream()
+		return oppdaterVarselInfoRequest.getNotifikasjoner().stream()
 				.map(notifikasjon -> VarselInfo.builder()
 						.varslingKanal(notifikasjon.getKanal())
 						.dokumentInfo(dokumentInfo)

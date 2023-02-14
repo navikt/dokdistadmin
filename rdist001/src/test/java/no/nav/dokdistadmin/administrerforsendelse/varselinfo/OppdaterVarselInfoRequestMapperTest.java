@@ -46,7 +46,7 @@ class OppdaterVarselInfoRequestMapperTest {
 	private OppdaterVarselInfoRequest createOppdateVarselInfoRequest() {
 		return OppdaterVarselInfoRequest.builder()
 				.forsendelseId(1234L)
-				.notifikasjonList(
+				.notifikasjoner(
 						List.of(
 								Notifikasjon.builder()
 										.kanal(MOBILTELEFON)
