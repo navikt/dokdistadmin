@@ -2,28 +2,42 @@ package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.config.AbstractRepositoryTest;
 import no.nav.dokdistadmin.domain.VarselInfo;
-import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
+import java.util.stream.StreamSupport;
+
+import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
+import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VarselInfoRepositoryTest extends AbstractRepositoryTest {
 
-	private static final String MOBILTELEFONNUMMER = "95123456";
-	private static final String MELDING = "Dette er en melding";
+	private static final String KONTAKTINFO_SMS = "98765432";
+	private static final String KONTAKTINFO_EPOST = "mottaker@nav.no";
+	private static final String VARSLINGSTEKST_SMS = "Dette er en melding";
+	private static final String VARSLINGSTEKST_EPOST = "Tittel Brev til deg, Tekst Dette er en melding";
+
 	@Test
 	void shouldSaveVarselInfo() {
-		var varsel = varselInfoRepository.save(createSMSVarselInfo());
+		var varsler = varselInfoRepository.saveAll(List.of(createSMSVarselInfo(), createEpostVarselInfo()));
 
-		assertNotNull(varsel.getVarselInfoId());
+		assertEquals(2, StreamSupport.stream(varsler.spliterator(), false).count());
 	}
 
 	private static VarselInfo createSMSVarselInfo() {
 		return VarselInfo.builder()
-				.mobiltelefonNummer(MOBILTELEFONNUMMER)
-				.varslingKanal(VarslingKanalCode.MOBILTELEFON)
-				.varslingstekst(MELDING)
+				.varslingKanal(MOBILTELEFON)
+				.mobiltelefonNummer(KONTAKTINFO_SMS)
+				.varslingstekst(VARSLINGSTEKST_SMS)
 				.build();
 	}
 
+	private static VarselInfo createEpostVarselInfo() {
+		return VarselInfo.builder()
+				.varslingKanal(EPOST)
+				.epostAdresse(KONTAKTINFO_EPOST)
+				.varslingstekst(VARSLINGSTEKST_EPOST)
+				.build();
+	}
 }

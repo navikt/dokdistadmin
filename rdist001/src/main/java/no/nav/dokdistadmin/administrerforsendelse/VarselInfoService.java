@@ -2,7 +2,6 @@ package no.nav.dokdistadmin.administrerforsendelse;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
-import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequestMapper;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.VarselInfo;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
+import static no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequestMapper.mapOppdaterVarselInfoRequest;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 
 @Slf4j
@@ -34,6 +34,7 @@ public class VarselInfoService {
 		this.varselInfoRepository = varselInfoRepository;
 		}
 
+	@Transactional
 	public long oppdaterVarselInfo(OppdaterVarselInfoRequest oppdaterVarselInfoRequest) {
 
 		DokumentInfo dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(oppdaterVarselInfoRequest.getForsendelseId());
@@ -50,8 +51,9 @@ public class VarselInfoService {
 			throw new OppdaterVarselInfoException(format("Forsendelse med forsendelseId=%s har ikke forventet distribusjonskanal DITTNAV", oppdaterVarselInfoRequest.getForsendelseId()));
 		}
 
-		List<VarselInfo> varselInfoList = OppdaterVarselInfoRequestMapper.mapOppdaterVarselInfoRequest(oppdaterVarselInfoRequest, dokumentInfo);
+		List<VarselInfo> varselInfoList = mapOppdaterVarselInfoRequest(oppdaterVarselInfoRequest, dokumentInfo);
 		var oppdaterteVarselInfo = varselInfoRepository.saveAll(varselInfoList);
+
 
 		return StreamSupport.stream(oppdaterteVarselInfo.spliterator(), false).count();
 	}
