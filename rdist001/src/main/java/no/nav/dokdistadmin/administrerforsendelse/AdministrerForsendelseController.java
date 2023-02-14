@@ -9,7 +9,6 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEks
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.security.token.support.core.api.Protected;
-import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -96,11 +95,11 @@ public class AdministrerForsendelseController {
 
 	@GetMapping("/henteformidlingforsendelser")
 	public ResponseEntity<HentEformidlingforsendelserResponse> hentEformidlingForsendelser(@RequestParam DistribusjonKanalCode distribusjonKanal) {
-		log.info("henteformidlingforsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanal {}", distribusjonKanal);
+		log.info("henteformidlingforsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanal={}", distribusjonKanal);
 
 		var result = ekspederteForsendelserService.hentEformidlingForsendelser(distribusjonKanal);
 
-		log.info("henteformidlingforsendelser har hentet {} eformidlingforsendelser for distribusjonskanal {}",
+		log.info("henteformidlingforsendelser har hentet antall={} eformidlingforsendelser for distribusjonskanal={}",
 				result.getForsendelser().size(), distribusjonKanal);
 
 		return ResponseEntity.ok(result);

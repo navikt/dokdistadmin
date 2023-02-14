@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -24,7 +23,8 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 	DokumentInfo findDokumentInfoByArkivkode(String arkivkode);
 
 	@Query("""
-			select dok from DokumentInfo dok, DistribusjonInfo dis
+			select dok from DokumentInfo dok
+			 join dok.distribusjonInfo dis
 				where dok.dokumentStatus in (:dokumentStatusList)
 				and dok.distribusjonInfo = dis
 				and dis.distribusjonKanal = :distribusjonKanal

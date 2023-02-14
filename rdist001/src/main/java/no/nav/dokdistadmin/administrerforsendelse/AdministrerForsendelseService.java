@@ -46,8 +46,8 @@ public class AdministrerForsendelseService {
 	private static final int MAX_FORSENDELSER = 10000;
 
 	private static final int OPPRETTET_ANTALL_DAGER_SIDEN = 60;
-	private static final EnumSet<DokumentStatusCode> EKSPEDERTSTATUSER = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
-	private static final EnumSet<DokumentStatusCode> EFORMIDLINGSTATUSER = EnumSet.of(OVERSENDT, BEKREFTET);
+	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_EKSPEDERT = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
+	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT = EnumSet.of(OVERSENDT, BEKREFTET);
 
 	private final DokumentInfoRepository dokumentInfoRepository;
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
@@ -131,7 +131,7 @@ public class AdministrerForsendelseService {
 		var opprettetFoer = LocalDateTime.now().minusHours(antallTimer);
 
 		List<DistribusjonInfo> distribusjonInfoList = dokumentDistribusjonRepository.findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
-				EKSPEDERTSTATUSER, distribusjonkanalCode, opprettetEtter, opprettetFoer);
+				STATUSER_DER_FORSENDELSE_ER_EKSPEDERT, distribusjonkanalCode, opprettetEtter, opprettetFoer);
 
 		return hentUekspederteForsendelserMapper.map(distribusjonInfoList);
 	}
@@ -139,7 +139,7 @@ public class AdministrerForsendelseService {
 	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
 
 		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
-				EFORMIDLINGSTATUSER, distribusjonKanal);
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, distribusjonKanal);
 
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}

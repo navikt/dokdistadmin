@@ -9,9 +9,13 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.UUID;
 
+import static no.nav.dokdistadmin.utils.MDCConstants.CALL_ID;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
+import static no.nav.dokdistadmin.utils.NavHeaders.NAV_CALLID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.truncate;
 
 @Component
@@ -28,7 +32,8 @@ public class SporingInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-		handleMdc();
+		populateCallId(request);
+		populateUserId();
 
 		return true;
 	}
@@ -38,11 +43,22 @@ public class SporingInterceptor implements HandlerInterceptor {
 		MDC.clear();
 	}
 
-	public void handleMdc() {
+	private void populateCallId(HttpServletRequest request) {
+		final String navCallId = request.getHeader(NAV_CALLID);
+
+		if (isNotBlank(navCallId)) {
+			MDC.put(CALL_ID, navCallId);
+		} else {
+			MDC.put(CALL_ID, UUID.randomUUID().toString());
+		}
+	}
+
+	private void populateUserId() {
+
 		MDC.put(USER_ID, truncate(getUserId(), 20));
 	}
 
-	public String getUserId() {
+	String getUserId() {
 		JwtTokenClaims claims = tokenValidationContextHolder.getTokenValidationContext()
 				.getJwtToken(ISSUER_AZUREV2)
 				.getJwtTokenClaims();
