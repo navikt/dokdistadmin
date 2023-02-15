@@ -1,6 +1,8 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEformidlingforsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEformidlingforsendelserResponseMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
@@ -10,6 +12,7 @@ import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUe
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
@@ -28,8 +31,10 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.RETURPOSTBEHANDLET;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
@@ -41,18 +46,21 @@ public class AdministrerForsendelseService {
 	private static final int MAX_FORSENDELSER = 10000;
 
 	private static final int OPPRETTET_ANTALL_DAGER_SIDEN = 60;
-	private static final EnumSet<DokumentStatusCode> EKSPEDERTSTATUSER = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
+	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_EKSPEDERT = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
+	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT = EnumSet.of(OVERSENDT, BEKREFTET);
 
 	private final DokumentInfoRepository dokumentInfoRepository;
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
 	private final HentEkspederteForsendelserMapper hentEkspederteForsendelserMapper;
 	private final HentUekspederteForsendelserMapper hentUekspederteForsendelserMapper;
+	private final HentEformidlingforsendelserResponseMapper hentEformidlingforsendelserResponseMapper;
 
 	public AdministrerForsendelseService(
 			DokumentInfoRepository dokumentInfoRepository,
 			DokumentDistribusjonRepository dokumentDistribusjonRepository) {
 		this.dokumentInfoRepository = dokumentInfoRepository;
 		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
+		this.hentEformidlingforsendelserResponseMapper = new HentEformidlingforsendelserResponseMapper();
 		this.hentEkspederteForsendelserMapper = new HentEkspederteForsendelserMapper();
 		this.hentUekspederteForsendelserMapper = new HentUekspederteForsendelserMapper();
 	}
@@ -123,8 +131,17 @@ public class AdministrerForsendelseService {
 		var opprettetFoer = LocalDateTime.now().minusHours(antallTimer);
 
 		List<DistribusjonInfo> distribusjonInfoList = dokumentDistribusjonRepository.findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
-				EKSPEDERTSTATUSER, distribusjonkanalCode, opprettetEtter, opprettetFoer);
+				STATUSER_DER_FORSENDELSE_ER_EKSPEDERT, distribusjonkanalCode, opprettetEtter, opprettetFoer);
 
 		return hentUekspederteForsendelserMapper.map(distribusjonInfoList);
 	}
+
+	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
+
+		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, distribusjonKanal);
+
+		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
+	}
+
 }

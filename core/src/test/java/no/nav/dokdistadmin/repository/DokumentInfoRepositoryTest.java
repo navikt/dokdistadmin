@@ -8,6 +8,7 @@ import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -121,9 +122,8 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		dokumentInfoRepository.saveAll(dokumentInfos);
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
-				List.of(OPPRETTET),
-				PRINT,
-				LocalDateTime.now().minusHours(1L));
+				EnumSet.of(OPPRETTET),
+				PRINT);
 
 		assertEquals(1, result.size());
 		assertEquals(DOKUMENT_ID_1, result.get(0).getDokumentId());

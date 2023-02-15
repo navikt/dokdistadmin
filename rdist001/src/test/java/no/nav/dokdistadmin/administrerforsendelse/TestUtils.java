@@ -63,7 +63,7 @@ public class TestUtils {
 	public static final DokumentStatusCode DOKUMENT_STATUS_1 = DokumentStatusCode.OPPRETTET;
 
 	//SDP forsinket
-	public static final Long DOKUMENTINFO_ID_2 = 1222L;
+	public static final Long DOKUMENTINFO_ID_2 = 1234L;
 	public static final Long DISTRIBUSJONINFO_ID_2 = 1222L;
 	public static final String KONVERSASJON_ID_2 = "7ef3e7c7-cd4c-40bd-a5bf-99c5dbb26132";
 	public static final String DISTRIBUSJON_ID_2 = "7882d37e-34f7-11e9-b677-d663bd953d62";
