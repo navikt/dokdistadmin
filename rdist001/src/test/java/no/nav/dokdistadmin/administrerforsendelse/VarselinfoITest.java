@@ -4,28 +4,34 @@ import no.nav.dokdistadmin.administrerforsendelse.varselinfo.Notifikasjon;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
+import no.nav.dokdistadmin.config.DatabaseTest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
+import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DISTRIBUSJON_KANAL_PRINT;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithoutDokumentInfo;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
@@ -35,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @Transactional
@@ -45,7 +50,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @AutoConfigureWebTestClient
 @AutoConfigureTestDatabase
 @ActiveProfiles({"itest"})
-public class VarselinfoITest extends AbstractOauth2Test {
+public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest {
 
 	private static final String OPPDATERVARSELINFO_URI = "/rest/v1/administrerforsendelse/oppdatervarselinfo";
 
@@ -79,10 +84,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	}
 
 	private DistribusjonInfo setupDatabase() {
-		var distribusjon = createDistribusjonInfoWithoutDokumentInfo();
-		distribusjon.setDistribusjonKanal(DITTNAV);
-		var distribusjonInfo = dokumentDistribusjonRepository.save(distribusjon);
-
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(DITTNAV));
 		distribusjonInfo.addDokumentInfo(createDokumentInfo());
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
@@ -105,7 +107,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 				.exchange()
 				.expectStatus().isOk();
 
-		assertEquals(2, StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false).count());
+		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false)).hasSize(2);
 
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
 
@@ -126,7 +128,6 @@ public class VarselinfoITest extends AbstractOauth2Test {
 
 	@Test
 	void skalReturnereBadRequestDersomForsendelseIkkeEksisterer() {
-		final String FORVENTET_FEILMELDING = "Forsendelse med forsendelseId=123 ikke funnet";
 
 		var request = createOppdaterVarselInfoRequest(123L);
 
@@ -141,15 +142,15 @@ public class VarselinfoITest extends AbstractOauth2Test {
 				.getResponseBody();
 
 		assertNotNull(response);
-		assertTrue(response.contains(FORVENTET_FEILMELDING));
+
+		assertThat(response).containsSequence("Forsendelse med forsendelseId=123 ikke funnet");
 	}
 
 	@Test
 	void skalReturnereBadRequestDersomForsendelseHarFeilDistribusjonskanal() {
-		final String FORVENTET_FEILMELDING = "Forsendelse med forsendelseId=%s har ikke forventet distribusjonskanal DITTNAV";
 
 		var distribusjon = setupDatabase();
-		distribusjon.setDistribusjonKanal(DISTRIBUSJON_KANAL_PRINT);
+		distribusjon.setDistribusjonKanal(PRINT);
 		dokumentDistribusjonRepository.save(distribusjon);
 		commitAndBeginNewTransaction();
 
@@ -167,31 +168,84 @@ public class VarselinfoITest extends AbstractOauth2Test {
 				.getResponseBody();
 
 		assertNotNull(response);
-		assertTrue(response.contains(String.format(FORVENTET_FEILMELDING, forsendelseId)));
+		assertThat(response).containsSequence(
+				format("Forsendelse med forsendelseId=%s har ikke forventet distribusjonskanal DITTNAV", forsendelseId));
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {
+			"-1, EPOST, tekst, 95123456, tittel, forsendelseId må være et positivt tall",
+			"1, , tekst, 95123456, tittel, kanal kan ikke være null",
+			"1, EPOST, , 95123456, tittel, tekst må inneholde mist ett tegn",
+			"1, EPOST, tekst, , tittel, kontaktInfo må innholde en epostadresse eller et telefonnummer"
+	})
+	void skalReturnereBadRequestForUgyldigInput(Long forsendelseId, String kanal, String tekst, String kontaktInfo, String tittel, String feilmelding) {
+
+		var kanalKode = isNull(kanal) ? null : VarslingKanalCode.valueOf(kanal);
+		var request = createOppdaterVarselInfoRequestWith(forsendelseId, kanalKode, tekst, kontaktInfo, tittel);
+
+		var response = webTestClient.put()
+				.uri(OPPDATERVARSELINFO_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).isEqualTo(feilmelding);
+	}
+
+	@Test
+	void skalReturnereBadRequestForRequestUtenNotifikasjoner() {
+
+		var request = createOppdaterVarselInfoRequest(1L);
+		request.setNotifikasjoner(emptyList());
+
+		var response = webTestClient.put()
+				.uri(OPPDATERVARSELINFO_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).isEqualTo("notifikasjoner må innehold minst en notifikasjon");
+	}
+
+	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel) {
+
+		return OppdaterVarselInfoRequest.builder()
+				.forsendelseId(forsendelseId)
+				.notifikasjoner(List.of(
+						Notifikasjon.builder()
+								.kanal(varslingKanalCode)
+								.tekst(tekst)
+								.kontaktInfo(kontaktinfo)
+								.tittel(tittel)
+								.build()))
+				.build();
 	}
 
 	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequest(Long forsendelseId) {
 		return OppdaterVarselInfoRequest.builder()
 				.forsendelseId(forsendelseId)
-				.notifikasjonList(
-						List.of(
-								Notifikasjon.builder()
-										.kanal(MOBILTELEFON)
-										.tekst(VARSLINGSTEKST)
-										.kontaktInfo(KONTAKTINFO_SMS)
-										.build(),
-								Notifikasjon.builder()
-										.kanal(EPOST)
-										.tekst(VARSLINGSTEKST)
-										.kontaktInfo(KONTAKTINFO_EPOST)
-										.tittel(VARSLINGSTITTEL)
-										.build()))
+				.notifikasjoner(List.of(
+						Notifikasjon.builder()
+								.kanal(MOBILTELEFON)
+								.tekst(VARSLINGSTEKST)
+								.kontaktInfo(KONTAKTINFO_SMS)
+								.build(),
+						Notifikasjon.builder()
+								.kanal(EPOST)
+								.tekst(VARSLINGSTEKST)
+								.kontaktInfo(KONTAKTINFO_EPOST)
+								.tittel(VARSLINGSTITTEL)
+								.build()))
 				.build();
 	}
 
-	public void commitAndBeginNewTransaction() {
-		TestTransaction.flagForCommit();
-		TestTransaction.end();
-		TestTransaction.start();
-	}
 }
