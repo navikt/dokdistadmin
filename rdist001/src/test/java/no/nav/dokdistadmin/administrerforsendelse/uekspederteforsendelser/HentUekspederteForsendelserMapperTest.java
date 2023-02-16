@@ -1,6 +1,5 @@
 package no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser;
 
-import no.nav.dokdistadmin.administrerforsendelse.TestUtils;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse.UekspedertForsendelse;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import org.junit.jupiter.api.Test;
@@ -13,10 +12,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfo;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDokumentInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HentUekspederteForsendelserMapperTest {
 
@@ -47,11 +45,11 @@ class HentUekspederteForsendelserMapperTest {
 		var expectedOpprettetDato = mapper.convertDateTimeToString(distribusjonInfo.getChangeStamp().getOpprettetDato());
 		var expectedDistribusjonDato = mapper.convertDateTimeToString(distribusjonInfo.getDistribusjonDato());
 
-		assertEquals(distribusjonInfo.getDistribusjonId(), result.getDistribusjonId());
-		assertEquals(distribusjonInfo.getDistribusjonKanal().name(), result.getDistribusjonKanal());
-		assertEquals(expectedOpprettetDato, result.getOpprettetDato());
-		assertEquals(expectedDistribusjonDato, result.getDistribusjonDato());
-		assertEquals(distribusjonInfo.getDistribusjonStatus().name(), result.getDistribusjonStatus());
+		assertThat(result.getDistribusjonId()).isEqualTo(distribusjonInfo.getDistribusjonId());
+		assertThat(result.getDistribusjonKanal()).isEqualTo(distribusjonInfo.getDistribusjonKanal().name());
+		assertThat(result.getOpprettetDato()).isEqualTo(expectedOpprettetDato);
+		assertThat(result.getDistribusjonDato()).isEqualTo(expectedDistribusjonDato);
+		assertThat(result.getDistribusjonStatus()).isEqualTo(distribusjonInfo.getDistribusjonStatus().name());
 
 		assertThat(result.getDokumenter())
 				.extracting(HentUekspederteForsendelserResponse.DokumentInfo::getForsendelseId)
@@ -80,18 +78,19 @@ class HentUekspederteForsendelserMapperTest {
 
 	@Test
 	void shouldMapDokumentInfo() {
-		var dokumentInfo = TestUtils.createDokumentInfo();
+		var dokumentInfo = createDokumentInfo();
 
 		var result = mapper.mapDokumentInfo(dokumentInfo);
 
-		assertEquals(dokumentInfo.getDokumentInfoId().toString(), result.getForsendelseId());
-		assertEquals(dokumentInfo.getDokumentId(), result.getDokumentId());
-		assertEquals(dokumentInfo.getDokumentStatus().name(), result.getDokumentStatus());
-		assertEquals(dokumentInfo.getBestillendeFagsystem(), result.getBestillendeFagsystem());
-		assertEquals(dokumentInfo.getFagomrade().name(), result.getFagomradeCode());
-		assertEquals(dokumentInfo.getArkivkode(), result.getJournalpostId());
-		assertEquals(dokumentInfo.getKonversasjonId(), result.getKonversasjonId());
-		assertEquals(dokumentInfo.getBrevProduksjonApplikasjon(), result.getBrevProduksjonApplikasjon());
+		assertThat(result.getForsendelseId()).isEqualTo(dokumentInfo.getDokumentInfoId().toString());
+		assertThat(result.getDokumentId()).isEqualTo(dokumentInfo.getDokumentId());
+		assertThat(result.getDokumentStatus()).isEqualTo(dokumentInfo.getDokumentStatus().name());
+		assertThat(result.getBestillendeFagsystem()).isEqualTo(dokumentInfo.getBestillendeFagsystem());
+		assertThat(result.getFagomradeCode()).isEqualTo(dokumentInfo.getFagomrade().name());
+		assertThat(result.getJournalpostId()).isEqualTo(dokumentInfo.getArkivkode());
+		assertThat(result.getKonversasjonId()).isEqualTo(dokumentInfo.getKonversasjonId());
+		assertThat(result.getBrevProduksjonApplikasjon()).isEqualTo(dokumentInfo.getBrevProduksjonApplikasjon());
+
 	}
 
 	@ParameterizedTest
@@ -99,7 +98,7 @@ class HentUekspederteForsendelserMapperTest {
 	void shouldConvertDateTimeToString(LocalDateTime localDateTime, String expected) {
 		var result = mapper.convertDateTimeToString(localDateTime);
 
-		assertEquals(expected, result);
+		assertThat(result).isEqualTo(expected);
 	}
 
 	private static Stream<Arguments> shouldConvertDateTimeToString() {

@@ -1,95 +1,118 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
-import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DokumentInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ADRESSELINJE_1;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ADRESSELINJE_2;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ADRESSELINJE_3;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ARKIV_KODE;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.ARKIV_KODE_2;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DIGITALPOSTKASSE_ADRESSE;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DIGITAL_DISTRIBUTOR_ID;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DOKUMENTINFO_ID;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DOKUMENTINFO_ID_2;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.LANDKODE;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTNUMMER;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTSTED;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createEkspederteForsendelser;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_1;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_2;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_3;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ARKIV_KODE;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITALPOSTKASSE_ADRESSE;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITAL_DISTRIBUTOR_ID;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENTINFO_ID;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADDRESS;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.LANDKODE;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.MELDING;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.POSTNUMMER;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.POSTSTED;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEFONNUMMER;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HentEkspederteForsendelserMapperTest {
 
-	private static final String DIGITAL_KONTAKTINFORMASJON = "{\"epost\":\"epostaddress0@nav.no\",\"sms\":\"11111111\"}";
-	private static final String VARSELTEKST = "{\"epost\":\"Du har fått brev fra NAV\",\"sms\":\"Du har fått brev fra NAV\"}";
+	private static final String DIGITAL_KONTAKTINFORMASJON = String.format("{\"epost\":\"%s\",\"sms\":\"%s\"}", EPOSTADDRESS, TELEFONNUMMER);
+	private static final String VARSELTEKST = String.format("{\"epost\":\"%s\",\"sms\":\"%s\"}", MELDING, MELDING);
+
+	private final DokumentInfo DOKUMENTINFO_DITTNAV = createDokumentInfoWithDistribusjonKanal(DITTNAV);
+	private final DokumentInfo DOKUMENTINFO_SDP = createDokumentInfoWithDistribusjonKanal(SDP);
+	private final DokumentInfo DOKUMENTINFO_PRINT = createDokumentInfoWithDistribusjonKanal(PRINT);
 
 	private final HentEkspederteForsendelserMapper mapper = new HentEkspederteForsendelserMapper();
 
 	@Test
 	public void shouldMapVarselWhenDistribusjonKodeIsDITTNAV() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(createEkspederteForsendelser());
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_DITTNAV));
 
-		EkspederteForsendelse forsendelse = ekspederteForsendelserResponse.forsendelser().get(0);
-		assertEquals(DOKUMENTINFO_ID_2, forsendelse.getForsendelseId());
-		assertEquals(ARKIV_KODE_2, forsendelse.getJournalpostId());
-		assertEquals(DITTNAV, forsendelse.getDistribusjonsKanal());
-		assertNull(forsendelse.getDigitalpostkasse());
-		assertEquals(DIGITAL_KONTAKTINFORMASJON, forsendelse.getVarsel().getDigitalkontaktinformasjon());
-		assertEquals(VARSELTEKST, forsendelse.getVarsel().getVarseltekst());
+		assertThat(ekspederteForsendelserResponse.forsendelser())
+				.hasSize(1)
+				.allSatisfy(forsendelse -> {
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
+					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(DITTNAV);
+					assertThat(forsendelse.getVarsel().getDigitalkontaktinformasjon()).isEqualTo(DIGITAL_KONTAKTINFORMASJON);
+					assertThat(forsendelse.getVarsel().getVarseltekst()).isEqualTo(VARSELTEKST);
+
+					assertNull(forsendelse.getDigitalpostkasse());
+				});
 	}
 
 	@Test
 	public void shouldMapDigitalpostkasseWhenDistribusjonKanalIsSDP() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(createEkspederteForsendelser());
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_SDP));
 
-		EkspederteForsendelse forsendelse = ekspederteForsendelserResponse.forsendelser().get(1);
-		assertEquals(DOKUMENTINFO_ID, forsendelse.getForsendelseId());
-		assertEquals(ARKIV_KODE, forsendelse.getJournalpostId());
-		assertEquals(DistribusjonKanalCode.SDP, forsendelse.getDistribusjonsKanal());
-		assertEquals(DIGITALPOSTKASSE_ADRESSE, forsendelse.getDigitalpostkasse().getDigitalpostkasseadresse());
-		assertEquals(DIGITAL_DISTRIBUTOR_ID, forsendelse.getDigitalpostkasse().getDigitalpostkasseleverandor());
-		assertNull(forsendelse.getVarsel());
-		assertNull(forsendelse.getPostadresse());
+		assertThat(ekspederteForsendelserResponse.forsendelser())
+				.hasSize(1)
+				.allSatisfy(forsendelse -> {
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
+					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(SDP);
+					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseadresse()).isEqualTo(DIGITALPOSTKASSE_ADRESSE);
+					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseleverandor()).isEqualTo(DIGITAL_DISTRIBUTOR_ID);
+
+					assertNull(forsendelse.getVarsel());
+					assertNull(forsendelse.getPostadresse());
+				});
 	}
 
 	@Test
 	public void shouldMapPostadresseWhenDistribusjonKanalIsPRINT() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(createEkspederteForsendelser());
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_PRINT));
 
-		EkspederteForsendelse forsendelse = ekspederteForsendelserResponse.forsendelser().get(2);
-		assertEquals(DOKUMENTINFO_ID, forsendelse.getForsendelseId());
-		assertEquals(ARKIV_KODE, forsendelse.getJournalpostId());
-		assertEquals(PRINT, forsendelse.getDistribusjonsKanal());
-		assertEquals(ADRESSELINJE_1, forsendelse.getPostadresse().getAdresselinje1());
-		assertEquals(ADRESSELINJE_2, forsendelse.getPostadresse().getAdresselinje2());
-		assertEquals(ADRESSELINJE_3, forsendelse.getPostadresse().getAdresselinje3());
-		assertEquals(POSTNUMMER, forsendelse.getPostadresse().getPostnummer());
-		assertEquals(POSTSTED, forsendelse.getPostadresse().getPoststed());
-		assertEquals(LANDKODE, forsendelse.getPostadresse().getLandkode());
+		assertThat(ekspederteForsendelserResponse.forsendelser())
+				.hasSize(1)
+				.allSatisfy(forsendelse -> {
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
+					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(PRINT);
+					assertThat(forsendelse.getPostadresse().getAdresselinje1()).isEqualTo(ADRESSELINJE_1);
+					assertThat(forsendelse.getPostadresse().getAdresselinje2()).isEqualTo(ADRESSELINJE_2);
+					assertThat(forsendelse.getPostadresse().getAdresselinje3()).isEqualTo(ADRESSELINJE_3);
+					assertThat(forsendelse.getPostadresse().getPostnummer()).isEqualTo(POSTNUMMER);
+					assertThat(forsendelse.getPostadresse().getPoststed()).isEqualTo(POSTSTED);
+					assertThat(forsendelse.getPostadresse().getLandkode()).isEqualTo(LANDKODE);
+				});
 	}
 
 	@Test
 	public void shouldMapNullPostadresseWhenDistribusjonKanalIsPRINT() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(
-				createEkspederteForsendelser().stream().peek(f -> f.setPostadresse(null)).toList());
+		DokumentInfo dokumentInfo = DOKUMENTINFO_PRINT;
+		dokumentInfo.setPostadresse(null);
 
-		EkspederteForsendelse forsendelse = ekspederteForsendelserResponse.forsendelser().get(2);
-		assertEquals(DOKUMENTINFO_ID, forsendelse.getForsendelseId());
-		assertEquals(ARKIV_KODE, forsendelse.getJournalpostId());
-		assertEquals(PRINT, forsendelse.getDistribusjonsKanal());
-		assertNull(forsendelse.getPostadresse());
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(dokumentInfo));
+
+		assertThat(ekspederteForsendelserResponse.forsendelser())
+				.hasSize(1)
+				.allSatisfy(forsendelse -> {
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
+					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(PRINT);
+
+					assertNull(forsendelse.getPostadresse());
+				});
 	}
 
 	@Test
 	public void shouldMapToEmptyListWhenEmptyInput() {
 		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(Collections.emptyList());
 
-		assertTrue(ekspederteForsendelserResponse.forsendelser().isEmpty());
+		assertThat(ekspederteForsendelserResponse.forsendelser()).isEmpty();
 	}
 }
