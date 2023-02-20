@@ -7,6 +7,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.ResponseEntity;
@@ -36,17 +37,20 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequestMapping("/rest/v1/administrerforsendelse")
 public class AdministrerForsendelseController {
 
-	private final AdministrerForsendelseService ekspederteForsendelserService;
+	private final AdministrerForsendelseService forsendelserService;
+	private final VarselInfoService varselInfoService;
 
-	public AdministrerForsendelseController(AdministrerForsendelseService ekspederteForsendelserService) {
-		this.ekspederteForsendelserService = ekspederteForsendelserService;
+	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
+											VarselInfoService varselInfoService) {
+		this.forsendelserService = forsendelserService;
+		this.varselInfoService = varselInfoService;
 	}
 
 	@GetMapping("/hentekspederteforsendelser")
 	public ResponseEntity<HentEkspederteForsendelserResponse> hentEkspederteForsendelser(@RequestBody @Valid HentEkspederteForsendelserRequest hentEkspederteForsendelserRequest) {
 		log.info("hentekspederteforsendelser har mottatt kall om å hente ekspederte forsendelser");
 
-		HentEkspederteForsendelserResponse ekspederteForsendelser = ekspederteForsendelserService.hentEkspederteForsendelser(hentEkspederteForsendelserRequest.getMaksForsendelser());
+		HentEkspederteForsendelserResponse ekspederteForsendelser = forsendelserService.hentEkspederteForsendelser(hentEkspederteForsendelserRequest.getMaksForsendelser());
 		log.info("hentekspederteforsendelser har hentet {} ekspederte forsendelser.", ekspederteForsendelser.forsendelser().size());
 
 		return ekspederteForsendelser.forsendelser().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(ekspederteForsendelser);
@@ -56,7 +60,7 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<Void> avstemEkspederteForsendelser(@RequestBody @Valid AvstemEkspederteForsendelserRequest forsendelserRequest) {
 		log.info("avstemekspederteforsendelser har mottatt kall om å avstemme {} ekspederte forsendelser", forsendelserRequest.getForsendelser().size());
 
-		var antallOppdaterteForsendelser = ekspederteForsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
+		var antallOppdaterteForsendelser = forsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
 
 		log.info("avstemekspederteforsendelser har oppdatert avstemtArkivDato på {} forsendelser", antallOppdaterteForsendelser);
 
@@ -71,7 +75,7 @@ public class AdministrerForsendelseController {
 		log.info("hentuekspederteforsendelser har mottatt kall om å hente uekspederte forsendelser med distribusjonKanal={}, som er eldre enn {} timer",
 				distribusjonkanal, antallTimer);
 
-		HentUekspederteForsendelserResponse uekspederteForsendelser = ekspederteForsendelserService.hentUekspederteForsendelser(distribusjonkanal, antallTimer);
+		HentUekspederteForsendelserResponse uekspederteForsendelser = forsendelserService.hentUekspederteForsendelser(distribusjonkanal, antallTimer);
 
 		log.info("hentuekspederteforsendelser har hentet {} uekspederte forsendelser med distribusjonkanal={}, som er eldre enn {} timer",
 				uekspederteForsendelser.getUekspederteForsendelser().size(), distribusjonkanal, antallTimer);
@@ -86,7 +90,7 @@ public class AdministrerForsendelseController {
 				avstemForsendelserRequest.getForsendelser().size(),
 				avstemForsendelserRequest.getAvstemtReferanse());
 
-		var antallOppdaterteForsendelser = ekspederteForsendelserService.avstemForsendelser(avstemForsendelserRequest);
+		var antallOppdaterteForsendelser = forsendelserService.avstemForsendelser(avstemForsendelserRequest);
 
 		log.info("avstemforsendelser har oppdatert avstemtReferanse og avstemtDato på {} forsendelser", antallOppdaterteForsendelser);
 
@@ -97,12 +101,23 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<HentEformidlingforsendelserResponse> hentEformidlingForsendelser(@RequestParam DistribusjonKanalCode distribusjonKanal) {
 		log.info("henteformidlingforsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanal={}", distribusjonKanal);
 
-		var result = ekspederteForsendelserService.hentEformidlingForsendelser(distribusjonKanal);
+		var result = forsendelserService.hentEformidlingForsendelser(distribusjonKanal);
 
 		log.info("henteformidlingforsendelser har hentet antall={} eformidlingforsendelser for distribusjonskanal={}",
 				result.getForsendelser().size(), distribusjonKanal);
 
 		return ResponseEntity.ok(result);
+	}
+
+	@PutMapping("/oppdatervarselinfo")
+	public ResponseEntity<Void> oppdaterVarselInfo(@RequestBody @Valid OppdaterVarselInfoRequest oppdaterVarselInfoRequest) {
+		log.info("oppdatervarselinfo har mottatt kall om å oppdatere varselinfo på forsendelse med forsendelseId={}", oppdaterVarselInfoRequest.getForsendelseId());
+
+		var antallOppdaterteVarselInfo = varselInfoService.oppdaterVarselInfo(oppdaterVarselInfoRequest);
+
+		log.info("oppdatervarselinfo har oppdatert antall={} varselinfo på forsendelse med forsendelseId={}", antallOppdaterteVarselInfo, oppdaterVarselInfoRequest.getForsendelseId());
+
+		return ResponseEntity.ok().build();
 	}
 
 
