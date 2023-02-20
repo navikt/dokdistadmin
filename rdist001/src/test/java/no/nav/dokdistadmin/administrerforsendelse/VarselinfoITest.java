@@ -4,6 +4,7 @@ import no.nav.dokdistadmin.administrerforsendelse.varselinfo.Notifikasjon;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
+import no.nav.dokdistadmin.config.DatabaseTest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
@@ -19,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +29,9 @@ import java.util.stream.StreamSupport;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DISTRIBUSJON_KANAL_PRINT;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithoutDokumentInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
@@ -50,7 +50,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @AutoConfigureWebTestClient
 @AutoConfigureTestDatabase
 @ActiveProfiles({"itest"})
-public class VarselinfoITest extends AbstractOauth2Test {
+public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest {
 
 	private static final String OPPDATERVARSELINFO_URI = "/rest/v1/administrerforsendelse/oppdatervarselinfo";
 
@@ -84,10 +84,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	}
 
 	private DistribusjonInfo setupDatabase() {
-		var distribusjon = createDistribusjonInfoWithoutDokumentInfo();
-		distribusjon.setDistribusjonKanal(DITTNAV);
-		var distribusjonInfo = dokumentDistribusjonRepository.save(distribusjon);
-
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(DITTNAV));
 		distribusjonInfo.addDokumentInfo(createDokumentInfo());
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
@@ -110,7 +107,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 				.exchange()
 				.expectStatus().isOk();
 
-		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false).count()).isEqualTo(2);
+		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false)).hasSize(2);
 
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
 
@@ -153,7 +150,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	void skalReturnereBadRequestDersomForsendelseHarFeilDistribusjonskanal() {
 
 		var distribusjon = setupDatabase();
-		distribusjon.setDistribusjonKanal(DISTRIBUSJON_KANAL_PRINT);
+		distribusjon.setDistribusjonKanal(PRINT);
 		dokumentDistribusjonRepository.save(distribusjon);
 		commitAndBeginNewTransaction();
 
@@ -251,9 +248,4 @@ public class VarselinfoITest extends AbstractOauth2Test {
 				.build();
 	}
 
-	public void commitAndBeginNewTransaction() {
-		TestTransaction.flagForCommit();
-		TestTransaction.end();
-		TestTransaction.start();
-	}
 }

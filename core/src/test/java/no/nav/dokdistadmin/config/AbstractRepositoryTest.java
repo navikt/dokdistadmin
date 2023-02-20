@@ -19,7 +19,7 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 @DataJpaTest
 @ContextConfiguration(classes = {RepositoryConfig.class})
 @ActiveProfiles("itest")
-public abstract class AbstractRepositoryTest {
+public abstract class AbstractRepositoryTest implements DatabaseTest {
 
 	@Autowired
 	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
@@ -55,17 +55,4 @@ public abstract class AbstractRepositoryTest {
 		dokumentInfoRepository.deleteAll();
 		dokumentDistribusjonRepository.deleteAll();
 	}
-
-
-	public void commitAndBeginNewTransaction() {
-		TestTransaction.flagForCommit();
-		TestTransaction.end();
-		TestTransaction.start();
-	}
-
-	public void commitTransaction() {
-		TestTransaction.flagForCommit();
-		TestTransaction.end();
-	}
-
 }
