@@ -115,7 +115,7 @@ public class AdministrerForsendelseController {
 
 		var antallOppdaterteVarselInfo = varselInfoService.oppdaterVarselInfo(oppdaterVarselInfoRequest);
 
-		log.info("oppdatervarselinfo har oppdatert {} varselinfo på forsendelse med forsendelseId={}", antallOppdaterteVarselInfo, oppdaterVarselInfoRequest.getForsendelseId());
+		log.info("oppdatervarselinfo har oppdatert antall={} varselinfo på forsendelse med forsendelseId={}", antallOppdaterteVarselInfo, oppdaterVarselInfoRequest.getForsendelseId());
 
 		return ResponseEntity.ok().build();
 	}

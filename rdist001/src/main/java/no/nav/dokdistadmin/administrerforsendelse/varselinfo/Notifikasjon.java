@@ -6,15 +6,16 @@ import lombok.Data;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
 public class Notifikasjon {
 
-	@NotBlank(message = "kanal må være en gyldig varslingKanalCode")
+	@NotNull(message = "kanal kan ikke være null")
 	private VarslingKanalCode kanal;
 
-	@NotBlank(message = "tekst må inneholde mist ett tegn")
+	@NotBlank(message = "tekst må inneholde minst ett tegn")
 	private String tekst;
 
 	@NotBlank(message = "kontaktInfo må innholde en epostadresse eller et telefonnummer")

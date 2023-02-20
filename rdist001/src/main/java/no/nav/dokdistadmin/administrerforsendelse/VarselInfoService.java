@@ -32,7 +32,7 @@ public class VarselInfoService {
 							 VarselInfoRepository varselInfoRepository) {
 		this.dokumentInfoRepository = dokumentInfoRepository;
 		this.varselInfoRepository = varselInfoRepository;
-		}
+	}
 
 	@Transactional
 	public long oppdaterVarselInfo(OppdaterVarselInfoRequest oppdaterVarselInfoRequest) {
@@ -54,8 +54,6 @@ public class VarselInfoService {
 		List<VarselInfo> varselInfoList = mapOppdaterVarselInfoRequest(oppdaterVarselInfoRequest, dokumentInfo);
 		var oppdaterteVarselInfo = varselInfoRepository.saveAll(varselInfoList);
 
-
 		return StreamSupport.stream(oppdaterteVarselInfo.spliterator(), false).count();
 	}
-
 }

@@ -1,6 +1,8 @@
 package no.nav.dokdistadmin.exception.functional;
 
-public class JsonParseException extends RuntimeException {
+import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
+
+public class JsonParseException extends DokdistadminTechnicalException {
 	public JsonParseException(String message, Throwable cause) {
 		super(message, cause);
 	}

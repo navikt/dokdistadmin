@@ -176,7 +176,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 	@CsvSource(value = {
 			"-1, EPOST, tekst, 95123456, tittel, forsendelseId må være et positivt tall",
 			"1, , tekst, 95123456, tittel, kanal kan ikke være null",
-			"1, EPOST, , 95123456, tittel, tekst må inneholde mist ett tegn",
+			"1, EPOST, , 95123456, tittel, tekst må inneholde minst ett tegn",
 			"1, EPOST, tekst, , tittel, kontaktInfo må innholde en epostadresse eller et telefonnummer"
 	})
 	void skalReturnereBadRequestForUgyldigInput(Long forsendelseId, String kanal, String tekst, String kontaktInfo, String tittel, String feilmelding) {
@@ -194,7 +194,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isEqualTo(feilmelding);
+		assertEquals(feilmelding, response);
 	}
 
 	@Test
@@ -213,7 +213,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isEqualTo("notifikasjoner må innehold minst en notifikasjon");
+		assertEquals("notifikasjoner må innehold minst en notifikasjon", response);
 	}
 
 	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel) {
