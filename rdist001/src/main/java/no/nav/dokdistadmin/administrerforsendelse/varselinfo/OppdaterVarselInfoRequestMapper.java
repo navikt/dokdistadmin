@@ -7,6 +7,7 @@ import java.util.List;
 
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class OppdaterVarselInfoRequestMapper {
 
@@ -16,20 +17,12 @@ public class OppdaterVarselInfoRequestMapper {
 				.map(notifikasjon -> VarselInfo.builder()
 						.varslingKanal(notifikasjon.getKanal())
 						.dokumentInfo(dokumentInfo)
-						.varslingstekst(mapVarslingstekst(notifikasjon))
+						.varslingstittel(isNotBlank(notifikasjon.getTittel()) ? notifikasjon.getTittel() : null)
+						.varslingstekst(notifikasjon.getTekst())
 						.epostAdresse(EPOST.equals(notifikasjon.getKanal()) ? notifikasjon.getKontaktInfo() : null)
 						.mobiltelefonNummer(MOBILTELEFON.equals(notifikasjon.getKanal()) ? notifikasjon.getKontaktInfo() : null)
 						.varslingstidspunkt(notifikasjon.getVarslingstidspunkt())
 						.build())
 				.toList();
 	}
-
-	private static String mapVarslingstekst(Notifikasjon notifikasjon) {
-		if (EPOST.equals(notifikasjon.getKanal())) {
-			return String.format("Tittel %s, Tekst %s", notifikasjon.getTittel(), notifikasjon.getTekst());
-		} else {
-			return notifikasjon.getTekst();
-		}
-	}
-
 }

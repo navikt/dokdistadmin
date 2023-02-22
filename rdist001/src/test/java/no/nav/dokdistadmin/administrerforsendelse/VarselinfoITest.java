@@ -118,6 +118,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertEquals(MOBILTELEFON, varsel.getVarslingKanal());
+			assertNull(varsel.getVarslingstittel());
 			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_SMS, varsel.getMobiltelefonNummer());
 			assertNull(varsel.getEpostAdresse());
@@ -125,7 +126,8 @@ public class VarselinfoITest extends AbstractOauth2Test {
 
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertEquals(EPOST, varsel.getVarslingKanal());
-			assertEquals(FORVENTET_VARSLINGSTEKST_EPOST, varsel.getVarslingstekst());
+			assertEquals(VARSLINGSTITTEL, varsel.getVarslingstittel());
+			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_EPOST, varsel.getEpostAdresse());
 			assertNull(varsel.getMobiltelefonNummer());
 		});
@@ -183,7 +185,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 			"1, , tekst, 95123456, tittel, 2023-02-22T11:20:26.024492, kanal kan ikke være null",
 			"1, EPOST, , 95123456, tittel, 2023-02-22T11:20:26.024492, tekst må inneholde minst ett tegn",
 			"1, EPOST, tekst, , tittel, 2023-02-22T11:20:26.024492, kontaktInfo må innholde en epostadresse eller et telefonnummer",
-			"1, MOBILTELEFON, tekst, 95123456, tittel, , sendtDato kan ikke være null",
+			"1, MOBILTELEFON, tekst, 95123456, tittel, , varslingstidspunkt kan ikke være null",
 	})
 	void skalReturnereBadRequestForUgyldigInput(Long forsendelseId, String kanal, String tekst, String kontaktInfo, String tittel, LocalDateTime sendtDato, String feilmelding) {
 

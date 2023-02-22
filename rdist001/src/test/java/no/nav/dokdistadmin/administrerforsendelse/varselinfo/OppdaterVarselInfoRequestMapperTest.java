@@ -37,10 +37,11 @@ class OppdaterVarselInfoRequestMapperTest {
 		assertNull(smsVarsel.get().getEpostAdresse());
 		assertEquals(dokumentInfo, smsVarsel.get().getDokumentInfo());
 
-		assertEquals(String.format("Tittel %s, Tekst %s", VARSLINGSTITTEL, VARSLINGSTEKST), epostVarsel.get().getVarslingstekst());
+		assertEquals(VARSLINGSTEKST, epostVarsel.get().getVarslingstekst());
 		assertEquals(KONTAKTINFO_EPOST, epostVarsel.get().getEpostAdresse());
 		assertNull(epostVarsel.get().getMobiltelefonNummer());
 		assertEquals(dokumentInfo, epostVarsel.get().getDokumentInfo());
+		assertEquals(VARSLINGSTITTEL, epostVarsel.get().getVarslingstittel());
 	}
 
 	private OppdaterVarselInfoRequest createOppdateVarselInfoRequest() {
