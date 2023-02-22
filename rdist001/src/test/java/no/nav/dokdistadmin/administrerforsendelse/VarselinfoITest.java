@@ -23,6 +23,7 @@ import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -59,6 +60,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	private static final String VARSLINGSTITTEL = "Brev til deg";
 	private static final String VARSLINGSTEKST = "Dette er en melding";
 	private static final String FORVENTET_VARSLINGSTEKST_EPOST = "Tittel Brev til deg, Tekst Dette er en melding";
+	private static final LocalDateTime VARSEL_SENDT_DATO = LocalDateTime.now().minusMinutes(3);
 
 	@Autowired
 	public WebTestClient webTestClient;
@@ -177,15 +179,16 @@ public class VarselinfoITest extends AbstractOauth2Test {
 
 	@ParameterizedTest
 	@CsvSource(value = {
-			"-1, EPOST, tekst, 95123456, tittel, forsendelseId må være et positivt tall",
-			"1, , tekst, 95123456, tittel, kanal kan ikke være null",
-			"1, EPOST, , 95123456, tittel, tekst må inneholde minst ett tegn",
-			"1, EPOST, tekst, , tittel, kontaktInfo må innholde en epostadresse eller et telefonnummer"
+			"-1, EPOST, tekst, 95123456, tittel, 2023-02-22T11:20:26.024492, forsendelseId må være et positivt tall",
+			"1, , tekst, 95123456, tittel, 2023-02-22T11:20:26.024492, kanal kan ikke være null",
+			"1, EPOST, , 95123456, tittel, 2023-02-22T11:20:26.024492, tekst må inneholde minst ett tegn",
+			"1, EPOST, tekst, , tittel, 2023-02-22T11:20:26.024492, kontaktInfo må innholde en epostadresse eller et telefonnummer",
+			"1, MOBILTELEFON, tekst, 95123456, tittel, , sendtDato kan ikke være null",
 	})
-	void skalReturnereBadRequestForUgyldigInput(Long forsendelseId, String kanal, String tekst, String kontaktInfo, String tittel, String feilmelding) {
+	void skalReturnereBadRequestForUgyldigInput(Long forsendelseId, String kanal, String tekst, String kontaktInfo, String tittel, LocalDateTime sendtDato, String feilmelding) {
 
 		var kanalKode = isNull(kanal) ? null : VarslingKanalCode.valueOf(kanal);
-		var request = createOppdaterVarselInfoRequestWith(forsendelseId, kanalKode, tekst, kontaktInfo, tittel);
+		var request = createOppdaterVarselInfoRequestWith(forsendelseId, kanalKode, tekst, kontaktInfo, tittel, sendtDato);
 
 		var response = webTestClient.put()
 				.uri(OPPDATERVARSELINFO_URI)
@@ -219,7 +222,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 		assertEquals("notifikasjoner må innehold minst en notifikasjon", response);
 	}
 
-	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel) {
+	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel, LocalDateTime sendtDato) {
 
 		return OppdaterVarselInfoRequest.builder()
 				.forsendelseId(forsendelseId)
@@ -229,6 +232,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 								.tekst(tekst)
 								.kontaktInfo(kontaktinfo)
 								.tittel(tittel)
+								.sendtDato(sendtDato)
 								.build()))
 				.build();
 	}
@@ -241,12 +245,14 @@ public class VarselinfoITest extends AbstractOauth2Test {
 								.kanal(MOBILTELEFON)
 								.tekst(VARSLINGSTEKST)
 								.kontaktInfo(KONTAKTINFO_SMS)
+								.sendtDato(VARSEL_SENDT_DATO)
 								.build(),
 						Notifikasjon.builder()
 								.kanal(EPOST)
 								.tekst(VARSLINGSTEKST)
 								.kontaktInfo(KONTAKTINFO_EPOST)
 								.tittel(VARSLINGSTITTEL)
+								.sendtDato(VARSEL_SENDT_DATO)
 								.build()))
 				.build();
 	}

@@ -32,11 +32,4 @@ public class EkspederteForsendelse {
 		private final String digitalpostkasseadresse;
 		private final String digitalpostkasseleverandor;
 	}
-
-	@Data
-	@Builder
-	public static class Varsel {
-		private final String digitalkontaktinformasjon;
-		private final String varseltekst;
-	}
 }

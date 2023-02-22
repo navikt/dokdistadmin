@@ -7,6 +7,7 @@ import no.nav.dokdistadmin.domain.VarslingKanalCode;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -22,5 +23,8 @@ public class Notifikasjon {
 	private String kontaktInfo;
 
 	private String tittel;
+
+	@NotNull(message = "sendtDato kan ikke være null")
+	private LocalDateTime sendtDato;
 
 }

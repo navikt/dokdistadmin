@@ -19,6 +19,7 @@ public class OppdaterVarselInfoRequestMapper {
 						.varslingstekst(mapVarslingstekst(notifikasjon))
 						.epostAdresse(EPOST.equals(notifikasjon.getKanal()) ? notifikasjon.getKontaktInfo() : null)
 						.mobiltelefonNummer(MOBILTELEFON.equals(notifikasjon.getKanal()) ? notifikasjon.getKontaktInfo() : null)
+						.varslingstidspunkt(notifikasjon.getSendtDato())
 						.build())
 				.toList();
 	}

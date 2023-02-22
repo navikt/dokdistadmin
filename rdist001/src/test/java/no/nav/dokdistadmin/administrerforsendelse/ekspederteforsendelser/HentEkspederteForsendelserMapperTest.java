@@ -14,9 +14,14 @@ import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DIGITALPOSTKA
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DIGITAL_DISTRIBUTOR_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DOKUMENTINFO_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DOKUMENTINFO_ID_2;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.EPOSTADDRESS;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.LANDKODE;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTNUMMER;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTSTED;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.TELEFONNUMMER;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_SENDT_DATO;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_TEKST;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_TITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createEkspederteForsendelser;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
@@ -26,26 +31,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HentEkspederteForsendelserMapperTest {
 
-	private static final String DIGITAL_KONTAKTINFORMASJON = "{\"epost\":\"epostaddress0@nav.no\",\"sms\":\"11111111\"}";
-	private static final String VARSELTEKST = "{\"epost\":\"Du har fått brev fra NAV\",\"sms\":\"Du har fått brev fra NAV\"}";
-
 	private final HentEkspederteForsendelserMapper mapper = new HentEkspederteForsendelserMapper();
 
 	@Test
 	public void shouldMapVarselWhenDistribusjonKodeIsDITTNAV() {
 		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(createEkspederteForsendelser());
 
+		"""
+    ALTER TABLE varsel ADD (\n" +
+				"    \n" +
+				"\tVARSLINGSTITTEL varchar(60),\n" +
+				"    VARSLINGSTIDSPUNKT TIMESTAMP\n" +
+				")""".toLowerCase();
+
 		EkspederteForsendelse forsendelse = ekspederteForsendelserResponse.forsendelser().get(0);
 		assertEquals(DOKUMENTINFO_ID_2, forsendelse.getForsendelseId());
 		assertEquals(ARKIV_KODE_2, forsendelse.getJournalpostId());
 		assertEquals(DITTNAV, forsendelse.getDistribusjonsKanal());
 		assertNull(forsendelse.getDigitalpostkasse());
-		assertEquals(DIGITAL_KONTAKTINFORMASJON, forsendelse.getVarsel().getDigitalkontaktinformasjon());
-		assertEquals(VARSELTEKST, forsendelse.getVarsel().getVarseltekst());
+		assertEquals(EPOSTADDRESS, forsendelse.getVarsel().getEpostVarsel().getAdresse());
+		assertEquals(VARSEL_TITTEL, forsendelse.getVarsel().getEpostVarsel().getTittel());
+
+		assertEquals(VARSEL_TEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
+		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
+		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
+		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
+
 	}
 
 	@Test
-	public void shouldMapDigitalpostkasseWhenDistribusjonKanalIsSDP() {
+	public void shouldMapVarselInfoWhenDistribusjonKanalIsSDP() {
 		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(createEkspederteForsendelser());
 
 		EkspederteForsendelse forsendelse = ekspederteForsendelserResponse.forsendelser().get(1);
@@ -54,8 +69,13 @@ public class HentEkspederteForsendelserMapperTest {
 		assertEquals(DistribusjonKanalCode.SDP, forsendelse.getDistribusjonsKanal());
 		assertEquals(DIGITALPOSTKASSE_ADRESSE, forsendelse.getDigitalpostkasse().getDigitalpostkasseadresse());
 		assertEquals(DIGITAL_DISTRIBUTOR_ID, forsendelse.getDigitalpostkasse().getDigitalpostkasseleverandor());
-		assertNull(forsendelse.getVarsel());
-		assertNull(forsendelse.getPostadresse());
+		assertEquals(EPOSTADDRESS, forsendelse.getVarsel().getEpostVarsel().getAdresse());
+		assertEquals(VARSEL_TITTEL, forsendelse.getVarsel().getEpostVarsel().getTittel());
+
+		assertEquals(VARSEL_TEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
+		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
+		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
+		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
 	}
 
 	@Test
