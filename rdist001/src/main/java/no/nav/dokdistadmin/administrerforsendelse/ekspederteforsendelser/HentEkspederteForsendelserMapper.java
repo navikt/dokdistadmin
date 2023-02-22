@@ -66,7 +66,7 @@ public class HentEkspederteForsendelserMapper {
 
 	private Varsel mapVarsel(DokumentInfo dokumentInfo) {
 		Varsel varsel = new Varsel();
-		dokumentInfo.getVarselInfos().stream().filter(Objects::nonNull).distinct().forEach(varselInfo -> {
+		dokumentInfo.getVarselInfos().stream().distinct().filter(Objects::nonNull).forEach(varselInfo -> {
 			if (EPOST.equals(varselInfo.getVarslingKanal())) {
 				Varsel.EpostVarsel epostVarsel = Varsel.EpostVarsel.builder()
 						.adresse(varselInfo.getEpostAdresse())

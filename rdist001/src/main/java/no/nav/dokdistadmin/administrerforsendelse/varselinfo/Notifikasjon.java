@@ -24,7 +24,7 @@ public class Notifikasjon {
 
 	private String tittel;
 
-	@NotNull(message = "sendtDato kan ikke være null")
-	private LocalDateTime sendtDato;
+	@NotNull(message = "varslingstidspunkt kan ikke være null")
+	private LocalDateTime varslingstidspunkt;
 
 }

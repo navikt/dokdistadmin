@@ -222,7 +222,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 		assertEquals("notifikasjoner må innehold minst en notifikasjon", response);
 	}
 
-	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel, LocalDateTime sendtDato) {
+	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel, LocalDateTime varslingstidspunkt) {
 
 		return OppdaterVarselInfoRequest.builder()
 				.forsendelseId(forsendelseId)
@@ -232,7 +232,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 								.tekst(tekst)
 								.kontaktInfo(kontaktinfo)
 								.tittel(tittel)
-								.sendtDato(sendtDato)
+								.varslingstidspunkt(varslingstidspunkt)
 								.build()))
 				.build();
 	}
@@ -245,14 +245,14 @@ public class VarselinfoITest extends AbstractOauth2Test {
 								.kanal(MOBILTELEFON)
 								.tekst(VARSLINGSTEKST)
 								.kontaktInfo(KONTAKTINFO_SMS)
-								.sendtDato(VARSEL_SENDT_DATO)
+								.varslingstidspunkt(VARSEL_SENDT_DATO)
 								.build(),
 						Notifikasjon.builder()
 								.kanal(EPOST)
 								.tekst(VARSLINGSTEKST)
 								.kontaktInfo(KONTAKTINFO_EPOST)
 								.tittel(VARSLINGSTITTEL)
-								.sendtDato(VARSEL_SENDT_DATO)
+								.varslingstidspunkt(VARSEL_SENDT_DATO)
 								.build()))
 				.build();
 	}
