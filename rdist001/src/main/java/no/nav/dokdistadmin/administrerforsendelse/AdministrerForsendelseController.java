@@ -6,6 +6,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemE
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +46,18 @@ public class AdministrerForsendelseController {
 											VarselInfoService varselInfoService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
+	}
+
+	@PostMapping
+	public ResponseEntity<Forsendelse> opprettForsendelse(OpprettForsendelseRequest opprettForsendelseRequest) {
+		log.info("opprettForsendelse har mottatt kall om å persistere forsendelse med bestillingsId={}", opprettForsendelseRequest.getBestillingsId());
+
+		Forsendelse forsendelse = forsendelserService.opprettForsendelse(opprettForsendelseRequest);
+
+		log.info("opprettForsendelse har persistert forsendelse med bestillingsId={}. ForsendelseId={}", opprettForsendelseRequest
+				.getBestillingsId(), forsendelse.getForsendelseId());
+
+		return ResponseEntity.ok(forsendelse);
 	}
 
 	@GetMapping("/hentekspederteforsendelser")

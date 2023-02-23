@@ -89,7 +89,7 @@ public class DistribusjonInfo extends AbstractDomainObject {
 	private DistribusjonStatusCode distribusjonStatus;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "k_modus", nullable = false, length = 20)
+	@Column(name = "k_modus", length = 20)
 	private ModusCode modus;
 
 	@Enumerated(EnumType.STRING)

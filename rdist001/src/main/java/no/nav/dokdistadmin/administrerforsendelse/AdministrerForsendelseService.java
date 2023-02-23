@@ -8,6 +8,8 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequestMapper;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
@@ -65,6 +67,25 @@ public class AdministrerForsendelseService {
 		this.hentUekspederteForsendelserMapper = new HentUekspederteForsendelserMapper();
 	}
 
+	public Forsendelse opprettForsendelse(OpprettForsendelseRequest persisterForsendelseRequest) {
+
+		var bestillingsId = persisterForsendelseRequest.getBestillingsId();
+
+		if (dokumentInfoRepository.existsByDokumentId(bestillingsId)) {
+			log.warn("Forsendelse med bestillingsId={} finnes allerede i databasen til dokdist", bestillingsId);
+			var forsendelseId = dokumentInfoRepository.findDokumentInfoByDokumentId(bestillingsId).getDokumentInfoId();
+			return new Forsendelse(forsendelseId);
+		}
+
+		DistribusjonInfo distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(persisterForsendelseRequest);
+
+		distribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		var forsendelseId = distribusjonInfo.getDokumentInfos().iterator().next().getDokumentInfoId();
+
+		return new Forsendelse(forsendelseId);
+	}
+
 	public HentEkspederteForsendelserResponse hentEkspederteForsendelser(int maksForsendelser) {
 		int topN = maksForsendelser == 0 ? MAX_FORSENDELSER : maksForsendelser;
 		List<Long> dokumentInfoIds = dokumentInfoRepository.findEkspedertDokumentInfo(topN);
@@ -93,7 +114,7 @@ public class AdministrerForsendelseService {
 
 		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
 		forsendelseIdPartisjoner.forEach(partition ->
-			antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(partition, userId))
+				antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(partition, userId))
 		);
 
 		return antallOppdaterteForsendelser.get();
@@ -111,7 +132,7 @@ public class AdministrerForsendelseService {
 
 		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
 		forsendelseIdPartisjoner.forEach(partition ->
-			antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, partition, userId))
+				antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, partition, userId))
 		);
 
 		return antallOppdaterteForsendelser.get();
