@@ -71,6 +71,7 @@ public class AdministrerForsendelseService {
 
 		var bestillingsId = persisterForsendelseRequest.getBestillingsId();
 
+		// TODO: Dette kan aldri skje frå konsumenten dokdistdittnav si side. Sjekk om andre konsumentar treng sjekken
 		if (dokumentInfoRepository.existsByDokumentId(bestillingsId)) {
 			log.warn("Forsendelse med bestillingsId={} finnes allerede i databasen til dokdist", bestillingsId);
 			var forsendelseId = dokumentInfoRepository.findDokumentInfoByDokumentId(bestillingsId).getDokumentInfoId();
