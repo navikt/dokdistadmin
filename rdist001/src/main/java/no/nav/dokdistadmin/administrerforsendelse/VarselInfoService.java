@@ -44,13 +44,6 @@ public class VarselInfoService {
 			throw new OppdaterVarselInfoException(format("Forsendelse med forsendelseId=%s ikke funnet", oppdaterVarselInfoRequest.getForsendelseId()));
 		}
 
-		DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();
-
-		if (!DITTNAV.equals(distribusjonInfo.getDistribusjonKanal())) {
-			log.warn(OPPDATERVARSELINFO_ERROR, oppdaterVarselInfoRequest.getForsendelseId(), "Forsendelse har ikke forventet distribusjonskanal DITTNAV");
-			throw new OppdaterVarselInfoException(format("Forsendelse med forsendelseId=%s har ikke forventet distribusjonskanal DITTNAV", oppdaterVarselInfoRequest.getForsendelseId()));
-		}
-
 		List<VarselInfo> varselInfoList = mapOppdaterVarselInfoRequest(oppdaterVarselInfoRequest, dokumentInfo);
 		var oppdaterteVarselInfo = varselInfoRepository.saveAll(varselInfoList);
 
