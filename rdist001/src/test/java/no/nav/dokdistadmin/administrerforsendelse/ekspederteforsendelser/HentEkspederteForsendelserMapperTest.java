@@ -15,11 +15,11 @@ import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DIGITAL_DISTR
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DOKUMENTINFO_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DOKUMENTINFO_ID_2;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.EPOSTADDRESS;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.FIRST_VARSEL_SENDT_DATO;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.LANDKODE;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTNUMMER;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTSTED;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.TELEFONNUMMER;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_SENDT_DATO;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_TEKST;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_TITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createEkspederteForsendelser;
@@ -37,13 +37,6 @@ public class HentEkspederteForsendelserMapperTest {
 	public void shouldMapVarselWhenDistribusjonKodeIsDITTNAV() {
 		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(createEkspederteForsendelser());
 
-		"""
-    ALTER TABLE varsel ADD (\n" +
-				"    \n" +
-				"\tVARSLINGSTITTEL varchar(60),\n" +
-				"    VARSLINGSTIDSPUNKT TIMESTAMP\n" +
-				")""".toLowerCase();
-
 		EkspederteForsendelse forsendelse = ekspederteForsendelserResponse.forsendelser().get(0);
 		assertEquals(DOKUMENTINFO_ID_2, forsendelse.getForsendelseId());
 		assertEquals(ARKIV_KODE_2, forsendelse.getJournalpostId());
@@ -54,8 +47,8 @@ public class HentEkspederteForsendelserMapperTest {
 
 		assertEquals(VARSEL_TEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
 		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
-		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
-		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
+		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
+		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
 
 	}
 
@@ -74,8 +67,8 @@ public class HentEkspederteForsendelserMapperTest {
 
 		assertEquals(VARSEL_TEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
 		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
-		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
-		assertEquals(VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
+		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
+		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
 	}
 
 	@Test

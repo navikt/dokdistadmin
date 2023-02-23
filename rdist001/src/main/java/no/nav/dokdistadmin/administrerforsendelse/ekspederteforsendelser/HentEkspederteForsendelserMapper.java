@@ -3,13 +3,18 @@ package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.Postadresse;
+import no.nav.dokdistadmin.domain.VarselInfo;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
@@ -36,7 +41,8 @@ public class HentEkspederteForsendelserMapper {
 				.ekspedertDato(convertDateTimeToString(dokumentInfo.getEkspedertDato()))
 				.postadresse(PRINT.equals(getDistribusjonKanal(dokumentInfo)) ? mapPostadresse(dokumentInfo) : null)
 				.digitalpostkasse(SDP.equals(getDistribusjonKanal(dokumentInfo)) ? mapDigitalpostkasse(dokumentInfo) : null)
-				.varsel(DITTNAV.equals(getDistribusjonKanal(dokumentInfo)) || SDP.equals(getDistribusjonKanal(dokumentInfo)) ? mapVarsel(dokumentInfo) : null)
+				.varsel(DITTNAV.equals(getDistribusjonKanal(dokumentInfo)) || SDP.equals(getDistribusjonKanal(dokumentInfo)) ?
+						mapVarsel(dokumentInfo.getVarselInfos()).orElse(null) : null)
 				.build();
 	}
 
@@ -64,27 +70,38 @@ public class HentEkspederteForsendelserMapper {
 
 	}
 
-	private Varsel mapVarsel(DokumentInfo dokumentInfo) {
-		Varsel varsel = new Varsel();
-		dokumentInfo.getVarselInfos().stream().distinct().filter(Objects::nonNull).forEach(varselInfo -> {
-			if (EPOST.equals(varselInfo.getVarslingKanal())) {
-				Varsel.EpostVarsel epostVarsel = Varsel.EpostVarsel.builder()
-						.adresse(varselInfo.getEpostAdresse())
-						.tittel(varselInfo.getVarslingstittel())
-						.tekst(varselInfo.getVarslingstekst())
-						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
-						.build();
-				varsel.setEpostVarsel(epostVarsel);
-			} else if (MOBILTELEFON.equals(varselInfo.getVarslingKanal())) {
-				Varsel.SmsVarsel smsVarsel = Varsel.SmsVarsel.builder()
-						.telefonnummer(varselInfo.getMobiltelefonNummer())
-						.tekst(varselInfo.getVarslingstekst())
-						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
-						.build();
-				varsel.setSmsVarsel(smsVarsel);
-			}
-		});
-		return varsel;
+	private Optional<Varsel> mapVarsel(Set<VarselInfo> varselInfos) {
+		if (!varselInfos.isEmpty()) {
+			return Optional.of(Varsel.builder()
+					.epostVarsel(getDistinctEpostVarsel(varselInfos))
+					.smsVarsel(getDistinctSMSVarsel(varselInfos))
+					.build());
+		}
+		return Optional.empty();
+	}
+
+	private Varsel.EpostVarsel getDistinctEpostVarsel(Set<VarselInfo> varselInfos) {
+		VarselInfo varselInfo = varselInfos.stream().filter(varsel -> EPOST.equals(varsel.getVarslingKanal()))
+				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt))
+				.orElse(null);
+
+		return isNull(varselInfo) ? null : Varsel.EpostVarsel.builder()
+				.adresse(varselInfo.getEpostAdresse())
+				.tittel(varselInfo.getVarslingstittel())
+				.tekst(varselInfo.getVarslingstekst())
+				.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
+				.build();
+	}
+
+	private Varsel.SmsVarsel getDistinctSMSVarsel(Set<VarselInfo> varselInfos) {
+		VarselInfo varselInfo = varselInfos.stream().filter(varsel -> MOBILTELEFON.equals(varsel.getVarslingKanal()))
+				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt)).orElse(null);
+
+		return isNull(varselInfo) ? null : Varsel.SmsVarsel.builder()
+				.telefonnummer(varselInfo.getMobiltelefonNummer())
+				.tekst(varselInfo.getVarslingstekst())
+				.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
+				.build();
 	}
 
 	private DistribusjonKanalCode getDistribusjonKanal(DokumentInfo dokumentInfo) {

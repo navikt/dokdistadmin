@@ -46,7 +46,6 @@ public class TestUtils {
 	public static final String DISTRIBUSJON_ID_2 = "7882d37e-34f7-11e9-b677-d663bd953d62";
 	public static final String BESTILLENDE_FAGSYSTEM_2 = "ARENA";
 	public static final FagomradeCode FAGOMRADE_CODE_2 = FagomradeCode.DAG;
-	public static final String BREVPRODUKSJON_APPLIKASJONCODE_2 = "DOKPROD";
 	public static final LocalDateTime OPPRETTET_DATO_2 = LocalDateTime.now(Clock.systemDefaultZone()).minusHours(5).minusMinutes(23);
 	public static final LocalDateTime DISTRIBUSJON_DATO_2 = LocalDateTime.now(Clock.systemDefaultZone()).minusHours(5);
 	public static final String ARKIV_KODE_2 = "389426102";
@@ -66,7 +65,9 @@ public class TestUtils {
 	public static final String POSTSTED = "poststed";
 	public static final String LANDKODE = "landkode";
 	public static String DIGITALPOSTKASSE_ADRESSE = "xyx#012@xyz";
-	public static LocalDateTime VARSEL_SENDT_DATO = LocalDateTime.now().minusMinutes(3);
+	public static LocalDateTime FIRST_VARSEL_SENDT_DATO = LocalDateTime.now().minusNanos(10);
+	public static LocalDateTime SECOND_VARSEL_SENDT_DATO = LocalDateTime.now().minusNanos(9);
+	public static LocalDateTime THIRD_VARSEL_SENDT_DATO = LocalDateTime.now().minusNanos(8);
 
 	public static List<DokumentInfo> createEkspederteForsendelser() {
 		return Arrays.asList(
@@ -82,7 +83,8 @@ public class TestUtils {
 						.arkivkode(ARKIV_KODE_2)
 						.brevProduksjonApplikasjon(BREVPRODUKSJON_APPLIKASJONCODE)
 						.distribusjonInfo(DistribusjonInfo.builder().distribusjonKanal(DITTNAV).build())
-						.varselInfos(Set.of(createSMSVarselInfo(), createEpostVarselInfo()))
+						.varselInfos(Set.of(createSMSVarselInfo(), createEpostVarselInfo(FIRST_VARSEL_SENDT_DATO),
+								createEpostVarselInfo(SECOND_VARSEL_SENDT_DATO), createEpostVarselInfo(THIRD_VARSEL_SENDT_DATO)))
 						.postadresse(createPostadresse())
 						.build(),
 				DokumentInfo.builder()
@@ -99,7 +101,7 @@ public class TestUtils {
 						.arkivkode(ARKIV_KODE)
 						.brevProduksjonApplikasjon(BREVPRODUKSJON_APPLIKASJONCODE)
 						.distribusjonInfo(DistribusjonInfo.builder().distribusjonKanal(DistribusjonKanalCode.SDP).build())
-						.varselInfos(Set.of(createSMSVarselInfo(), createEpostVarselInfo()))
+						.varselInfos(Set.of(createSMSVarselInfo(), createEpostVarselInfo(FIRST_VARSEL_SENDT_DATO), createEpostVarselInfo(SECOND_VARSEL_SENDT_DATO)))
 						.postadresse(createPostadresse())
 						.build(),
 				DokumentInfo.builder()
@@ -176,14 +178,14 @@ public class TestUtils {
 		return dokumentInfo;
 	}
 
-	private static VarselInfo createEpostVarselInfo() {
+	private static VarselInfo createEpostVarselInfo(LocalDateTime varslingstidspunkt) {
 		VarselInfo varselInfo = VarselInfo.builder()
 				.varslingstittel(VARSEL_TITTEL)
 				.varselInfoId(VARSELID)
 				.epostAdresse(EPOSTADDRESS)
 				.varslingKanal(EPOST)
 				.varslingstekst(VARSEL_TEKST)
-				.varslingstidspunkt(VARSEL_SENDT_DATO)
+				.varslingstidspunkt(varslingstidspunkt)
 				.build();
 		varselInfo.setChangeStamp(ChangeStamp.builder()
 				.opprettetDato(LocalDateTime.now().minusMinutes(2))
@@ -198,7 +200,7 @@ public class TestUtils {
 				.mobiltelefonNummer(TELEFONNUMMER)
 				.varslingKanal(MOBILTELEFON)
 				.varslingstekst(VARSEL_TEKST)
-				.varslingstidspunkt(VARSEL_SENDT_DATO)
+				.varslingstidspunkt(FIRST_VARSEL_SENDT_DATO)
 				.build();
 		varselInfo.setChangeStamp(ChangeStamp.builder()
 				.opprettetDato(LocalDateTime.now().minusMinutes(2))
