@@ -71,16 +71,17 @@ public class HentEkspederteForsendelserMapper {
 	}
 
 	private Optional<Varsel> mapVarsel(Set<VarselInfo> varselInfos) {
-		if (!varselInfos.isEmpty()) {
-			return Optional.of(Varsel.builder()
-					.epostVarsel(getDistinctEpostVarsel(varselInfos))
-					.smsVarsel(getDistinctSMSVarsel(varselInfos))
-					.build());
+		if (varselInfos.isEmpty()) {
+			return Optional.empty();
 		}
-		return Optional.empty();
+
+		return Optional.ofNullable(Varsel.builder()
+				.epostVarsel(getOldestEpostVarsel(varselInfos))
+				.smsVarsel(getOldestSMSVarsel(varselInfos))
+				.build());
 	}
 
-	private Varsel.EpostVarsel getDistinctEpostVarsel(Set<VarselInfo> varselInfos) {
+	private Varsel.EpostVarsel getOldestEpostVarsel(Set<VarselInfo> varselInfos) {
 		VarselInfo varselInfo = varselInfos.stream().filter(varsel -> EPOST.equals(varsel.getVarslingKanal()))
 				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt))
 				.orElse(null);
@@ -93,7 +94,7 @@ public class HentEkspederteForsendelserMapper {
 				.build();
 	}
 
-	private Varsel.SmsVarsel getDistinctSMSVarsel(Set<VarselInfo> varselInfos) {
+	private Varsel.SmsVarsel getOldestSMSVarsel(Set<VarselInfo> varselInfos) {
 		VarselInfo varselInfo = varselInfos.stream().filter(varsel -> MOBILTELEFON.equals(varsel.getVarslingKanal()))
 				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt)).orElse(null);
 

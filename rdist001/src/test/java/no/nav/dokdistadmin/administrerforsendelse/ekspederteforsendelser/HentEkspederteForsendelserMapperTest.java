@@ -20,8 +20,8 @@ import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.LANDKODE;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTNUMMER;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.POSTSTED;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.TELEFONNUMMER;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_TEKST;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSEL_TITTEL;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSLINGSTEKST;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSLINGSTITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createEkspederteForsendelser;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
@@ -43,11 +43,13 @@ public class HentEkspederteForsendelserMapperTest {
 		assertEquals(DITTNAV, forsendelse.getDistribusjonsKanal());
 		assertNull(forsendelse.getDigitalpostkasse());
 		assertEquals(EPOSTADDRESS, forsendelse.getVarsel().getEpostVarsel().getAdresse());
-		assertEquals(VARSEL_TITTEL, forsendelse.getVarsel().getEpostVarsel().getTittel());
-
-		assertEquals(VARSEL_TEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
-		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
+		assertEquals(VARSLINGSTITTEL, forsendelse.getVarsel().getEpostVarsel().getTittel());
+		assertEquals(VARSLINGSTEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
 		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
+
+
+		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
+		assertEquals(VARSLINGSTEKST, forsendelse.getVarsel().getSmsVarsel().getTekst());
 		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
 
 	}
@@ -63,11 +65,12 @@ public class HentEkspederteForsendelserMapperTest {
 		assertEquals(DIGITALPOSTKASSE_ADRESSE, forsendelse.getDigitalpostkasse().getDigitalpostkasseadresse());
 		assertEquals(DIGITAL_DISTRIBUTOR_ID, forsendelse.getDigitalpostkasse().getDigitalpostkasseleverandor());
 		assertEquals(EPOSTADDRESS, forsendelse.getVarsel().getEpostVarsel().getAdresse());
-		assertEquals(VARSEL_TITTEL, forsendelse.getVarsel().getEpostVarsel().getTittel());
-
-		assertEquals(VARSEL_TEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
-		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
+		assertEquals(VARSLINGSTITTEL, forsendelse.getVarsel().getEpostVarsel().getTittel());
+		assertEquals(VARSLINGSTEKST, forsendelse.getVarsel().getEpostVarsel().getTekst());
 		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt());
+
+		assertEquals(TELEFONNUMMER, forsendelse.getVarsel().getSmsVarsel().getTelefonnummer());
+		assertEquals(VARSLINGSTEKST, forsendelse.getVarsel().getSmsVarsel().getTekst());
 		assertEquals(FIRST_VARSEL_SENDT_DATO, forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt());
 	}
 

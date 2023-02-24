@@ -24,6 +24,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -31,6 +32,9 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DISTRIBUSJON_KANAL_PRINT;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.EPOSTADDRESS;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSLINGSTEKST;
+import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSLINGSTITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithoutDokumentInfo;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
@@ -57,10 +61,8 @@ public class VarselinfoITest extends AbstractOauth2Test {
 
 	private static final String KONTAKTINFO_SMS = "98765432";
 	private static final String KONTAKTINFO_EPOST = "mottaker@nav.no";
-	private static final String VARSLINGSTITTEL = "Brev til deg";
-	private static final String VARSLINGSTEKST = "Dette er en melding";
-	private static final String FORVENTET_VARSLINGSTEKST_EPOST = "Tittel Brev til deg, Tekst Dette er en melding";
 	private static final LocalDateTime VARSEL_SENDT_DATO = LocalDateTime.now().minusMinutes(3);
+	private static final LocalDateTime SECOND_VARSEL_SENDT_DATO = LocalDateTime.now().minusMinutes(2);
 
 	@Autowired
 	public WebTestClient webTestClient;
@@ -85,22 +87,21 @@ public class VarselinfoITest extends AbstractOauth2Test {
 		dokumentDistribusjonRepository.deleteAll();
 	}
 
-	private DistribusjonInfo setupDatabase() {
-		var distribusjon = createDistribusjonInfoWithoutDokumentInfo();
-		distribusjon.setDistribusjonKanal(DITTNAV);
-		var distribusjonInfo = dokumentDistribusjonRepository.save(distribusjon);
+	private DistribusjonInfo setupDatabase(DistribusjonInfo distribusjonInfo) {
+		distribusjonInfo.setDistribusjonKanal(DITTNAV);
+		var nyDistribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
 
-		distribusjonInfo.addDokumentInfo(createDokumentInfo());
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		nyDistribusjonInfo.addDokumentInfo(createDokumentInfo());
+		dokumentDistribusjonRepository.save(nyDistribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
-		return distribusjonInfo;
+		return nyDistribusjonInfo;
 	}
 
 	@Test
 	void skalOppdatereVarselinfo() {
-		setupDatabase();
+		setupDatabase(createDistribusjonInfoWithoutDokumentInfo());
 		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
 
 		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId());
@@ -121,6 +122,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 			assertNull(varsel.getVarslingstittel());
 			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_SMS, varsel.getMobiltelefonNummer());
+			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
 			assertNull(varsel.getEpostAdresse());
 		});
 
@@ -129,6 +131,55 @@ public class VarselinfoITest extends AbstractOauth2Test {
 			assertEquals(VARSLINGSTITTEL, varsel.getVarslingstittel());
 			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_EPOST, varsel.getEpostAdresse());
+			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertNull(varsel.getMobiltelefonNummer());
+		});
+	}
+
+	@Test
+	void skalOppdatereListOfVarselinfo() {
+
+		setupDatabase(createDistribusjonInfoWithoutDokumentInfo());
+		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
+
+		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId());
+		List<Notifikasjon> notifikasjoner = request.getNotifikasjoner();
+		notifikasjoner.add(createNotifikasjon(EPOST, EPOSTADDRESS, VARSLINGSTITTEL, SECOND_VARSEL_SENDT_DATO));
+
+		webTestClient.put()
+				.uri(OPPDATERVARSELINFO_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isOk();
+
+		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false).count()).isEqualTo(3);
+
+		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
+
+		assertThat(varsler).anySatisfy(varsel -> {
+			assertEquals(MOBILTELEFON, varsel.getVarslingKanal());
+			assertNull(varsel.getVarslingstittel());
+			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
+			assertEquals(KONTAKTINFO_SMS, varsel.getMobiltelefonNummer());
+			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertNull(varsel.getEpostAdresse());
+		});
+
+		assertThat(varsler).anySatisfy(varsel -> {
+			assertEquals(EPOST, varsel.getVarslingKanal());
+			assertEquals(VARSLINGSTITTEL, varsel.getVarslingstittel());
+			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
+			assertEquals(KONTAKTINFO_EPOST, varsel.getEpostAdresse());
+			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertNull(varsel.getMobiltelefonNummer());
+		});
+		assertThat(varsler).anySatisfy(varsel -> {
+			assertEquals(EPOST, varsel.getVarslingKanal());
+			assertEquals(VARSLINGSTITTEL, varsel.getVarslingstittel());
+			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
+			assertEquals(EPOSTADDRESS, varsel.getEpostAdresse());
+			assertEquals(SECOND_VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
 			assertNull(varsel.getMobiltelefonNummer());
 		});
 	}
@@ -156,7 +207,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	@Test
 	void skalReturnereBadRequestDersomForsendelseHarFeilDistribusjonskanal() {
 
-		var distribusjon = setupDatabase();
+		var distribusjon = setupDatabase(createDistribusjonInfoWithoutDokumentInfo());
 		distribusjon.setDistribusjonKanal(DISTRIBUSJON_KANAL_PRINT);
 		dokumentDistribusjonRepository.save(distribusjon);
 		commitAndBeginNewTransaction();
@@ -240,22 +291,34 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	}
 
 	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequest(Long forsendelseId) {
+		List<Notifikasjon> notifikasjons = new ArrayList<>();
+		notifikasjons.add(Notifikasjon.builder()
+				.kanal(MOBILTELEFON)
+				.tekst(VARSLINGSTEKST)
+				.kontaktInfo(KONTAKTINFO_SMS)
+				.varslingstidspunkt(VARSEL_SENDT_DATO)
+				.build());
+		notifikasjons.add(
+				Notifikasjon.builder()
+						.kanal(EPOST)
+						.tekst(VARSLINGSTEKST)
+						.kontaktInfo(KONTAKTINFO_EPOST)
+						.tittel(VARSLINGSTITTEL)
+						.varslingstidspunkt(VARSEL_SENDT_DATO)
+						.build());
 		return OppdaterVarselInfoRequest.builder()
 				.forsendelseId(forsendelseId)
-				.notifikasjoner(List.of(
-						Notifikasjon.builder()
-								.kanal(MOBILTELEFON)
-								.tekst(VARSLINGSTEKST)
-								.kontaktInfo(KONTAKTINFO_SMS)
-								.varslingstidspunkt(VARSEL_SENDT_DATO)
-								.build(),
-						Notifikasjon.builder()
-								.kanal(EPOST)
-								.tekst(VARSLINGSTEKST)
-								.kontaktInfo(KONTAKTINFO_EPOST)
-								.tittel(VARSLINGSTITTEL)
-								.varslingstidspunkt(VARSEL_SENDT_DATO)
-								.build()))
+				.notifikasjoner(notifikasjons)
+				.build();
+	}
+
+	private Notifikasjon createNotifikasjon(VarslingKanalCode kanal, String kontaktInfo, String tittel, LocalDateTime varslingstidspunkt) {
+		return Notifikasjon.builder()
+				.kanal(kanal)
+				.tekst(VARSLINGSTEKST)
+				.kontaktInfo(kontaktInfo)
+				.tittel(tittel)
+				.varslingstidspunkt(varslingstidspunkt)
 				.build();
 	}
 

@@ -53,12 +53,14 @@ class OppdaterVarselInfoRequestMapperTest {
 										.kanal(MOBILTELEFON)
 										.tekst(VARSLINGSTEKST)
 										.kontaktInfo(KONTAKTINFO_SMS)
+										.varslingstidspunkt(null)
 										.build(),
 								Notifikasjon.builder()
 										.kanal(EPOST)
 										.tekst(VARSLINGSTEKST)
 										.kontaktInfo(KONTAKTINFO_EPOST)
 										.tittel(VARSLINGSTITTEL)
+										.varslingstidspunkt(null)
 										.build()))
 				.build();
 	}

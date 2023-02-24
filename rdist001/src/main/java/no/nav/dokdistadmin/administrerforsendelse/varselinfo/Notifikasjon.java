@@ -4,13 +4,16 @@ package no.nav.dokdistadmin.administrerforsendelse.varselinfo;
 import lombok.Builder;
 import lombok.Data;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@Validated
 public class Notifikasjon {
 
 	@NotNull(message = "kanal kan ikke være null")
@@ -25,6 +28,6 @@ public class Notifikasjon {
 	private String tittel;
 
 	@NotNull(message = "varslingstidspunkt kan ikke være null")
+	@PastOrPresent
 	private LocalDateTime varslingstidspunkt;
-
 }
