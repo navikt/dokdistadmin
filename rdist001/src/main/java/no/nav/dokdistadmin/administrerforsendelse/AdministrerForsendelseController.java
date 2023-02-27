@@ -49,7 +49,7 @@ public class AdministrerForsendelseController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Forsendelse> opprettForsendelse(OpprettForsendelseRequest opprettForsendelseRequest) {
+	public ResponseEntity<Forsendelse> opprettForsendelse(@RequestBody @Valid OpprettForsendelseRequest opprettForsendelseRequest) {
 		log.info("opprettForsendelse har mottatt kall om å persistere forsendelse med bestillingsId={}", opprettForsendelseRequest.getBestillingsId());
 
 		Forsendelse forsendelse = forsendelserService.opprettForsendelse(opprettForsendelseRequest);

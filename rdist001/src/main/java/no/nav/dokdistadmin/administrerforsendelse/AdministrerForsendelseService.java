@@ -67,6 +67,7 @@ public class AdministrerForsendelseService {
 		this.hentUekspederteForsendelserMapper = new HentUekspederteForsendelserMapper();
 	}
 
+	@Transactional
 	public Forsendelse opprettForsendelse(OpprettForsendelseRequest persisterForsendelseRequest) {
 
 		var bestillingsId = persisterForsendelseRequest.getBestillingsId();
