@@ -126,6 +126,12 @@ public class Rdist001TestUtils {
 		return dokumentInfo;
 	}
 
+	public static DokumentInfo createDokumentInfoWithDokumentId(String dokumentId) {
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		dokumentInfo.setDokumentId(dokumentId);
+		return dokumentInfo;
+	}
+
 	public static DokumentInfo createDokumentInfo() {
 		DokumentInfo dokumentInfo = DokumentInfo.builder()
 				.dokumentInfoId(DOKUMENTINFO_ID)

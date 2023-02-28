@@ -4,6 +4,7 @@ import no.nav.dokdistadmin.administrerforsendelse.Forsendelse;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.dokdistadmin.config.DatabaseTest;
+import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
-import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDokumentId;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createOpprettForsendelseRequest;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +73,10 @@ public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest
 		assertThat(response.getForsendelseId()).isNotNull();
 
 		var opprettetForsendelse = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(response.getForsendelseId());
-		assertThat(opprettetForsendelse).isNotNull();
+
+		assertThat(opprettetForsendelse)
+				.extracting(DokumentInfo::getDokumentId)
+				.isEqualTo(request.getBestillingsId());
 	}
 
 	@Test
@@ -80,10 +84,12 @@ public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest
 		var request = createOpprettForsendelseRequest();
 
 		var distribusjon = createDistribusjonInfo();
-		var dokument = createDokumentInfo();
-		dokument.setDokumentId(request.getBestillingsId());
-		distribusjon.addDokumentInfo(dokument);
+		distribusjon.addDokumentInfo(createDokumentInfoWithDokumentId(request.getBestillingsId()));
 		dokumentDistribusjonRepository.save(distribusjon);
+
+		commitAndBeginNewTransaction();
+
+		var forsendelseSomEksisterer = dokumentInfoRepository.findDokumentInfoByDokumentId(request.getBestillingsId());
 
 		var response = webTestClient.post()
 				.uri(OPPRETT_FORSENDELSE_URI)
@@ -95,12 +101,26 @@ public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isNotNull();
-		assertThat(response.getForsendelseId()).isNotNull();
-
-		var opprettetForsendelse = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(response.getForsendelseId());
-		assertThat(opprettetForsendelse).isNotNull();
+		assertThat(response)
+				.extracting(Forsendelse::getForsendelseId)
+				.isEqualTo(forsendelseSomEksisterer.getDokumentInfoId());
 	}
 
+	@Test
+	void skalReturnereBadRequestGittUgyldigInput() {
+		var request = createOpprettForsendelseRequest();
+		request.setBestillingsId("");
 
+		var response = webTestClient.post()
+				.uri(OPPRETT_FORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).isEqualTo("bestillingsId må ha en verdi");
+	}
 }
