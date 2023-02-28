@@ -2,7 +2,6 @@ package no.nav.dokdistadmin.administrerforsendelse;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
-import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.VarselInfo;
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
@@ -16,7 +15,6 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequestMapper.mapOppdaterVarselInfoRequest;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 
 @Slf4j
 @Service
@@ -36,14 +34,14 @@ public class VarselInfoService {
 
 	@Transactional
 	public long oppdaterVarselInfo(OppdaterVarselInfoRequest oppdaterVarselInfoRequest) {
+		Long dokumentInfoId = oppdaterVarselInfoRequest.getForsendelseId();
 
-		DokumentInfo dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(oppdaterVarselInfoRequest.getForsendelseId());
-
-		if (dokumentInfo == null) {
+		if (!dokumentInfoRepository.existsById(dokumentInfoId)) {
 			log.warn(OPPDATERVARSELINFO_ERROR, oppdaterVarselInfoRequest.getForsendelseId(), "Forsendelse ikke funnet.");
 			throw new OppdaterVarselInfoException(format("Forsendelse med forsendelseId=%s ikke funnet", oppdaterVarselInfoRequest.getForsendelseId()));
 		}
 
+		DokumentInfo dokumentInfo = dokumentInfoRepository.getReferenceById(dokumentInfoId);
 		List<VarselInfo> varselInfoList = mapOppdaterVarselInfoRequest(oppdaterVarselInfoRequest, dokumentInfo);
 		var oppdaterteVarselInfo = varselInfoRepository.saveAll(varselInfoList);
 
