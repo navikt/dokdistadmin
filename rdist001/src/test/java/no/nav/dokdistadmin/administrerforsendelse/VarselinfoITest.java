@@ -4,6 +4,7 @@ import no.nav.dokdistadmin.administrerforsendelse.varselinfo.Notifikasjon;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
+import no.nav.dokdistadmin.config.DatabaseTest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
@@ -19,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,12 +31,11 @@ import java.util.stream.StreamSupport;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.DISTRIBUSJON_KANAL_PRINT;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.EPOSTADDRESS;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSLINGSTEKST;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.VARSLINGSTITTEL;
-import static no.nav.dokdistadmin.administrerforsendelse.TestUtils.createDistribusjonInfoWithoutDokumentInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTEKST;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTITTEL;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
@@ -55,7 +54,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @AutoConfigureWebTestClient
 @AutoConfigureTestDatabase
 @ActiveProfiles({"itest"})
-public class VarselinfoITest extends AbstractOauth2Test {
+public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest {
 
 	private static final String OPPDATERVARSELINFO_URI = "/rest/v1/administrerforsendelse/oppdatervarselinfo";
 
@@ -87,21 +86,19 @@ public class VarselinfoITest extends AbstractOauth2Test {
 		dokumentDistribusjonRepository.deleteAll();
 	}
 
-	private DistribusjonInfo setupDatabase(DistribusjonInfo distribusjonInfo) {
-		distribusjonInfo.setDistribusjonKanal(DITTNAV);
-		var nyDistribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
-
-		nyDistribusjonInfo.addDokumentInfo(createDokumentInfo());
-		dokumentDistribusjonRepository.save(nyDistribusjonInfo);
+	private DistribusjonInfo setupDatabase() {
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(DITTNAV));
+		distribusjonInfo.addDokumentInfo(createDokumentInfo());
+		dokumentDistribusjonRepository.save(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
-		return nyDistribusjonInfo;
+		return distribusjonInfo;
 	}
 
 	@Test
 	void skalOppdatereVarselinfo() {
-		setupDatabase(createDistribusjonInfoWithoutDokumentInfo());
+		setupDatabase();
 		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
 
 		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId());
@@ -113,14 +110,14 @@ public class VarselinfoITest extends AbstractOauth2Test {
 				.exchange()
 				.expectStatus().isOk();
 
-		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false).count()).isEqualTo(2);
+		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false)).hasSize(2);
 
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
 
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertEquals(MOBILTELEFON, varsel.getVarslingKanal());
 			assertNull(varsel.getVarslingstittel());
-			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
+			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_SMS, varsel.getMobiltelefonNummer());
 			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
 			assertNull(varsel.getEpostAdresse());
@@ -128,8 +125,8 @@ public class VarselinfoITest extends AbstractOauth2Test {
 
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertEquals(EPOST, varsel.getVarslingKanal());
-			assertEquals(VARSLINGSTITTEL, varsel.getVarslingstittel());
-			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
+			assertEquals(VARSELTITTEL, varsel.getVarslingstittel());
+			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_EPOST, varsel.getEpostAdresse());
 			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
 			assertNull(varsel.getMobiltelefonNummer());
@@ -139,12 +136,12 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	@Test
 	void skalOppdatereListOfVarselinfo() {
 
-		setupDatabase(createDistribusjonInfoWithoutDokumentInfo());
+		setupDatabase();
 		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
 
 		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId());
 		List<Notifikasjon> notifikasjoner = request.getNotifikasjoner();
-		notifikasjoner.add(createNotifikasjon(EPOST, EPOSTADDRESS, VARSLINGSTITTEL, SECOND_VARSEL_SENDT_DATO));
+		notifikasjoner.add(createNotifikasjon(EPOST, Rdist001TestUtils.EPOSTADDRESS, VARSELTITTEL, SECOND_VARSEL_SENDT_DATO));
 
 		webTestClient.put()
 				.uri(OPPDATERVARSELINFO_URI)
@@ -160,7 +157,7 @@ public class VarselinfoITest extends AbstractOauth2Test {
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertEquals(MOBILTELEFON, varsel.getVarslingKanal());
 			assertNull(varsel.getVarslingstittel());
-			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
+			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_SMS, varsel.getMobiltelefonNummer());
 			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
 			assertNull(varsel.getEpostAdresse());
@@ -168,17 +165,17 @@ public class VarselinfoITest extends AbstractOauth2Test {
 
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertEquals(EPOST, varsel.getVarslingKanal());
-			assertEquals(VARSLINGSTITTEL, varsel.getVarslingstittel());
-			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
+			assertEquals(VARSELTITTEL, varsel.getVarslingstittel());
+			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
 			assertEquals(KONTAKTINFO_EPOST, varsel.getEpostAdresse());
 			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
 			assertNull(varsel.getMobiltelefonNummer());
 		});
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertEquals(EPOST, varsel.getVarslingKanal());
-			assertEquals(VARSLINGSTITTEL, varsel.getVarslingstittel());
-			assertEquals(VARSLINGSTEKST, varsel.getVarslingstekst());
-			assertEquals(EPOSTADDRESS, varsel.getEpostAdresse());
+			assertEquals(VARSELTITTEL, varsel.getVarslingstittel());
+			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
+			assertEquals(Rdist001TestUtils.EPOSTADDRESS, varsel.getEpostAdresse());
 			assertEquals(SECOND_VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
 			assertNull(varsel.getMobiltelefonNummer());
 		});
@@ -207,8 +204,8 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	@Test
 	void skalReturnereBadRequestDersomForsendelseHarFeilDistribusjonskanal() {
 
-		var distribusjon = setupDatabase(createDistribusjonInfoWithoutDokumentInfo());
-		distribusjon.setDistribusjonKanal(DISTRIBUSJON_KANAL_PRINT);
+		var distribusjon = setupDatabase();
+		distribusjon.setDistribusjonKanal(PRINT);
 		dokumentDistribusjonRepository.save(distribusjon);
 		commitAndBeginNewTransaction();
 
@@ -294,16 +291,16 @@ public class VarselinfoITest extends AbstractOauth2Test {
 		List<Notifikasjon> notifikasjons = new ArrayList<>();
 		notifikasjons.add(Notifikasjon.builder()
 				.kanal(MOBILTELEFON)
-				.tekst(VARSLINGSTEKST)
+				.tekst(VARSELTEKST)
 				.kontaktInfo(KONTAKTINFO_SMS)
 				.varslingstidspunkt(VARSEL_SENDT_DATO)
 				.build());
 		notifikasjons.add(
 				Notifikasjon.builder()
 						.kanal(EPOST)
-						.tekst(VARSLINGSTEKST)
+						.tekst(VARSELTEKST)
 						.kontaktInfo(KONTAKTINFO_EPOST)
-						.tittel(VARSLINGSTITTEL)
+						.tittel(VARSELTITTEL)
 						.varslingstidspunkt(VARSEL_SENDT_DATO)
 						.build());
 		return OppdaterVarselInfoRequest.builder()
@@ -315,16 +312,11 @@ public class VarselinfoITest extends AbstractOauth2Test {
 	private Notifikasjon createNotifikasjon(VarslingKanalCode kanal, String kontaktInfo, String tittel, LocalDateTime varslingstidspunkt) {
 		return Notifikasjon.builder()
 				.kanal(kanal)
-				.tekst(VARSLINGSTEKST)
+				.tekst(VARSELTEKST)
 				.kontaktInfo(kontaktInfo)
 				.tittel(tittel)
 				.varslingstidspunkt(varslingstidspunkt)
 				.build();
 	}
 
-	public void commitAndBeginNewTransaction() {
-		TestTransaction.flagForCommit();
-		TestTransaction.end();
-		TestTransaction.start();
-	}
 }
