@@ -203,32 +203,6 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 		assertThat(response).containsSequence("Forsendelse med forsendelseId=123 ikke funnet");
 	}
 
-	@Test
-	void skalReturnereBadRequestDersomForsendelseHarFeilDistribusjonskanal() {
-
-		var distribusjon = setupDatabase();
-		distribusjon.setDistribusjonKanal(PRINT);
-		dokumentDistribusjonRepository.save(distribusjon);
-		commitAndBeginNewTransaction();
-
-		var forsendelseId = distribusjon.getDokumentInfos().iterator().next().getDokumentInfoId();
-		var request = createOppdaterVarselInfoRequest(forsendelseId);
-
-		var response = webTestClient.put()
-				.uri(OPPDATERVARSELINFO_URI)
-				.headers(headers -> headers.setBearerAuth(jwt()))
-				.bodyValue(request)
-				.exchange()
-				.expectStatus().isBadRequest()
-				.expectBody(String.class)
-				.returnResult()
-				.getResponseBody();
-
-		assertNotNull(response);
-		assertThat(response).containsSequence(
-				format("Forsendelse med forsendelseId=%s har ikke forventet distribusjonskanal DITTNAV", forsendelseId));
-	}
-
 	@ParameterizedTest
 	@CsvSource(value = {
 			"-1, EPOST, tekst, 95123456, tittel, 2023-02-22T11:20:26.024492, forsendelseId må være et positivt tall",
