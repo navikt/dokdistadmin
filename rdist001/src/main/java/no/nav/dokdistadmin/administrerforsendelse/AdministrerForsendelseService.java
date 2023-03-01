@@ -74,7 +74,7 @@ public class AdministrerForsendelseService {
 		List<EkspederteForsendelse> result = new ArrayList<>();
 		partitioned.forEach(partition -> result.addAll(
 						dokumentInfoRepository.fetchEkspedertDokumentInfo(partition).stream()
-								.map(hentEkspederteForsendelserMapper::mapForsendelse)
+								.map(HentEkspederteForsendelserMapper::mapForsendelse)
 								.toList()
 				)
 		);
@@ -93,7 +93,7 @@ public class AdministrerForsendelseService {
 
 		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
 		forsendelseIdPartisjoner.forEach(partition ->
-			antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(partition, userId))
+				antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateDokumentInfosAvstemtArkivDato(partition, userId))
 		);
 
 		return antallOppdaterteForsendelser.get();
@@ -111,7 +111,7 @@ public class AdministrerForsendelseService {
 
 		Collection<List<Long>> forsendelseIdPartisjoner = partitionList(forsendelser);
 		forsendelseIdPartisjoner.forEach(partition ->
-			antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, partition, userId))
+				antallOppdaterteForsendelser.addAndGet(dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(avstemtReferanse, partition, userId))
 		);
 
 		return antallOppdaterteForsendelser.get();

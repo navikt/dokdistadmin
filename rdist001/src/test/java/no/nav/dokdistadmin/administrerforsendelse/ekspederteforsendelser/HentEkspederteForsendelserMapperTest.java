@@ -34,11 +34,9 @@ public class HentEkspederteForsendelserMapperTest {
 	private final DokumentInfo DOKUMENTINFO_SDP = createDokumentInfoWithDistribusjonKanal(SDP);
 	private final DokumentInfo DOKUMENTINFO_PRINT = createDokumentInfoWithDistribusjonKanal(PRINT);
 
-	private final HentEkspederteForsendelserMapper mapper = new HentEkspederteForsendelserMapper();
-
 	@Test
 	public void shouldMapVarselWhenDistribusjonKodeIsDITTNAV() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_DITTNAV));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = HentEkspederteForsendelserMapper.map(List.of(DOKUMENTINFO_DITTNAV));
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -61,7 +59,7 @@ public class HentEkspederteForsendelserMapperTest {
 
 	@Test
 	public void shouldMapDigitalpostkasseWhenDistribusjonKanalIsSDP() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_SDP));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = HentEkspederteForsendelserMapper.map(List.of(DOKUMENTINFO_SDP));
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -87,7 +85,7 @@ public class HentEkspederteForsendelserMapperTest {
 
 	@Test
 	public void shouldMapPostadresseWhenDistribusjonKanalIsPRINT() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_PRINT));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = HentEkspederteForsendelserMapper.map(List.of(DOKUMENTINFO_PRINT));
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -109,7 +107,7 @@ public class HentEkspederteForsendelserMapperTest {
 		DokumentInfo dokumentInfo = DOKUMENTINFO_PRINT;
 		dokumentInfo.setPostadresse(null);
 
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(dokumentInfo));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = HentEkspederteForsendelserMapper.map(List.of(dokumentInfo));
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -124,7 +122,7 @@ public class HentEkspederteForsendelserMapperTest {
 
 	@Test
 	public void shouldMapToEmptyListWhenEmptyInput() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(Collections.emptyList());
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = HentEkspederteForsendelserMapper.map(Collections.emptyList());
 
 		assertThat(ekspederteForsendelserResponse.forsendelser()).isEmpty();
 	}

@@ -52,12 +52,10 @@ public class Rdist001TestUtils {
 	public static final LocalDateTime DISTRIBUSJON_DATO = now(systemDefaultZone()).minusHours(5);
 
 	public static final String VARSELTEKST = "Du har fått brev fra NAV";
-	public static final String SECOND_VARSLINGSTEKST = "Andre varsel, Du har fått brev fra NAV";
 
 	public static final String VARSELTITTEL = "Melding fra NAV";
-	public static LocalDateTime FIRST_VARSEL_SENDT_DATO = LocalDateTime.now().minusNanos(10);
-	public static LocalDateTime SECOND_VARSEL_SENDT_DATO = LocalDateTime.now().minusNanos(9);
-	public static LocalDateTime THIRD_VARSEL_SENDT_DATO = LocalDateTime.now().minusNanos(8);
+	public static final LocalDateTime FIRST_VARSEL_SENDT_DATO = LocalDateTime.now().minusHours(18);
+	public static final LocalDateTime SECOND_VARSEL_SENDT_DATO = FIRST_VARSEL_SENDT_DATO.plusHours(9);
 
 	public static DistribusjonInfo createDistribusjonInfoWithDistribusjonKanal(DistribusjonKanalCode distribusjonKanalCode) {
 		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();

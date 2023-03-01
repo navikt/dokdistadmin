@@ -11,10 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
@@ -25,35 +23,35 @@ import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
 public class HentEkspederteForsendelserMapper {
 
 	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
-	public HentEkspederteForsendelserResponse map(List<DokumentInfo> dokumentInfos) {
+	public static HentEkspederteForsendelserResponse map(List<DokumentInfo> dokumentInfos) {
 		return new HentEkspederteForsendelserResponse(dokumentInfos.stream()
 				.filter(Objects::nonNull)
-				.map(this::mapForsendelse)
+				.map(HentEkspederteForsendelserMapper::mapForsendelse)
 				.toList());
 	}
 
-	public EkspederteForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
+	public static EkspederteForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
 		return EkspederteForsendelse.builder()
 				.forsendelseId(Objects.requireNonNull(dokumentInfo.getDokumentInfoId(), "ForsendelseId kan ikke være null"))
 				.journalpostId(dokumentInfo.getArkivkode())
 				.distribusjonsKanal(getDistribusjonKanal(dokumentInfo))
 				.ekspedertDato(convertDateTimeToString(dokumentInfo.getEkspedertDato()))
-				.postadresse(PRINT.equals(getDistribusjonKanal(dokumentInfo)) ? mapPostadresse(dokumentInfo) : null)
-				.digitalpostkasse(SDP.equals(getDistribusjonKanal(dokumentInfo)) ? mapDigitalpostkasse(dokumentInfo) : null)
-				.varsel(DITTNAV.equals(getDistribusjonKanal(dokumentInfo)) || SDP.equals(getDistribusjonKanal(dokumentInfo)) ?
-						mapVarsel(dokumentInfo.getVarselInfos()).orElse(null) : null)
+				.postadresse(PRINT == getDistribusjonKanal(dokumentInfo) ? mapPostadresse(dokumentInfo) : null)
+				.digitalpostkasse(SDP == getDistribusjonKanal(dokumentInfo) ? mapDigitalpostkasse(dokumentInfo) : null)
+				.varsel(mapVarslerForKanal(getDistribusjonKanal(dokumentInfo), dokumentInfo.getVarselInfos()))
 				.build();
 	}
 
-	private EkspederteForsendelse.Digitalpostkasse mapDigitalpostkasse(DokumentInfo dokumentInfo) {
+	private static EkspederteForsendelse.Digitalpostkasse mapDigitalpostkasse(DokumentInfo dokumentInfo) {
 		return EkspederteForsendelse.Digitalpostkasse.builder()
 				.digitalpostkasseadresse(dokumentInfo.getDigitalPostkasseAdresse())
 				.digitalpostkasseleverandor(dokumentInfo.getDigitalDistributorId())
 				.build();
 	}
 
-	private EkspederteForsendelse.PostadresseTo mapPostadresse(DokumentInfo dokumentInfo) {
+	private static EkspederteForsendelse.PostadresseTo mapPostadresse(DokumentInfo dokumentInfo) {
 		if (dokumentInfo.getPostadresse() == null) {
 			return null;
 		}
@@ -70,47 +68,46 @@ public class HentEkspederteForsendelserMapper {
 
 	}
 
-	private Optional<Varsel> mapVarsel(Set<VarselInfo> varselInfos) {
-		if (varselInfos.isEmpty()) {
-			return Optional.empty();
+	private static Varsel mapVarslerForKanal(DistribusjonKanalCode kanal, Set<VarselInfo> varselInfos) {
+		if ((DITTNAV == kanal || SDP == kanal) && !varselInfos.isEmpty()) {
+			return Varsel.builder()
+					.epostVarsel(getOldestEpostVarsel(varselInfos))
+					.smsVarsel(getOldestSMSVarsel(varselInfos))
+					.build();
 		}
-
-		return Optional.ofNullable(Varsel.builder()
-				.epostVarsel(getOldestEpostVarsel(varselInfos))
-				.smsVarsel(getOldestSMSVarsel(varselInfos))
-				.build());
+		return null;
 	}
 
-	private Varsel.EpostVarsel getOldestEpostVarsel(Set<VarselInfo> varselInfos) {
-		VarselInfo varselInfo = varselInfos.stream().filter(varsel -> EPOST.equals(varsel.getVarslingKanal()))
+	private static Varsel.EpostVarsel getOldestEpostVarsel(Set<VarselInfo> varselInfos) {
+		return varselInfos.stream()
+				.filter(varselInfo -> EPOST == varselInfo.getVarslingKanal())
 				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt))
+				.map(varselInfo -> Varsel.EpostVarsel.builder()
+						.adresse(varselInfo.getEpostAdresse())
+						.tittel(varselInfo.getVarslingstittel())
+						.tekst(varselInfo.getVarslingstekst())
+						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
+						.build())
 				.orElse(null);
-
-		return isNull(varselInfo) ? null : Varsel.EpostVarsel.builder()
-				.adresse(varselInfo.getEpostAdresse())
-				.tittel(varselInfo.getVarslingstittel())
-				.tekst(varselInfo.getVarslingstekst())
-				.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
-				.build();
 	}
 
-	private Varsel.SmsVarsel getOldestSMSVarsel(Set<VarselInfo> varselInfos) {
-		VarselInfo varselInfo = varselInfos.stream().filter(varsel -> MOBILTELEFON.equals(varsel.getVarslingKanal()))
-				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt)).orElse(null);
-
-		return isNull(varselInfo) ? null : Varsel.SmsVarsel.builder()
-				.telefonnummer(varselInfo.getMobiltelefonNummer())
-				.tekst(varselInfo.getVarslingstekst())
-				.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
-				.build();
+	private static Varsel.SmsVarsel getOldestSMSVarsel(Set<VarselInfo> varselInfos) {
+		return varselInfos.stream()
+				.filter(varselInfo -> MOBILTELEFON == varselInfo.getVarslingKanal())
+				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt))
+				.map(varselInfo -> Varsel.SmsVarsel.builder()
+						.telefonnummer(varselInfo.getMobiltelefonNummer())
+						.tekst(varselInfo.getVarslingstekst())
+						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
+						.build())
+				.orElse(null);
 	}
 
-	private DistribusjonKanalCode getDistribusjonKanal(DokumentInfo dokumentInfo) {
+	private static DistribusjonKanalCode getDistribusjonKanal(DokumentInfo dokumentInfo) {
 		return nonNull(dokumentInfo.getDistribusjonInfo()) ? dokumentInfo.getDistribusjonInfo().getDistribusjonKanal() : null;
 	}
 
-	public String convertDateTimeToString(LocalDateTime localDateTime) {
-		final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
+	private static String convertDateTimeToString(LocalDateTime localDateTime) {
 		return localDateTime == null ? StringUtils.EMPTY : localDateTime.format(DATE_TIME_FORMATTER);
 	}
 }

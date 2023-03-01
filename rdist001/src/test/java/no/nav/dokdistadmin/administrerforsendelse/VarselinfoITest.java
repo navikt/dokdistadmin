@@ -29,14 +29,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADDRESS;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FIRST_VARSEL_SENDT_DATO;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.SECOND_VARSEL_SENDT_DATO;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEFONNUMMER;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTEKST;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
@@ -59,11 +61,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest {
 
 	private static final String OPPDATERVARSELINFO_URI = "/rest/v1/administrerforsendelse/oppdatervarselinfo";
-
-	private static final String KONTAKTINFO_SMS = "98765432";
-	private static final String KONTAKTINFO_EPOST = "mottaker@nav.no";
-	private static final LocalDateTime VARSEL_SENDT_DATO = LocalDateTime.now().minusMinutes(3);
-	private static final LocalDateTime SECOND_VARSEL_SENDT_DATO = LocalDateTime.now().minusMinutes(2);
 
 	@Autowired
 	public WebTestClient webTestClient;
@@ -120,8 +117,8 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
 			assertNull(varsel.getVarslingstittel());
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(KONTAKTINFO_SMS);
-			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
+			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(TELEFONNUMMER);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(FIRST_VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getEpostAdresse());
 		});
 
@@ -129,8 +126,8 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
 			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(KONTAKTINFO_EPOST);
-			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESS);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(FIRST_VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
 	}
@@ -160,8 +157,8 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
 			assertNull(varsel.getVarslingstittel());
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(KONTAKTINFO_SMS);
-			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
+			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(TELEFONNUMMER);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(FIRST_VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getEpostAdresse());
 		});
 
@@ -169,8 +166,8 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
 			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(KONTAKTINFO_EPOST);
-			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESS);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(FIRST_VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
 		assertThat(varsler).anySatisfy(varsel -> {
@@ -268,16 +265,16 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 		notifikasjons.add(Notifikasjon.builder()
 				.kanal(MOBILTELEFON)
 				.tekst(VARSELTEKST)
-				.kontaktInfo(KONTAKTINFO_SMS)
-				.varslingstidspunkt(VARSEL_SENDT_DATO)
+				.kontaktInfo(TELEFONNUMMER)
+				.varslingstidspunkt(FIRST_VARSEL_SENDT_DATO)
 				.build());
 		notifikasjons.add(
 				Notifikasjon.builder()
 						.kanal(EPOST)
 						.tekst(VARSELTEKST)
-						.kontaktInfo(KONTAKTINFO_EPOST)
+						.kontaktInfo(EPOSTADDRESS)
 						.tittel(VARSELTITTEL)
-						.varslingstidspunkt(VARSEL_SENDT_DATO)
+						.varslingstidspunkt(FIRST_VARSEL_SENDT_DATO)
 						.build());
 		return OppdaterVarselInfoRequest.builder()
 				.forsendelseId(forsendelseId)

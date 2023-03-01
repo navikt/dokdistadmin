@@ -6,19 +6,17 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADDRESS;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEFONNUMMER;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTEKST;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTITTEL;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
 import static no.nav.dokdistadmin.repository.TestUtils.createDokumentInfo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OppdaterVarselInfoRequestMapperTest {
-
-	private static final String VARSLINGSTEKST = "Du har fått et brev";
-	private static final String KONTAKTINFO_SMS = "98765432";
-	private static final String KONTAKTINFO_EPOST = "mottaker@nav.no";
-	private static final String VARSLINGSTITTEL = "Brev til deg";
 
 	@Test
 	void shouldMapOppdaterVarselInfoRequestSms() {
@@ -26,22 +24,23 @@ class OppdaterVarselInfoRequestMapperTest {
 		DokumentInfo dokumentInfo = createDokumentInfo();
 
 		List<VarselInfo> varselInfoList = OppdaterVarselInfoRequestMapper.mapOppdaterVarselInfoRequest(request, dokumentInfo);
-		var smsVarsel = varselInfoList.stream().filter(varsel -> MOBILTELEFON.equals(varsel.getVarslingKanal())).findFirst();
-		var epostVarsel = varselInfoList.stream().filter(varsel -> EPOST.equals(varsel.getVarslingKanal())).findFirst();
 
-		assertTrue(smsVarsel.isPresent());
-		assertTrue(epostVarsel.isPresent());
+		assertThat(varselInfoList).anySatisfy(varsel -> {
+			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(TELEFONNUMMER);
+			assertNull(varsel.getEpostAdresse());
+			assertThat(varsel.getDokumentInfo()).isEqualTo(dokumentInfo);
+		});
 
-		assertEquals(VARSLINGSTEKST, smsVarsel.get().getVarslingstekst());
-		assertEquals(KONTAKTINFO_SMS, smsVarsel.get().getMobiltelefonNummer());
-		assertNull(smsVarsel.get().getEpostAdresse());
-		assertEquals(dokumentInfo, smsVarsel.get().getDokumentInfo());
-
-		assertEquals(VARSLINGSTEKST, epostVarsel.get().getVarslingstekst());
-		assertEquals(KONTAKTINFO_EPOST, epostVarsel.get().getEpostAdresse());
-		assertNull(epostVarsel.get().getMobiltelefonNummer());
-		assertEquals(dokumentInfo, epostVarsel.get().getDokumentInfo());
-		assertEquals(VARSLINGSTITTEL, epostVarsel.get().getVarslingstittel());
+		assertThat(varselInfoList).anySatisfy(varsel -> {
+			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESS);
+			assertNull(varsel.getMobiltelefonNummer());
+			assertThat(varsel.getDokumentInfo()).isEqualTo(dokumentInfo);
+			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
+		});
 	}
 
 	private OppdaterVarselInfoRequest createOppdateVarselInfoRequest() {
@@ -51,15 +50,15 @@ class OppdaterVarselInfoRequestMapperTest {
 						List.of(
 								Notifikasjon.builder()
 										.kanal(MOBILTELEFON)
-										.tekst(VARSLINGSTEKST)
-										.kontaktInfo(KONTAKTINFO_SMS)
+										.tekst(VARSELTEKST)
+										.kontaktInfo(TELEFONNUMMER)
 										.varslingstidspunkt(null)
 										.build(),
 								Notifikasjon.builder()
 										.kanal(EPOST)
-										.tekst(VARSLINGSTEKST)
-										.kontaktInfo(KONTAKTINFO_EPOST)
-										.tittel(VARSLINGSTITTEL)
+										.tekst(VARSELTEKST)
+										.kontaktInfo(EPOSTADDRESS)
+										.tittel(VARSELTITTEL)
 										.varslingstidspunkt(null)
 										.build()))
 				.build();
