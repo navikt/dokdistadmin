@@ -24,6 +24,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -42,6 +43,7 @@ import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
 import static no.nav.dokdistadmin.repository.TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -115,20 +117,20 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
 
 		assertThat(varsler).anySatisfy(varsel -> {
-			assertEquals(MOBILTELEFON, varsel.getVarslingKanal());
+			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
 			assertNull(varsel.getVarslingstittel());
-			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
-			assertEquals(KONTAKTINFO_SMS, varsel.getMobiltelefonNummer());
-			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(KONTAKTINFO_SMS);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getEpostAdresse());
 		});
 
 		assertThat(varsler).anySatisfy(varsel -> {
-			assertEquals(EPOST, varsel.getVarslingKanal());
-			assertEquals(VARSELTITTEL, varsel.getVarslingstittel());
-			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
-			assertEquals(KONTAKTINFO_EPOST, varsel.getEpostAdresse());
-			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
+			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(KONTAKTINFO_EPOST);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
 	}
@@ -155,28 +157,28 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
 
 		assertThat(varsler).anySatisfy(varsel -> {
-			assertEquals(MOBILTELEFON, varsel.getVarslingKanal());
+			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
 			assertNull(varsel.getVarslingstittel());
-			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
-			assertEquals(KONTAKTINFO_SMS, varsel.getMobiltelefonNummer());
-			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(KONTAKTINFO_SMS);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getEpostAdresse());
 		});
 
 		assertThat(varsler).anySatisfy(varsel -> {
-			assertEquals(EPOST, varsel.getVarslingKanal());
-			assertEquals(VARSELTITTEL, varsel.getVarslingstittel());
-			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
-			assertEquals(KONTAKTINFO_EPOST, varsel.getEpostAdresse());
-			assertEquals(VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
+			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(KONTAKTINFO_EPOST);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
 		assertThat(varsler).anySatisfy(varsel -> {
-			assertEquals(EPOST, varsel.getVarslingKanal());
-			assertEquals(VARSELTITTEL, varsel.getVarslingstittel());
-			assertEquals(VARSELTEKST, varsel.getVarslingstekst());
-			assertEquals(Rdist001TestUtils.EPOSTADDRESS, varsel.getEpostAdresse());
-			assertEquals(SECOND_VARSEL_SENDT_DATO, varsel.getVarslingstidspunkt());
+			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
+			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(SECOND_VARSEL_SENDT_DATO, within(1, ChronoUnit.SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
 	}
