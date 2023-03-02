@@ -8,9 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
@@ -63,36 +64,34 @@ public class HentEkspederteForsendelserMapper {
 	private static Varsel mapVarslerForKanal(DistribusjonKanalCode kanal, Set<VarselInfo> varselInfos) {
 		if ((DITTNAV == kanal || SDP == kanal) && !varselInfos.isEmpty()) {
 			return Varsel.builder()
-					.epostVarsel(getOldestEpostVarsel(varselInfos))
-					.smsVarsel(getOldestSMSVarsel(varselInfos))
+					.epostVarsel(getEpostVarsler(varselInfos))
+					.smsVarsel(getSMSVarsler(varselInfos))
 					.build();
 		}
 		return null;
 	}
 
-	private static Varsel.EpostVarsel getOldestEpostVarsel(Set<VarselInfo> varselInfos) {
+	private static List<Varsel.EpostVarsel> getEpostVarsler(Set<VarselInfo> varselInfos) {
 		return varselInfos.stream()
 				.filter(varselInfo -> EPOST == varselInfo.getVarslingKanal())
-				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt))
 				.map(varselInfo -> Varsel.EpostVarsel.builder()
 						.adresse(varselInfo.getEpostAdresse())
 						.tittel(varselInfo.getVarslingstittel())
 						.tekst(varselInfo.getVarslingstekst())
 						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
 						.build())
-				.orElse(null);
+				.collect(Collectors.toList());
 	}
 
-	private static Varsel.SmsVarsel getOldestSMSVarsel(Set<VarselInfo> varselInfos) {
+	private static List<Varsel.SmsVarsel> getSMSVarsler(Set<VarselInfo> varselInfos) {
 		return varselInfos.stream()
 				.filter(varselInfo -> MOBILTELEFON == varselInfo.getVarslingKanal())
-				.min(Comparator.comparing(VarselInfo::getVarslingstidspunkt))
 				.map(varselInfo -> Varsel.SmsVarsel.builder()
 						.telefonnummer(varselInfo.getMobiltelefonNummer())
 						.tekst(varselInfo.getVarslingstekst())
 						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
 						.build())
-				.orElse(null);
+				.collect(Collectors.toList());
 	}
 
 	private static DistribusjonKanalCode getDistribusjonKanal(DokumentInfo dokumentInfo) {

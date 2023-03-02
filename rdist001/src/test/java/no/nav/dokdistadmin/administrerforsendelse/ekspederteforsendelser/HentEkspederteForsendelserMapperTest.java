@@ -46,14 +46,16 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
 					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(DITTNAV);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getTittel()).isEqualTo(VARSELTITTEL);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getTekst()).isEqualTo(MELDING);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
+					assertThat(forsendelse.getVarsel().getEpostVarsel()).hasSize(1);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getTittel()).isEqualTo(VARSELTITTEL);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getTekst()).isEqualTo(MELDING);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
 
-					assertThat(forsendelse.getVarsel().getSmsVarsel().getTelefonnummer()).isEqualTo(TELEFONNUMMER);
-					assertThat(forsendelse.getVarsel().getSmsVarsel().getTekst()).isEqualTo(MELDING);
-					assertThat(forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
+					assertThat(forsendelse.getVarsel().getSmsVarsel()).hasSize(1);
+					assertThat(forsendelse.getVarsel().getSmsVarsel().get(0).getTelefonnummer()).isEqualTo(TELEFONNUMMER);
+					assertThat(forsendelse.getVarsel().getSmsVarsel().get(0).getTekst()).isEqualTo(MELDING);
+					assertThat(forsendelse.getVarsel().getSmsVarsel().get(0).getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
 
 					assertNull(forsendelse.getDigitalpostkasse());
 				});
@@ -73,14 +75,16 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(SDP);
 					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseadresse()).isEqualTo(DIGITALPOSTKASSE_ADRESSE);
 					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseleverandor()).isEqualTo(DIGITAL_DISTRIBUTOR_ID);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getTittel()).isEqualTo(VARSELTITTEL);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getTekst()).isEqualTo(MELDING);
-					assertThat(forsendelse.getVarsel().getEpostVarsel().getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
+					assertThat(forsendelse.getVarsel().getEpostVarsel()).hasSize(1);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getTittel()).isEqualTo(VARSELTITTEL);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getTekst()).isEqualTo(MELDING);
+					assertThat(forsendelse.getVarsel().getEpostVarsel().get(0).getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
 
-					assertThat(forsendelse.getVarsel().getSmsVarsel().getTelefonnummer()).isEqualTo(TELEFONNUMMER);
-					assertThat(forsendelse.getVarsel().getSmsVarsel().getTekst()).isEqualTo(MELDING);
-					assertThat(forsendelse.getVarsel().getSmsVarsel().getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
+					assertThat(forsendelse.getVarsel().getSmsVarsel()).hasSize(1);
+					assertThat(forsendelse.getVarsel().getSmsVarsel().get(0).getTelefonnummer()).isEqualTo(TELEFONNUMMER);
+					assertThat(forsendelse.getVarsel().getSmsVarsel().get(0).getTekst()).isEqualTo(MELDING);
+					assertThat(forsendelse.getVarsel().getSmsVarsel().get(0).getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
 
 
 					assertNull(forsendelse.getPostadresse());

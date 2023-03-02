@@ -6,14 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Varsel {
-	private EpostVarsel epostVarsel;
-	private SmsVarsel smsVarsel;
+	private List<EpostVarsel> epostVarsel;
+	private List<SmsVarsel> smsVarsel;
 
 	@Data
 	@Builder
