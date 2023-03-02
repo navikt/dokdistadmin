@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,13 +23,6 @@ public class HentEkspederteForsendelserMapper {
 
 	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
-
-	public static HentEkspederteForsendelserResponse map(List<DokumentInfo> dokumentInfos) {
-		return new HentEkspederteForsendelserResponse(dokumentInfos.stream()
-				.filter(Objects::nonNull)
-				.map(HentEkspederteForsendelserMapper::mapForsendelse)
-				.toList());
-	}
 
 	public static EkspederteForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
 		return EkspederteForsendelse.builder()

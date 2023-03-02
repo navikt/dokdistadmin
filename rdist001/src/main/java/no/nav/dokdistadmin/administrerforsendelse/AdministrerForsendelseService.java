@@ -51,7 +51,6 @@ public class AdministrerForsendelseService {
 
 	private final DokumentInfoRepository dokumentInfoRepository;
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
-	private final HentEkspederteForsendelserMapper hentEkspederteForsendelserMapper;
 	private final HentUekspederteForsendelserMapper hentUekspederteForsendelserMapper;
 	private final HentEformidlingforsendelserResponseMapper hentEformidlingforsendelserResponseMapper;
 
@@ -61,7 +60,6 @@ public class AdministrerForsendelseService {
 		this.dokumentInfoRepository = dokumentInfoRepository;
 		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
 		this.hentEformidlingforsendelserResponseMapper = new HentEformidlingforsendelserResponseMapper();
-		this.hentEkspederteForsendelserMapper = new HentEkspederteForsendelserMapper();
 		this.hentUekspederteForsendelserMapper = new HentUekspederteForsendelserMapper();
 	}
 
