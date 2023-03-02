@@ -3,7 +3,7 @@ package no.nav.dokdistadmin.administrerforsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEformidlingforsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
-import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
@@ -139,7 +139,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 		assertNotNull(response);
 		assertThat(response.forsendelser())
 				.hasSize(forventetAntallForsendelser)
-				.extracting(EkspederteForsendelse::getForsendelseId)
+				.extracting(EkspedertForsendelse::getForsendelseId)
 				.doesNotHaveDuplicates();
 	}
 

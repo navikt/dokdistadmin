@@ -51,6 +51,12 @@ public class Rdist001TestUtils {
 	public static final LocalDateTime OPPRETTET_DATO = now(systemDefaultZone()).minusHours(5).minusMinutes(23);
 	public static final LocalDateTime DISTRIBUSJON_DATO = now(systemDefaultZone()).minusHours(5);
 
+	public static final String VARSELTEKST = "Du har fått brev fra NAV";
+
+	public static final String VARSELTITTEL = "Melding fra NAV";
+	public static final LocalDateTime FIRST_VARSEL_SENDT_DATO = LocalDateTime.now().minusHours(18);
+	public static final LocalDateTime SECOND_VARSEL_SENDT_DATO = FIRST_VARSEL_SENDT_DATO.plusHours(9);
+
 	public static DistribusjonInfo createDistribusjonInfoWithDistribusjonKanal(DistribusjonKanalCode distribusjonKanalCode) {
 		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();
 		distribusjonInfo.setDistribusjonKanal(distribusjonKanalCode);
@@ -139,7 +145,9 @@ public class Rdist001TestUtils {
 				.varselInfoId(VARSELID)
 				.epostAdresse(EPOSTADDRESS)
 				.varslingKanal(EPOST)
+				.varslingstittel(VARSELTITTEL)
 				.varslingstekst(MELDING)
+				.varslingstidspunkt(FIRST_VARSEL_SENDT_DATO)
 				.build();
 	}
 
@@ -149,6 +157,7 @@ public class Rdist001TestUtils {
 				.mobiltelefonNummer(TELEFONNUMMER)
 				.varslingKanal(MOBILTELEFON)
 				.varslingstekst(MELDING)
+				.varslingstidspunkt(FIRST_VARSEL_SENDT_DATO)
 				.build();
 	}
 
