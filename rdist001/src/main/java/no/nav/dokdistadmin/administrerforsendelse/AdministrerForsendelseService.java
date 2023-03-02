@@ -5,7 +5,7 @@ import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEf
 import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEformidlingforsendelserResponseMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
-import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserMapper;
@@ -69,7 +69,7 @@ public class AdministrerForsendelseService {
 
 		var partitioned = partitionList(dokumentInfoIds);
 
-		List<EkspederteForsendelse> result = new ArrayList<>();
+		List<EkspedertForsendelse> result = new ArrayList<>();
 		partitioned.forEach(partition -> result.addAll(
 						dokumentInfoRepository.fetchEkspedertDokumentInfo(partition).stream()
 								.map(HentEkspederteForsendelserMapper::mapForsendelse)

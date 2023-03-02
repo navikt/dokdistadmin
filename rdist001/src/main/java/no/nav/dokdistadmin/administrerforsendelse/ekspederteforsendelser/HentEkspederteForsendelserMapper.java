@@ -25,8 +25,8 @@ public class HentEkspederteForsendelserMapper {
 	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
-	public static EkspederteForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
-		return EkspederteForsendelse.builder()
+	public static EkspedertForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
+		return EkspedertForsendelse.builder()
 				.forsendelseId(Objects.requireNonNull(dokumentInfo.getDokumentInfoId(), "ForsendelseId kan ikke være null"))
 				.journalpostId(dokumentInfo.getArkivkode())
 				.distribusjonsKanal(getDistribusjonKanal(dokumentInfo))
@@ -37,20 +37,20 @@ public class HentEkspederteForsendelserMapper {
 				.build();
 	}
 
-	private static EkspederteForsendelse.Digitalpostkasse mapDigitalpostkasse(DokumentInfo dokumentInfo) {
-		return EkspederteForsendelse.Digitalpostkasse.builder()
+	private static EkspedertForsendelse.Digitalpostkasse mapDigitalpostkasse(DokumentInfo dokumentInfo) {
+		return EkspedertForsendelse.Digitalpostkasse.builder()
 				.digitalpostkasseadresse(dokumentInfo.getDigitalPostkasseAdresse())
 				.digitalpostkasseleverandor(dokumentInfo.getDigitalDistributorId())
 				.build();
 	}
 
-	private static EkspederteForsendelse.PostadresseTo mapPostadresse(DokumentInfo dokumentInfo) {
+	private static EkspedertForsendelse.PostadresseTo mapPostadresse(DokumentInfo dokumentInfo) {
 		if (dokumentInfo.getPostadresse() == null) {
 			return null;
 		}
 
 		Postadresse postadresse = dokumentInfo.getPostadresse();
-		return EkspederteForsendelse.PostadresseTo.builder()
+		return EkspedertForsendelse.PostadresseTo.builder()
 				.adresselinje1(postadresse.getAdresselinje1())
 				.adresselinje2(postadresse.getAdresselinje2())
 				.adresselinje3(postadresse.getAdresselinje3())
