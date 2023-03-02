@@ -1,6 +1,7 @@
 package no.nav.dokdistadmin.administrerforsendelse.varselinfo;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@Validated
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Notifikasjon {
 
 	@NotNull(message = "kanal kan ikke være null")
