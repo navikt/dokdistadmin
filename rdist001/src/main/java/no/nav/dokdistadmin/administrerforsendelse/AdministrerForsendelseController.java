@@ -128,11 +128,14 @@ public class AdministrerForsendelseController {
 			MethodArgumentTypeMismatchException.class
 	})
 	public ResponseEntity<String> inputValidationExceptionHandler(Exception exception) {
+		String errormessage;
 		if (exception instanceof MethodArgumentNotValidException e) {
-			return ResponseEntity.badRequest().body(e.getAllErrors().get(0).getDefaultMessage());
+			errormessage = e.getAllErrors().get(0).getDefaultMessage();
 		} else {
-			return ResponseEntity.badRequest().body(exception.getMessage());
+			errormessage = exception.getMessage();
 		}
+		log.warn("rdist001 Validering av input feilet fordi: {}", errormessage);
+		return ResponseEntity.badRequest().body(errormessage);
 	}
 
 }
