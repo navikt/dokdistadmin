@@ -181,6 +181,51 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 	}
 
 	@Test
+	void skalGodtaVarslingstidspunktErNull_inntilVidere() {
+
+		setupDatabase();
+		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
+
+		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId());
+		List<Notifikasjon> notifikasjoner = request.getNotifikasjoner();
+		notifikasjoner.add(createNotifikasjon(EPOST, Rdist001TestUtils.EPOSTADDRESS, VARSELTITTEL, null));
+
+		webTestClient.put()
+				.uri(OPPDATERVARSELINFO_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isOk();
+
+		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false).count()).isEqualTo(3);
+
+		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
+
+		assertThat(varsler).anySatisfy(varsel -> {
+			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
+			assertNull(varsel.getVarslingstittel());
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(TELEFONNUMMER);
+			assertNull(varsel.getEpostAdresse());
+		});
+
+		assertThat(varsler).anySatisfy(varsel -> {
+			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
+			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESS);
+			assertNull(varsel.getMobiltelefonNummer());
+		});
+		assertThat(varsler).anySatisfy(varsel -> {
+			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
+			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
+			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+			assertNull(varsel.getVarslingstidspunkt());
+			assertNull(varsel.getMobiltelefonNummer());
+		});
+	}
+	@Test
 	void skalReturnereBadRequestDersomForsendelseIkkeEksisterer() {
 
 		var request = createOppdaterVarselInfoRequest(123L);
@@ -206,7 +251,6 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 			"1, , tekst, 95123456, tittel, 2023-02-22T11:20:26.024492, kanal kan ikke være null",
 			"1, EPOST, , 95123456, tittel, 2023-02-22T11:20:26.024492, tekst må inneholde minst ett tegn",
 			"1, EPOST, tekst, , tittel, 2023-02-22T11:20:26.024492, kontaktInfo må innholde en epostadresse eller et telefonnummer",
-			"1, MOBILTELEFON, tekst, 95123456, tittel, , varslingstidspunkt kan ikke være null",
 	})
 	void skalReturnereBadRequestForUgyldigInput(Long forsendelseId, String kanal, String tekst, String kontaktInfo, String tittel, LocalDateTime sendtDato, String feilmelding) {
 

@@ -28,7 +28,6 @@ public class Notifikasjon {
 
 	private String tittel;
 
-	@NotNull(message = "varslingstidspunkt kan ikke være null")
 	@PastOrPresent
 	private LocalDateTime varslingstidspunkt;
 }
