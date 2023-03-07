@@ -26,6 +26,11 @@
       "app": "dokdistdittnav",
       "namespace": "teamdokumenthandtering",
       "cluster": "prod-fss"
+    },
+    {
+      "app": "dokdistdpi-2",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "prod-fss"
     }
   ]
 }
