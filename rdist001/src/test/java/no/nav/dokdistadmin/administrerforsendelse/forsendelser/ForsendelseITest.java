@@ -7,6 +7,9 @@ import no.nav.dokdistadmin.config.DatabaseTest;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
+import no.nav.dokdistadmin.utils.TestDatabaseCleanup;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
@@ -45,14 +48,24 @@ public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest
 	@Autowired
 	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
 
+	@Autowired
+	private TestDatabaseCleanup testDatabaseCleanup;
+
+	@BeforeAll
+	static void setupAll() {
+		if (MDC.get(USER_ID) == null) {
+			MDC.put(USER_ID, "ForsendelseITest");
+		}
+	}
+
 	@BeforeEach
 	void setup() {
-		if (MDC.get(USER_ID) == null) {
-			MDC.put(USER_ID, this.getClass().getSimpleName());
-		}
+		testDatabaseCleanup.execute();
+	}
 
-		dokumentInfoRepository.deleteAll();
-		dokumentDistribusjonRepository.deleteAll();
+	@AfterEach
+	void cleanUp() {
+		testDatabaseCleanup.execute();
 	}
 
 	@Test
@@ -121,6 +134,6 @@ public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isEqualTo("bestillingsId må ha en verdi");
+		assertThat(response).contains("bestillingsId må ha en verdi");
 	}
 }

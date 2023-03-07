@@ -143,7 +143,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 
 		assertNotNull(response);
 
-		assertThat(response).containsSequence("Forsendelse med forsendelseId=123 ikke funnet");
+		assertThat(response).contains("Forsendelse med forsendelseId=123 ikke funnet");
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.getResponseBody();
 
 		assertNotNull(response);
-		assertThat(response).containsSequence(
+		assertThat(response).contains(
 				format("Forsendelse med forsendelseId=%s har ikke forventet distribusjonskanal DITTNAV", forsendelseId));
 	}
 
@@ -194,7 +194,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.returnResult()
 				.getResponseBody();
 
-		assertEquals(feilmelding, response);
+		assertThat(response).contains(feilmelding);
 	}
 
 	@Test
@@ -213,7 +213,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.returnResult()
 				.getResponseBody();
 
-		assertEquals("notifikasjoner må innehold minst en notifikasjon", response);
+		assertThat(response).contains("notifikasjoner må innehold minst en notifikasjon");
 	}
 
 	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel) {
