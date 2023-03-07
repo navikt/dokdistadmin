@@ -123,6 +123,7 @@ public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest
 	void skalReturnereBadRequestGittUgyldigInput() {
 		var request = createOpprettForsendelseRequest();
 		request.setBestillingsId("");
+		request.setBestillendeFagsystem("");
 
 		var response = webTestClient.post()
 				.uri(OPPRETT_FORSENDELSE_URI)
@@ -134,6 +135,6 @@ public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).contains("bestillingsId må ha en verdi");
+		assertThat(response).contains("bestillingsId må ha en verdi", "bestillendeFagsystem må ha en verdi");
 	}
 }

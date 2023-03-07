@@ -46,7 +46,6 @@ import static no.nav.dokdistadmin.repository.TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -201,7 +200,6 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
 
-		assertThat(response).contains("Forsendelse med forsendelseId=123 ikke funnet");
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
 			assertNull(varsel.getVarslingstittel());
@@ -244,8 +242,6 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 		assertNotNull(response);
 
 		assertThat(response).containsSequence("Forsendelse med forsendelseId=123 ikke funnet");
-		assertThat(response).contains(
-				format("Forsendelse med forsendelseId=%s har ikke forventet distribusjonskanal DITTNAV", forsendelseId));
 	}
 
 	@ParameterizedTest

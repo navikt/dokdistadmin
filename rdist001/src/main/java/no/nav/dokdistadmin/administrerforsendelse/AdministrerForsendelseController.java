@@ -11,6 +11,7 @@ import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUe
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.security.token.support.core.api.Protected;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,6 +30,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -144,7 +146,9 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<String> inputValidationExceptionHandler(Exception exception) {
 		String errormessage;
 		if (exception instanceof MethodArgumentNotValidException e) {
-			errormessage = e.getAllErrors().get(0).getDefaultMessage();
+			errormessage = e.getAllErrors().stream()
+					.map(DefaultMessageSourceResolvable::getDefaultMessage)
+					.collect(Collectors.joining(", "));
 		} else {
 			errormessage = exception.getMessage();
 		}
