@@ -124,5 +124,19 @@ public enum FagomradeCode {
 	/** Farskap */
 	FAR,
 	/** Midlertidig kompensasjonsordning for selvstendig næringsdrivende og frilansere */
-	FRI
+	FRI,
+	/** Barnepensjon */
+	EYB,
+	/** Omstillingsstønad */
+	EYO,
+	/** Kontroll anmeldelse **/
+	KTA,
+	/** Fiskerpensjon **/
+	FIP,
+	/** Arbeidsrådgivning skjermet **/
+	ARS,
+	/** Arbeidsrådgivning psykologtester **/
+	ARP,
+	/**  Klage lønnsgaranti **/
+	KLL
 }

@@ -5,7 +5,7 @@ import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEf
 import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEformidlingforsendelserResponseMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
-import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspederteForsendelse;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
@@ -53,7 +53,6 @@ public class AdministrerForsendelseService {
 
 	private final DokumentInfoRepository dokumentInfoRepository;
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
-	private final HentEkspederteForsendelserMapper hentEkspederteForsendelserMapper;
 	private final HentUekspederteForsendelserMapper hentUekspederteForsendelserMapper;
 	private final HentEformidlingforsendelserResponseMapper hentEformidlingforsendelserResponseMapper;
 
@@ -63,7 +62,6 @@ public class AdministrerForsendelseService {
 		this.dokumentInfoRepository = dokumentInfoRepository;
 		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
 		this.hentEformidlingforsendelserResponseMapper = new HentEformidlingforsendelserResponseMapper();
-		this.hentEkspederteForsendelserMapper = new HentEkspederteForsendelserMapper();
 		this.hentUekspederteForsendelserMapper = new HentUekspederteForsendelserMapper();
 	}
 
@@ -94,10 +92,10 @@ public class AdministrerForsendelseService {
 
 		var partitioned = partitionList(dokumentInfoIds);
 
-		List<EkspederteForsendelse> result = new ArrayList<>();
+		List<EkspedertForsendelse> result = new ArrayList<>();
 		partitioned.forEach(partition -> result.addAll(
 						dokumentInfoRepository.fetchEkspedertDokumentInfo(partition).stream()
-								.map(hentEkspederteForsendelserMapper::mapForsendelse)
+								.map(HentEkspederteForsendelserMapper::mapForsendelse)
 								.toList()
 				)
 		);

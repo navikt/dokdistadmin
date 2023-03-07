@@ -1,9 +1,9 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
+import no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_1;
@@ -13,33 +13,32 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ARKIV
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITALPOSTKASSE_ADRESSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITAL_DISTRIBUTOR_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENTINFO_ID;
-import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADDRESS;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FIRST_VARSEL_SENDT_DATO;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.LANDKODE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.MELDING;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.POSTNUMMER;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.POSTSTED;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEFONNUMMER;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDistribusjonKanal;
+import static no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper.mapForsendelse;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class HentEkspederteForsendelserMapperTest {
-
-	private static final String DIGITAL_KONTAKTINFORMASJON = String.format("{\"epost\":\"%s\",\"sms\":\"%s\"}", EPOSTADDRESS, TELEFONNUMMER);
-	private static final String VARSELTEKST = String.format("{\"epost\":\"%s\",\"sms\":\"%s\"}", MELDING, MELDING);
+public class HentEkspedertForsendelserMapperTest {
 
 	private final DokumentInfo DOKUMENTINFO_DITTNAV = createDokumentInfoWithDistribusjonKanal(DITTNAV);
 	private final DokumentInfo DOKUMENTINFO_SDP = createDokumentInfoWithDistribusjonKanal(SDP);
 	private final DokumentInfo DOKUMENTINFO_PRINT = createDokumentInfoWithDistribusjonKanal(PRINT);
 
-	private final HentEkspederteForsendelserMapper mapper = new HentEkspederteForsendelserMapper();
-
 	@Test
 	public void shouldMapVarselWhenDistribusjonKodeIsDITTNAV() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_DITTNAV));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = new HentEkspederteForsendelserResponse(
+				List.of(mapForsendelse(DOKUMENTINFO_DITTNAV))
+		);
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -47,8 +46,20 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
 					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(DITTNAV);
-					assertThat(forsendelse.getVarsel().getDigitalkontaktinformasjon()).isEqualTo(DIGITAL_KONTAKTINFORMASJON);
-					assertThat(forsendelse.getVarsel().getVarseltekst()).isEqualTo(VARSELTEKST);
+					assertThat(forsendelse.getVarsel().getEpostVarsel()).hasSize(1);
+
+					Varsel.EpostVarsel epostVarsel = forsendelse.getVarsel().getEpostVarsel().get(0);
+					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
+					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
+					assertThat(epostVarsel.getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
+
+					assertThat(forsendelse.getVarsel().getSmsVarsel()).hasSize(1);
+
+					Varsel.SmsVarsel smsVarsel = forsendelse.getVarsel().getSmsVarsel().get(0);
+					assertThat(smsVarsel.getTelefonnummer()).isEqualTo(TELEFONNUMMER);
+					assertThat(smsVarsel.getTekst()).isEqualTo(MELDING);
+					assertThat(smsVarsel.getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
 
 					assertNull(forsendelse.getDigitalpostkasse());
 				});
@@ -56,7 +67,9 @@ public class HentEkspederteForsendelserMapperTest {
 
 	@Test
 	public void shouldMapDigitalpostkasseWhenDistribusjonKanalIsSDP() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_SDP));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = new HentEkspederteForsendelserResponse(
+				List.of(mapForsendelse(DOKUMENTINFO_SDP))
+		);
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -66,15 +79,31 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(SDP);
 					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseadresse()).isEqualTo(DIGITALPOSTKASSE_ADRESSE);
 					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseleverandor()).isEqualTo(DIGITAL_DISTRIBUTOR_ID);
+					assertThat(forsendelse.getVarsel().getEpostVarsel()).hasSize(1);
 
-					assertNull(forsendelse.getVarsel());
+					Varsel.EpostVarsel epostVarsel = forsendelse.getVarsel().getEpostVarsel().get(0);
+					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
+					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
+					assertThat(epostVarsel.getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
+
+					assertThat(forsendelse.getVarsel().getSmsVarsel()).hasSize(1);
+
+					Varsel.SmsVarsel smsVarsel = forsendelse.getVarsel().getSmsVarsel().get(0);
+					assertThat(smsVarsel.getTelefonnummer()).isEqualTo(TELEFONNUMMER);
+					assertThat(smsVarsel.getTekst()).isEqualTo(MELDING);
+					assertThat(smsVarsel.getVarslingstidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
+
+
 					assertNull(forsendelse.getPostadresse());
 				});
 	}
 
 	@Test
 	public void shouldMapPostadresseWhenDistribusjonKanalIsPRINT() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(DOKUMENTINFO_PRINT));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = new HentEkspederteForsendelserResponse(
+				List.of(mapForsendelse(DOKUMENTINFO_PRINT))
+		);
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -96,7 +125,9 @@ public class HentEkspederteForsendelserMapperTest {
 		DokumentInfo dokumentInfo = DOKUMENTINFO_PRINT;
 		dokumentInfo.setPostadresse(null);
 
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(List.of(dokumentInfo));
+		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = new HentEkspederteForsendelserResponse(
+				List.of(mapForsendelse(dokumentInfo))
+		);
 
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
@@ -109,10 +140,4 @@ public class HentEkspederteForsendelserMapperTest {
 				});
 	}
 
-	@Test
-	public void shouldMapToEmptyListWhenEmptyInput() {
-		HentEkspederteForsendelserResponse ekspederteForsendelserResponse = mapper.map(Collections.emptyList());
-
-		assertThat(ekspederteForsendelserResponse.forsendelser()).isEmpty();
-	}
 }

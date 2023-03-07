@@ -15,6 +15,8 @@ import java.util.List;
 public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Long>, CustomDokumentInfoRepository {
 	boolean existsByDokumentId(String dokumentId);
 
+	DokumentInfo getReferenceById(Long dokumentInfoId);
+
 	DokumentInfo findDokumentInfoByDokumentId(String dokumentId);
 
 	DokumentInfo findDokumentInfoByDokumentInfoId(Long dokumentInfoId);

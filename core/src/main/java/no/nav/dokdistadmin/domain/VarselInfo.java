@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.io.Serial;
+import java.time.LocalDateTime;
 
 import static lombok.AccessLevel.NONE;
 
@@ -42,6 +43,9 @@ public class VarselInfo extends AbstractDomainObject {
 	@Setter(NONE)
 	private Long varselInfoId;
 
+	@Column(name = "varslingstittel", length = 60)
+	private String varslingstittel;
+
 	@Column(name = "varslingstekst", length = 500)
 	private String varslingstekst;
 
@@ -50,6 +54,9 @@ public class VarselInfo extends AbstractDomainObject {
 
 	@Column(name = "mobiltelefon_nummer", length = 20)
 	private String mobiltelefonNummer;
+
+	@Column(name = "varslingstidspunkt")
+	private LocalDateTime varslingstidspunkt;
 
 	@Column(name = "antall_repetisjoner")
 	private Integer antallRepetisjoner;

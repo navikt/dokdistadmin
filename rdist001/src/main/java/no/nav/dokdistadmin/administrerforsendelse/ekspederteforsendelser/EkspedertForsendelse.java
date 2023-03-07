@@ -6,7 +6,7 @@ import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 
 @Data
 @Builder
-public class EkspederteForsendelse {
+public class EkspedertForsendelse {
 	private final Long forsendelseId;
 	private final String journalpostId;
 	private final DistribusjonKanalCode distribusjonsKanal;
@@ -31,12 +31,5 @@ public class EkspederteForsendelse {
 	public static class Digitalpostkasse {
 		private final String digitalpostkasseadresse;
 		private final String digitalpostkasseleverandor;
-	}
-
-	@Data
-	@Builder
-	public static class Varsel {
-		private final String digitalkontaktinformasjon;
-		private final String varseltekst;
 	}
 }
