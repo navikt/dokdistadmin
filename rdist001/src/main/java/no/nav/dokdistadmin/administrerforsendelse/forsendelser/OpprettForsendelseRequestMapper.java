@@ -8,19 +8,27 @@ import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentReferanse;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.domain.ModusCode;
 import no.nav.dokdistadmin.domain.Postadresse;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import static no.nav.dokdistadmin.domain.ArkivSystemCode.INGEN;
+import static no.nav.dokdistadmin.domain.ModusCode.T;
 
 public class OpprettForsendelseRequestMapper {
 
-	public static DistribusjonInfo mapToDistribusjonInfo(OpprettForsendelseRequest request) {
+	public static DistribusjonInfo mapToDistribusjonInfo(OpprettForsendelseRequest request, ModusCode... modus) {
+		final ModusCode modusCode = Arrays.stream(modus)
+				.findFirst()
+				.orElse(T);
+
 		DistribusjonInfo distribusjonInfo = DistribusjonInfo.builder()
 				.distribusjonId(request.getBestillingsId())
 				.distribusjonKanal(request.getDistribusjonsKanal())
 				.distribusjonStatus(DistribusjonStatusCode.OPPRETTET)
+				.modus(modusCode)
 				.distribusjonDato(LocalDateTime.now())
 				.originalDistribusjonId(request.getOriginalDistribusjonId())
 				.distribusjonstype(request.getDistribusjonstype())

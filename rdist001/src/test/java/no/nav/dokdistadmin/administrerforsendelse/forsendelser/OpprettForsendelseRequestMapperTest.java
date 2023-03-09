@@ -2,9 +2,11 @@ package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.ArkivInformasjon;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
+import no.nav.dokdistadmin.domain.ModusCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
@@ -34,6 +36,7 @@ import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonsTypeKode.VEDTAK;
 import static no.nav.dokdistadmin.domain.DistribusjonstidspunktKode.KJERNETID;
 import static no.nav.dokdistadmin.domain.FagomradeCode.DAG;
+import static no.nav.dokdistadmin.domain.ModusCode.T;
 import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
 import static no.nav.dokdistadmin.domain.RefererTilCode.VEDLEGG;
@@ -55,6 +58,7 @@ class OpprettForsendelseRequestMapperTest {
 		assertThat(distribusjonInfo.getOriginalDistribusjonId()).isEqualTo(ORIGINAL_DISTRIBUSJON_ID);
 		assertThat(distribusjonInfo.getDistribusjonstype()).isEqualTo(VEDTAK);
 		assertThat(distribusjonInfo.getDistribusjonstidspunkt()).isEqualTo(KJERNETID);
+		assertThat(distribusjonInfo.getModus()).isEqualTo(T);
 
 		assertThat(dokumentInfo.getBestillendeFagsystem()).isEqualTo(BESTILLENDE_FAGSYSTEM);
 		assertThat(dokumentInfo.getFagomrade()).isEqualTo(DAG);
@@ -106,6 +110,25 @@ class OpprettForsendelseRequestMapperTest {
 				Arguments.of(null, INGEN),
 				Arguments.of(ArkivInformasjon.builder().arkivSystem(null).build(), INGEN)
 		);
+	}
+
+	@ParameterizedTest
+	@EnumSource(ModusCode.class)
+	void shouldMapModus(ModusCode modus) {
+		var request = createOpprettForsendelseRequest();
+
+		var result = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request, modus);
+
+		assertThat(result.getModus()).isEqualTo(modus);
+	}
+
+	@Test
+	void shouldMapNoModus() {
+		var request = createOpprettForsendelseRequest();
+
+		var result = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request);
+
+		assertThat(result.getModus()).isEqualTo(T);
 	}
 
 }

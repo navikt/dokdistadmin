@@ -12,6 +12,7 @@ import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendels
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequestMapper;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
+import no.nav.dokdistadmin.config.DokdistadminProperties;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
@@ -51,14 +52,17 @@ public class AdministrerForsendelseService {
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_EKSPEDERT = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT = EnumSet.of(OVERSENDT, BEKREFTET);
 
+	private final DokdistadminProperties dokdistadminProperties;
 	private final DokumentInfoRepository dokumentInfoRepository;
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
 	private final HentUekspederteForsendelserMapper hentUekspederteForsendelserMapper;
 	private final HentEformidlingforsendelserResponseMapper hentEformidlingforsendelserResponseMapper;
 
 	public AdministrerForsendelseService(
+			DokdistadminProperties dokdistadminProperties,
 			DokumentInfoRepository dokumentInfoRepository,
 			DokumentDistribusjonRepository dokumentDistribusjonRepository) {
+		this.dokdistadminProperties = dokdistadminProperties;
 		this.dokumentInfoRepository = dokumentInfoRepository;
 		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
 		this.hentEformidlingforsendelserResponseMapper = new HentEformidlingforsendelserResponseMapper();
@@ -77,7 +81,7 @@ public class AdministrerForsendelseService {
 			return new Forsendelse(forsendelseId);
 		}
 
-		DistribusjonInfo distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(persisterForsendelseRequest);
+		DistribusjonInfo distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(persisterForsendelseRequest, dokdistadminProperties.getModus());
 
 		distribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
 

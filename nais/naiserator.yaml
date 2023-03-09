@@ -13,6 +13,8 @@ spec:
       value: {{ SPRING_DATASOURCE_URL }}
     - name: DOKDISTADMIN_DATABASE_SCHEMA
       value: {{ DOKDISTADMIN_DATABASE_SCHEMA }}
+    - name: DOKDISTADMIN_MODUS
+      value: {{ DOKDISTADMIN_MODUS }}
   image: {{ image }}
   ingresses:
     {{#each INGRESSES}}

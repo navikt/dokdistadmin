@@ -1,10 +1,12 @@
 package no.nav.dokdistadmin.config;
 
 import lombok.Data;
+import no.nav.dokdistadmin.domain.ModusCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 @Data
@@ -12,17 +14,10 @@ import javax.validation.constraints.Positive;
 @ConfigurationProperties("dokdistadmin")
 public class DokdistadminProperties {
 
-	private final AzureEndpoint mqgateway = new AzureEndpoint();
 	private final Database database = new Database();
 
-	@Data
-	@Validated
-	public static class AzureEndpoint {
-		@NotEmpty
-		private String url;
-		@NotEmpty
-		private String scope;
-	}
+	@NotNull
+	private ModusCode modus;
 
 	@Data
 	@Validated
