@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Long>, CustomDokumentInfoRepository {
+	boolean existsByDokumentId(String dokumentId);
 
 	DokumentInfo getReferenceById(Long dokumentInfoId);
 

@@ -6,16 +6,19 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemE
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.security.token.support.core.api.Protected;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +30,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -44,6 +48,18 @@ public class AdministrerForsendelseController {
 											VarselInfoService varselInfoService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
+	}
+
+	@PostMapping
+	public ResponseEntity<Forsendelse> opprettForsendelse(@RequestBody @Valid OpprettForsendelseRequest opprettForsendelseRequest) {
+		log.info("opprettForsendelse har mottatt kall om å persistere forsendelse med bestillingsId={}", opprettForsendelseRequest.getBestillingsId());
+
+		Forsendelse forsendelse = forsendelserService.opprettForsendelse(opprettForsendelseRequest);
+
+		log.info("opprettForsendelse har persistert forsendelse med bestillingsId={}. ForsendelseId={}", opprettForsendelseRequest
+				.getBestillingsId(), forsendelse.getForsendelseId());
+
+		return ResponseEntity.ok(forsendelse);
 	}
 
 	@GetMapping("/hentekspederteforsendelser")
@@ -130,7 +146,9 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<String> inputValidationExceptionHandler(Exception exception) {
 		String errormessage;
 		if (exception instanceof MethodArgumentNotValidException e) {
-			errormessage = e.getAllErrors().get(0).getDefaultMessage();
+			errormessage = e.getAllErrors().stream()
+					.map(DefaultMessageSourceResolvable::getDefaultMessage)
+					.collect(Collectors.joining(", "));
 		} else {
 			errormessage = exception.getMessage();
 		}

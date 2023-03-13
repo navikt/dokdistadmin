@@ -8,8 +8,11 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequestMapper;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
+import no.nav.dokdistadmin.config.DokdistadminProperties;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
@@ -49,18 +52,42 @@ public class AdministrerForsendelseService {
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_EKSPEDERT = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT = EnumSet.of(OVERSENDT, BEKREFTET);
 
+	private final DokdistadminProperties dokdistadminProperties;
 	private final DokumentInfoRepository dokumentInfoRepository;
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
 	private final HentUekspederteForsendelserMapper hentUekspederteForsendelserMapper;
 	private final HentEformidlingforsendelserResponseMapper hentEformidlingforsendelserResponseMapper;
 
 	public AdministrerForsendelseService(
+			DokdistadminProperties dokdistadminProperties,
 			DokumentInfoRepository dokumentInfoRepository,
 			DokumentDistribusjonRepository dokumentDistribusjonRepository) {
+		this.dokdistadminProperties = dokdistadminProperties;
 		this.dokumentInfoRepository = dokumentInfoRepository;
 		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
 		this.hentEformidlingforsendelserResponseMapper = new HentEformidlingforsendelserResponseMapper();
 		this.hentUekspederteForsendelserMapper = new HentUekspederteForsendelserMapper();
+	}
+
+	@Transactional
+	public Forsendelse opprettForsendelse(OpprettForsendelseRequest persisterForsendelseRequest) {
+
+		var bestillingsId = persisterForsendelseRequest.getBestillingsId();
+
+		// TODO: Dette kan aldri skje frå konsumenten dokdistdittnav si side. Sjekk om andre konsumentar treng sjekken
+		if (dokumentInfoRepository.existsByDokumentId(bestillingsId)) {
+			log.warn("Forsendelse med bestillingsId={} finnes allerede i databasen til dokdist", bestillingsId);
+			var forsendelseId = dokumentInfoRepository.findDokumentInfoByDokumentId(bestillingsId).getDokumentInfoId();
+			return new Forsendelse(forsendelseId);
+		}
+
+		DistribusjonInfo distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(persisterForsendelseRequest, dokdistadminProperties.getModus());
+
+		distribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		var forsendelseId = distribusjonInfo.getDokumentInfos().iterator().next().getDokumentInfoId();
+
+		return new Forsendelse(forsendelseId);
 	}
 
 	public HentEkspederteForsendelserResponse hentEkspederteForsendelser(int maksForsendelser) {

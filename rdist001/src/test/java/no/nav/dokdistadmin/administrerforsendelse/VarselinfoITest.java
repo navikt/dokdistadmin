@@ -46,7 +46,6 @@ import static no.nav.dokdistadmin.repository.TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -267,7 +266,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.returnResult()
 				.getResponseBody();
 
-		assertEquals(feilmelding, response);
+		assertThat(response).contains(feilmelding);
 	}
 
 	@Test
@@ -286,7 +285,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.returnResult()
 				.getResponseBody();
 
-		assertEquals("notifikasjoner må innehold minst en notifikasjon", response);
+		assertThat(response).contains("notifikasjoner må innehold minst en notifikasjon");
 	}
 
 	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel, LocalDateTime varslingstidspunkt) {
