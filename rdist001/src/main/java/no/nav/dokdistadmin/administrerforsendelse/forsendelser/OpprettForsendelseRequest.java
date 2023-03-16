@@ -42,9 +42,6 @@ public class OpprettForsendelseRequest {
     @NotBlank(message = "dokumentProdApp må ha en verdi")
     private String dokumentProdApp;
 
-    @NotBlank(message = "originalDistribusjonId må ha en verdi")
-    private String originalDistribusjonId;
-
     @Valid
     @NotNull(message = "mottaker kan ikke være null")
     private Mottaker mottaker;
@@ -53,6 +50,7 @@ public class OpprettForsendelseRequest {
     @NotEmpty(message = "dokumenter kan ikke være null eller en tom liste")
     private List<Dokument> dokumenter;
 
+    private String originalDistribusjonId;
     private String batchId;
     private DistribusjonsTypeKode distribusjonstype;
     private DistribusjonstidspunktKode distribusjonstidspunkt;

@@ -135,23 +135,6 @@ class OpprettForsendelseValidationTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", " "})
-	@NullSource
-	void skalFeilvalidereOriginalDistribusjonId(String verdi) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setOriginalDistribusjonId(verdi);
-
-		var violations = validator.validate(opprettForsendelseRequest);
-
-		assertThat(violations)
-				.hasSize(1)
-				.allSatisfy(it -> {
-					assertThat(it.getMessage()).isEqualTo("originalDistribusjonId må ha en verdi");
-					assertThat(it.getPropertyPath().toString()).isEqualTo("originalDistribusjonId");
-				});
-	}
-
-	@ParameterizedTest
 	@MethodSource
 	void skalFeilvalidereUgyldigMottaker(Mottaker mottaker, String feilmelding) {
 		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
