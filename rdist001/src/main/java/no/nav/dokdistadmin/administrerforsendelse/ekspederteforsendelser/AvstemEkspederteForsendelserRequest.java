@@ -18,5 +18,4 @@ public class AvstemEkspederteForsendelserRequest {
 	@NotEmpty(message = "forsendelser kan ikke være null eller en tom liste")
 	private List<Forsendelse> forsendelser;
 
-
 }
