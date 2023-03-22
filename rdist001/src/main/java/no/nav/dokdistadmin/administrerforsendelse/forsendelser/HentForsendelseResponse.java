@@ -1,7 +1,7 @@
 package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
@@ -10,62 +10,62 @@ import no.nav.dokdistadmin.domain.ModusCode;
 
 import java.util.List;
 
-@Data
+@Value
 @Builder
 public class HentForsendelseResponse {
 
-	private final String bestillingsId;
-	private final String originalBestillingsId;
-	private final String konversasjonId;
-	private final String bestillendeFagsystem;
-	private final ModusCode modus;
-	private final String forsendelseStatus;
-	private final String distribusjonKanal;
-	private final FagomradeCode tema;
-	private final String forsendelseTittel;
-	private final String batchId;
-	private final String dokumentProdApp;
-	private final Mottaker mottaker;
-	private final ArkivInformasjon arkivInformasjon;
-	private final Postadresse postadresse;
-	private final List<Dokument> dokumenter;
-	private final DistribusjonsTypeKode distribusjonstype;
-	private final DistribusjonstidspunktKode distribusjonstidspunkt;
-	private final String varselStatus;
+	String bestillingsId;
+	String originalBestillingsId;
+	String konversasjonId;
+	String bestillendeFagsystem;
+	ModusCode modus;
+	String forsendelseStatus;
+	String distribusjonKanal;
+	FagomradeCode tema;
+	String forsendelseTittel;
+	String batchId;
+	String dokumentProdApp;
+	Mottaker mottaker;
+	ArkivInformasjon arkivInformasjon;
+	Postadresse postadresse;
+	List<Dokument> dokumenter;
+	DistribusjonsTypeKode distribusjonstype;
+	DistribusjonstidspunktKode distribusjonstidspunkt;
+	String varselStatus;
 
 
-	@Data
+	@Value
 	@Builder
 	public static class Mottaker {
-		private final String mottakerId;
-		private final String mottakerNavn;
-		private final String mottakerType;
+		String mottakerId;
+		String mottakerNavn;
+		String mottakerType;
 	}
 
-	@Data
+	@Value
 	@Builder
 	public static class ArkivInformasjon {
-		private ArkivSystemCode arkivSystem;
-		private final String arkivId;
+		ArkivSystemCode arkivSystem;
+		String arkivId;
 	}
 
-	@Data
+	@Value
 	@Builder
 	public static class Postadresse {
-		private final String adresselinje1;
-		private final String adresselinje2;
-		private final String adresselinje3;
-		private final String postnummer;
-		private final String poststed;
-		private final String landkode;
+		String adresselinje1;
+		String adresselinje2;
+		String adresselinje3;
+		String postnummer;
+		String poststed;
+		String landkode;
 	}
 
-	@Data
+	@Value
 	@Builder
 	public static class Dokument {
-		private final String tilknyttetSom;
-		private final String dokumentObjektReferanse;
-		private final String arkivDokumentInfoId;
-		private final String dokumenttypeId;
+		String tilknyttetSom;
+		String dokumentObjektReferanse;
+		String arkivDokumentInfoId;
+		String dokumenttypeId;
 	}
 }
