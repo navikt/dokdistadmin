@@ -74,7 +74,7 @@ public class AdministrerForsendelseService {
 	}
 
 	public HentForsendelseResponse hentForsendelse(Long forsendelseId) {
-		DokumentInfo dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(forsendelseId);
+		DokumentInfo dokumentInfo = dokumentInfoRepository.fetchDokumentInfo(forsendelseId);
 
 		if (dokumentInfo == null) {
 			throw new ForsendelseIkkeFunnetException(format("Forsendelse med forsendelseId=%s ikke funnet i dokdistDb", forsendelseId));

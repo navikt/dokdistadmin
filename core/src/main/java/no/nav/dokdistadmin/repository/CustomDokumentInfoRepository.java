@@ -10,4 +10,6 @@ public interface CustomDokumentInfoRepository {
 
 	List<DokumentInfo> fetchEkspedertDokumentInfo(List<Long> dokumentInfoIds);
 
+	DokumentInfo fetchDokumentInfo(Long dokumentInfoId);
+
 }
