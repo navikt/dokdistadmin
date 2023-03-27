@@ -8,6 +8,8 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponseMapper;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequestMapper;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserMapper;
@@ -17,6 +19,7 @@ import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.slf4j.MDC;
@@ -31,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -67,6 +71,16 @@ public class AdministrerForsendelseService {
 		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
 		this.hentEformidlingforsendelserResponseMapper = new HentEformidlingforsendelserResponseMapper();
 		this.hentUekspederteForsendelserMapper = new HentUekspederteForsendelserMapper();
+	}
+
+	public HentForsendelseResponse hentForsendelse(Long forsendelseId) {
+		DokumentInfo dokumentInfo = dokumentInfoRepository.fetchDokumentInfo(forsendelseId);
+
+		if (dokumentInfo == null) {
+			throw new ForsendelseIkkeFunnetException(format("Forsendelse med forsendelseId=%s ikke funnet i dokdistDb", forsendelseId));
+		}
+
+		return HentForsendelseResponseMapper.map(dokumentInfo);
 	}
 
 	@Transactional

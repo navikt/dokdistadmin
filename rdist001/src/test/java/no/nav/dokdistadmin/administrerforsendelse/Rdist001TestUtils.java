@@ -8,10 +8,12 @@ import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
+import no.nav.dokdistadmin.domain.DokumentReferanse;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.Postadresse;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 import no.nav.dokdistadmin.domain.VarselInfo;
+import no.nav.dokdistadmin.domain.VarselStatusCode;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +39,7 @@ public class Rdist001TestUtils {
 	public static final Long DOKUMENTINFO_ID = 1110L;
 	public static final Long DISTRIBUSJONINFO_ID = 1222L;
 	public static final Long VARSELID = 2000L;
+	public static final Long DOKUMENT_REFERANSE_ID = 1337L;
 	public static final String KONVERSASJON_ID = "7ef3e7c7-cd4c-40bd-a5bf-99c5dbb26131";
 	public static final String DISTRIBUSJON_ID = "7882d37e-34f7-11e9-b677-d663bd953d62";
 	public static final String BESTILLINGS_ID = "723gd37e-34f7-11e9-b677-d663bd9as462";
@@ -91,6 +94,7 @@ public class Rdist001TestUtils {
 				.produksjonDato(OPPRETTET_DATO)
 				.distribusjonDato(DISTRIBUSJON_DATO)
 				.modus(P)
+				.varselStatus(VarselStatusCode.OPPRETTET)
 				.build();
 		distribusjonInfo.setChangeStamp(ChangeStamp.builder()
 				.opprettetAv(OPPRETTET_AV)
@@ -145,6 +149,8 @@ public class Rdist001TestUtils {
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM)
 				.dokumentStatus(OPPRETTET)
 				.mottakerId(MOTTAKER_ID)
+				.mottakerNavn(MOTTAKER_NAVN)
+				.mottakerIdType(PERSON)
 				.fagomrade(DAG)
 				.konversasjonId(KONVERSASJON_ID)
 				.arkivkode(ARKIV_KODE)
@@ -202,6 +208,17 @@ public class Rdist001TestUtils {
 				.rekkefolge(rekkefoelge)
 				.arkivDokumentInfoId(ARKIV_DOKUMENT_INFO_ID)
 				.dokumenttypeId(DOKUMENT_TYPE_ID)
+				.build();
+	}
+
+	public static DokumentReferanse createDokumentReferanseWithRefererTilAndRekkefoelge(RefererTilCode refererTilCode, Integer rekkefoelge) {
+		return DokumentReferanse.builder()
+				.dokumentReferanseId(DOKUMENT_REFERANSE_ID)
+				.dokumentUri(DOKUMENT_OBJEKT_REFERANSE)
+				.dokumenttypeId(DOKUMENT_TYPE_ID)
+				.refererTil(refererTilCode)
+				.arkivDokumentInfoId(ARKIV_DOKUMENT_INFO_ID)
+				.rekkefolge(rekkefoelge)
 				.build();
 	}
 

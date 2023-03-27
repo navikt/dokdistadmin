@@ -6,6 +6,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemE
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
@@ -29,6 +30,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.stream.Collectors;
 
@@ -60,6 +63,17 @@ public class AdministrerForsendelseController {
 				.getBestillingsId(), forsendelse.getForsendelseId());
 
 		return ResponseEntity.ok(forsendelse);
+	}
+
+	@GetMapping("/{forsendelseId}")
+	public ResponseEntity<HentForsendelseResponse> hentForsendelse(
+			@PathVariable("forsendelseId") @Positive(message = "forsendelseId må være et positivt tall") Long forsendelseId) {
+		log.info("rdist001 har mottatt kall om å hente forsendelse med forsendelseId={}", forsendelseId);
+
+		HentForsendelseResponse hentForsendelseResponse = forsendelserService.hentForsendelse(forsendelseId);
+		log.info("rdist001 har hentet forsendelse med forsendelseId={}", forsendelseId);
+
+		return ResponseEntity.ok(hentForsendelseResponse);
 	}
 
 	@GetMapping("/hentekspederteforsendelser")

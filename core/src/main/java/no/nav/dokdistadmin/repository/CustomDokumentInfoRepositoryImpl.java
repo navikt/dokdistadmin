@@ -48,4 +48,20 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 				.setParameter("dokumentInfoIds", dokumentInfoIds)
 				.getResultList();
 	}
+
+	@Override
+	public DokumentInfo fetchDokumentInfo(Long dokumentInfoId) {
+		return entityManager.createQuery(
+						"""
+								select distinct dok
+								from DokumentInfo dok
+								join fetch dok.distribusjonInfo
+								left join fetch dok.postadresse
+								left join fetch dok.dokumentReferanses
+								where dok.dokumentInfoId = :dokumentInfoId""", DokumentInfo.class)
+				.setHint(PASS_DISTINCT_THROUGH, false)
+				.setParameter("dokumentInfoId", dokumentInfoId)
+				.getResultStream().findFirst().orElse(null);
+	}
+
 }

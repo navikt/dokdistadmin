@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties({
 		DokdistadminProperties.class
 })
-
 @EnableJwtTokenValidation(ignore = {"org.springframework", "org.springdoc"})
 public class CoreConfig {
 }
