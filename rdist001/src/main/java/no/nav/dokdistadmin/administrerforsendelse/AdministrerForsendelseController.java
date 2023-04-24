@@ -83,7 +83,7 @@ public class AdministrerForsendelseController {
 	}
 
 	@PutMapping
-	public ResponseEntity<String> oppdatereForsendelse(@RequestBody @Valid OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+	public ResponseEntity<String> oppdaterForsendelse(@RequestBody @Valid OppdaterForsendelseRequest oppdaterForsendelseRequest) {
 		log.info(format("rdist001 har mottatt kall om å oppdatere forsendelse på forsendelse med forsendelseId=%s",
 				oppdaterForsendelseRequest.getForsendelseId()));
 		oppdaterForsendelseService.oppdatereForsendelse(oppdaterForsendelseRequest);
