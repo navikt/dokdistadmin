@@ -8,9 +8,13 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEks
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseService;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
+import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +34,11 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
@@ -46,11 +50,13 @@ public class AdministrerForsendelseController {
 
 	private final AdministrerForsendelseService forsendelserService;
 	private final VarselInfoService varselInfoService;
+	private final OppdaterForsendelseService oppdaterForsendelseService;
 
 	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
-											VarselInfoService varselInfoService) {
+											VarselInfoService varselInfoService, OppdaterForsendelseService oppdaterForsendelseService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
+		this.oppdaterForsendelseService = oppdaterForsendelseService;
 	}
 
 	@PostMapping
@@ -74,6 +80,14 @@ public class AdministrerForsendelseController {
 		log.info("rdist001 har hentet forsendelse med forsendelseId={}", forsendelseId);
 
 		return ResponseEntity.ok(hentForsendelseResponse);
+	}
+
+	@PutMapping
+	public ResponseEntity<String> oppdatereForsendelse(@RequestBody @Valid OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+		log.info(format("rdist001 har mottatt kall om å oppdatere forsendelse på forsendelse med forsendelseId=%s",
+				oppdaterForsendelseRequest.getForsendelseId()));
+		oppdaterForsendelseService.oppdatereForsendelse(oppdaterForsendelseRequest);
+		return ResponseEntity.ok().build();
 	}
 
 	@GetMapping("/hentekspederteforsendelser")
@@ -150,12 +164,14 @@ public class AdministrerForsendelseController {
 		return ResponseEntity.ok().build();
 	}
 
-
 	@ResponseStatus(BAD_REQUEST)
 	@ExceptionHandler({
 			MethodArgumentNotValidException.class,
 			ConstraintViolationException.class,
-			MethodArgumentTypeMismatchException.class
+			MethodArgumentTypeMismatchException.class,
+			UlovligStatusOvergangException.class,
+			DokumentStatusErAlleredeSattException.class,
+
 	})
 	public ResponseEntity<String> inputValidationExceptionHandler(Exception exception) {
 		String errormessage;
@@ -169,5 +185,4 @@ public class AdministrerForsendelseController {
 		log.warn("rdist001 Validering av input feilet fordi: {}", errormessage);
 		return ResponseEntity.badRequest().body(errormessage);
 	}
-
 }

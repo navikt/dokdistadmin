@@ -2,10 +2,13 @@ package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.domain.VarselStatusCode;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
@@ -43,5 +46,39 @@ public class CustomDokumentDistribusjonRepositoryImpl implements CustomDokumentD
 				.setParameter("opprettetEtter", opprettetEtter)
 				.setParameter("opprettetFoer", opprettetFoer)
 				.getResultList();
+	}
+
+	@Override
+	public void updateDistribusjonStatus(Long distribusjonInfoId,
+										 DistribusjonStatusCode distribusjonStatus,
+										 String endretAv) {
+		Query query = entityManager.createQuery(
+						"""
+										update DistribusjonInfo dist set dist.distribusjonStatus = :distribusjonStatus,
+								dist.changeStamp.endretAv = :endretAv,
+								dist.changeStamp.endretDato = current_timestamp
+								where dist.distribusjonInfoId in :distribusjonInfoId
+								""")
+				.setParameter("distribusjonInfoId", distribusjonInfoId)
+				.setParameter("distribusjonStatus", distribusjonStatus)
+				.setParameter("endretAv", endretAv);
+		query.executeUpdate();
+	}
+
+	@Override
+	public void updateDistribusjonInfoVarselStatus(Long distribusjonInfoId,
+											VarselStatusCode varselStatus,
+											String endretAv) {
+		Query query = entityManager.createQuery(
+						"""
+											update DistribusjonInfo dist set dist.varselStatus = :varselStatus,
+								dist.changeStamp.endretAv = :endretAv,
+								dist.changeStamp.endretDato = current_timestamp
+								where dist.distribusjonInfoId in :distribusjonInfoId
+												""")
+				.setParameter("distribusjonInfoId", distribusjonInfoId)
+				.setParameter("varselStatus", varselStatus)
+				.setParameter("endretAv", endretAv);
+		query.executeUpdate();
 	}
 }

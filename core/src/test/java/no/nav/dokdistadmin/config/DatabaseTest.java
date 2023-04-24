@@ -9,5 +9,4 @@ public interface DatabaseTest {
 		TestTransaction.end();
 		TestTransaction.start();
 	}
-
 }

@@ -6,14 +6,17 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
 import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.dokdistadmin.config.DatabaseTest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.domain.VarselStatusCode;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
@@ -53,8 +56,10 @@ import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +68,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Transactional
@@ -79,6 +85,8 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 	private static final String HENTUEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentuekspederteforsendelser";
 	private static final String AVSTEMFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemforsendelser";
 	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
+	private static final String ADMINISTERFORSENDELSE_URI = "/rest/v1/administrerforsendelse";
+
 
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
 
@@ -114,6 +122,19 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithEkspedertDato(LocalDateTime.now().minusSeconds(1)));
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithEkspedertDato(LocalDateTime.now().minusSeconds(2)));
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithEkspedertDato(LocalDateTime.now().minusSeconds(3)));
+		dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		return distribusjonInfo;
+	}
+
+	private DistribusjonInfo setupDatabaseWithStatus(String dokumentStatus, String varselStatus) {
+		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(valueOf(dokumentStatus));
+		distribusjonInfo.addDokumentInfo(dokumentInfo);
+		distribusjonInfo.setVarselStatus(VarselStatusCode.valueOf(varselStatus));
+		distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.valueOf(dokumentStatus));
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
@@ -525,4 +546,114 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 				.expectStatus().isBadRequest();
 	}
 
+	@ParameterizedTest
+	@CsvSource(value = {
+			"OPPRETTET,KLAR_FOR_DIST",
+			"KLAR_FOR_DIST,OVERSENDT",
+			"OVERSENDT,EKSPEDERT",
+			"OVERSENDT,FEILET",
+			"OVERSENDT,BEKREFTET"
+	})
+	void skalOppdaterForsendelseStatus(String oldForsendelseStatus, String newForsendelseStatus) {
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, VarselStatusCode.OPPRETTET.name());
+		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
+				.map(dokumentInfo1 -> dokumentInfo1.getDokumentInfoId())
+				.toList();
+
+		webTestClient.method(PUT)
+				.uri(ADMINISTERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoIds.get(0))
+						.forsendelseStatus(newForsendelseStatus)
+						.build())
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(String.class)
+				.getResponseBody()
+				.blockFirst();
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {
+			"eBoks,ola#123",
+			"Posten,hei#123"
+	})
+	void skalOppdaterDokumentDistribusjonAdresse(String digitalLeverandoeradresse, String digitalPostkasseadresse) {
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(KLAR_FOR_DIST.name(), VarselStatusCode.OPPRETTET.name());
+		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList();
+
+		webTestClient.method(PUT)
+				.uri(ADMINISTERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoIds.get(0))
+						.digitalLeverandoeradresse(digitalLeverandoeradresse)
+						.digitalPostkasseadresse(digitalPostkasseadresse)
+						.build())
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(String.class)
+				.getResponseBody()
+				.blockFirst();
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {
+			"OPPRETTET,FERDIGSTILT",
+			"OPPRETTET,FEILET"
+	})
+	void skalOppdaterVarselStatus(String oldVarselStatus, String newVarselStatus) {
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(OVERSENDT.name(), oldVarselStatus);
+
+		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList();
+
+		webTestClient.method(PUT)
+				.uri(ADMINISTERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoIds.get(0))
+						.varselStatus(newVarselStatus)
+						.build())
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(String.class)
+				.getResponseBody()
+				.blockFirst();
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {
+			"KLAR_FOR_DIST,OPPRETTET,OPPRETTET,FERDIGSTILT",
+			"KLAR_FOR_DIST,OVERSENDT,FERDIGSTILT,FEILET",
+			"KLAR_FOR_DIST,EKSPEDERT,OPPRETTET,FEILET",
+			"OVERSENDT,FEILET,FEILET,OPPRETTET",
+			"OPPRETTET,BEKREFTET, OPPRETTET,FERDIGSTILT"
+	})
+	void skalFeiletMedIkkeLovligVarselStatusOvergang(String oldForsendelseStatus, String newForsendelseStatus, String oldVarselStatus, String newVarselStatus) {
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, oldVarselStatus);
+
+		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList();
+
+		webTestClient.method(PUT)
+				.uri(ADMINISTERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoIds.get(0))
+						.varselStatus(newVarselStatus)
+						.forsendelseStatus(newForsendelseStatus)
+						.build())
+				.exchange()
+				.expectStatus()
+				.isBadRequest()
+				.returnResult(String.class)
+				.getResponseBody()
+				.blockFirst();
+	}
 }
