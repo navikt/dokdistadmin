@@ -21,8 +21,8 @@ public interface CustomDokumentDistribusjonRepository {
 	void updateDistribusjonStatus(Long distribusjonInfoId,
 								  DistribusjonStatusCode distribusjonStatus,
 								  String endretAv);
+
 	void updateDistribusjonInfoVarselStatus(Long distribusjonInfoId,
 											VarselStatusCode varselStatus,
 											String endretAv);
-
 }

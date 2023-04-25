@@ -85,7 +85,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 	private static final String HENTUEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentuekspederteforsendelser";
 	private static final String AVSTEMFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemforsendelser";
 	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
-	private static final String ADMINISTERFORSENDELSE_URI = "/rest/v1/administrerforsendelse";
+	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
 
 
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
@@ -129,11 +129,11 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 		return distribusjonInfo;
 	}
 
-	private DistribusjonInfo setupDatabaseWithStatus(String dokumentStatus, String varselStatus) {
+	private DistribusjonInfo setupDatabaseWithStatus(String dokumentStatus, VarselStatusCode varselStatus) {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(valueOf(dokumentStatus));
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
-		distribusjonInfo.setVarselStatus(VarselStatusCode.valueOf(varselStatus));
+		distribusjonInfo.setVarselStatus(varselStatus);
 		distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.valueOf(dokumentStatus));
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 
@@ -555,23 +555,22 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"OVERSENDT,BEKREFTET"
 	})
 	void skalOppdaterForsendelseStatus(String oldForsendelseStatus, String newForsendelseStatus) {
-		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, VarselStatusCode.OPPRETTET.name());
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, VarselStatusCode.OPPRETTET);
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
-				.map(dokumentInfo1 -> dokumentInfo1.getDokumentInfoId())
+				.map(DokumentInfo::getDokumentInfoId)
 				.toList();
 
 		webTestClient.method(PUT)
-				.uri(ADMINISTERFORSENDELSE_URI)
+				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
 						.forsendelseId(dokumentInfoIds.get(0))
 						.forsendelseStatus(newForsendelseStatus)
 						.build())
 				.exchange()
-				.expectStatus().isOk()
-				.returnResult(String.class)
-				.getResponseBody()
-				.blockFirst();
+				.expectStatus()
+				.isOk();
+
 	}
 
 	@ParameterizedTest
@@ -580,13 +579,13 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"Posten,hei#123"
 	})
 	void skalOppdaterDokumentDistribusjonAdresse(String digitalLeverandoeradresse, String digitalPostkasseadresse) {
-		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(KLAR_FOR_DIST.name(), VarselStatusCode.OPPRETTET.name());
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(KLAR_FOR_DIST.name(), VarselStatusCode.OPPRETTET);
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
 				.map(DokumentInfo::getDokumentInfoId)
 				.toList();
 
 		webTestClient.method(PUT)
-				.uri(ADMINISTERFORSENDELSE_URI)
+				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
 						.forsendelseId(dokumentInfoIds.get(0))
@@ -594,10 +593,8 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 						.digitalPostkasseadresse(digitalPostkasseadresse)
 						.build())
 				.exchange()
-				.expectStatus().isOk()
-				.returnResult(String.class)
-				.getResponseBody()
-				.blockFirst();
+				.expectStatus()
+				.isOk();
 	}
 
 	@ParameterizedTest
@@ -605,7 +602,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"OPPRETTET,FERDIGSTILT",
 			"OPPRETTET,FEILET"
 	})
-	void skalOppdaterVarselStatus(String oldVarselStatus, String newVarselStatus) {
+	void skalOppdaterVarselStatus(VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(OVERSENDT.name(), oldVarselStatus);
 
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
@@ -613,17 +610,15 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 				.toList();
 
 		webTestClient.method(PUT)
-				.uri(ADMINISTERFORSENDELSE_URI)
+				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
 						.forsendelseId(dokumentInfoIds.get(0))
 						.varselStatus(newVarselStatus)
 						.build())
 				.exchange()
-				.expectStatus().isOk()
-				.returnResult(String.class)
-				.getResponseBody()
-				.blockFirst();
+				.expectStatus()
+				.isOk();
 	}
 
 	@ParameterizedTest
@@ -634,7 +629,8 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"OVERSENDT,FEILET,FEILET,OPPRETTET",
 			"OPPRETTET,BEKREFTET, OPPRETTET,FERDIGSTILT"
 	})
-	void skalFeiletMedIkkeLovligVarselStatusOvergang(String oldForsendelseStatus, String newForsendelseStatus, String oldVarselStatus, String newVarselStatus) {
+	void skalFeiletMedIkkeLovligVarselStatusOvergang(String oldForsendelseStatus, String newForsendelseStatus,
+													 VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, oldVarselStatus);
 
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
@@ -642,7 +638,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 				.toList();
 
 		webTestClient.method(PUT)
-				.uri(ADMINISTERFORSENDELSE_URI)
+				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
 						.forsendelseId(dokumentInfoIds.get(0))
@@ -651,9 +647,25 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 						.build())
 				.exchange()
 				.expectStatus()
-				.isBadRequest()
-				.returnResult(String.class)
-				.getResponseBody()
-				.blockFirst();
+				.isBadRequest();
+	}
+
+	@Test
+	void skalFeiletHvisBodyRequestErNull() {
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(OVERSENDT.name(),VarselStatusCode.OPPRETTET);
+
+		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList();
+
+		webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(null)
+						.build())
+				.exchange()
+				.expectStatus()
+				.isNotFound();
 	}
 }
