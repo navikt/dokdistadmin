@@ -78,13 +78,18 @@ public class OppdaterForsendelseService {
 
 	private void oppdaterDokumentAndDistribusjonStatus(DokumentInfo dokumentInfo, String nyForsendelseStatus) {
 		final String dokumentStatus = dokumentInfo.getDokumentStatus().name();
+
 		if (!isDistribusjonStatusEqualToDokumentStatus(dokumentInfo)) {
 			throw new IkkeSammenfallendeStatusException(format("Ikke sammenfallende statuser på forsendelse: distribusjonStatus er ikke lik dokumentStatus. distribusjonStatus=%s, dokumentStatus=%s",
 					dokumentInfo.getDistribusjonInfo().getDistribusjonStatus(), dokumentStatus));
-		} else if (isDokumentStatusEqualToForsendelseStatus(dokumentStatus, nyForsendelseStatus)) {
+		}
+
+		if (isDokumentStatusEqualToForsendelseStatus(dokumentStatus, nyForsendelseStatus)) {
 			throw new DokumentStatusErAlleredeSattException(format("DokumentStatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus på forsendelse er allerede dokumentStatus=%s",
 					nyForsendelseStatus, dokumentStatus));
-		} else if (isLovligStatusovergang(dokumentStatus, nyForsendelseStatus)) {
+		}
+
+		if (isLovligStatusovergang(dokumentStatus, nyForsendelseStatus)) {
 			setForsendelseStatus(dokumentInfo, nyForsendelseStatus);
 			dokumentInfoRepository.updateDokumentStatus(dokumentInfo.getDokumentInfoId(), valueOf(nyForsendelseStatus), MDC.get(USER_ID));
 			DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();
