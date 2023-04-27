@@ -9,9 +9,9 @@ import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-public class StatusOvergangValidering {
+public class StatusovergangValidator {
 
-	public static boolean isLovligStatusOvergang(String oldDokumentStatus, String nyForsendelseStatus) {
+	public static boolean isLovligStatusovergang(String oldDokumentStatus, String nyForsendelseStatus) {
 		return isStatusOvergangOpprettetToKlarForDist(oldDokumentStatus, nyForsendelseStatus) ||
 				isStatusOvergangKlarForDistToOversendt(oldDokumentStatus, nyForsendelseStatus) ||
 				isStatusOvergangOversendtToBekreftet(oldDokumentStatus, nyForsendelseStatus) ||
@@ -29,7 +29,7 @@ public class StatusOvergangValidering {
 		return oldDokumentStatus.equals(nyForsendelseStatus);
 	}
 
-	public static boolean isDigitalAdresseSett(OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+	public static boolean isDigitalAdresseSatt(OppdaterForsendelseRequest oppdaterForsendelseRequest) {
 		return isNotBlank(oppdaterForsendelseRequest.getDigitalLeverandoeradresse()) ||
 				isNotBlank(oppdaterForsendelseRequest.getDigitalPostkasseadresse());
 	}
@@ -62,6 +62,6 @@ public class StatusOvergangValidering {
 		return BEKREFTET.name().equals(oldDokumentStatus) && DokumentStatusCode.FEILET.name().equals(nyForsendelseStatus);
 	}
 
-	private StatusOvergangValidering() {
+	private StatusovergangValidator() {
 	}
 }

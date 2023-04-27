@@ -44,7 +44,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 			}
 	)
 	public ResponseEntity<Object> inputValidationExceptionHandler(Exception ex) {
-		log.warn("rdist001 feilet funkjonell: {}", ex.getMessage());
+		log.warn("rdist001 feilet funkjonell med feilmelding={}", ex.getMessage());
 
 		if (ex instanceof ForsendelseIkkeFunnetException) {
 			return new ResponseEntity<>(responseBody(ex), NOT_FOUND);
@@ -69,7 +69,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	})
 	public ResponseEntity<Object> handleTechnicalException(Exception ex) throws Exception {
 		if (ex instanceof DokdistadminTechnicalException) {
-			log.warn("rdist001 feilet teknisk: {}", ex.getMessage());
+			log.warn("rdist001 feilet teknisk med feilmelding={}", ex.getMessage());
 			return new ResponseEntity<>(responseBody(ex), INTERNAL_SERVER_ERROR);
 		} else {
 			throw ex;

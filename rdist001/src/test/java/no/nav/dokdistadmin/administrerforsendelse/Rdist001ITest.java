@@ -578,7 +578,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"eBoks,ola#123",
 			"Posten,hei#123"
 	})
-	void skalOppdaterDokumentDistribusjonAdresse(String digitalLeverandoeradresse, String digitalPostkasseadresse) {
+	void skalOppdatereDokumentDistribusjonAdresse(String digitalLeverandoeradresse, String digitalPostkasseadresse) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(KLAR_FOR_DIST.name(), VarselStatusCode.OPPRETTET);
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
 				.map(DokumentInfo::getDokumentInfoId)
@@ -602,7 +602,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"OPPRETTET,FERDIGSTILT",
 			"OPPRETTET,FEILET"
 	})
-	void skalOppdaterVarselStatus(VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
+	void skalOppdatereVarselStatus(VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(OVERSENDT.name(), oldVarselStatus);
 
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
@@ -629,8 +629,8 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"OVERSENDT,FEILET,FEILET,OPPRETTET",
 			"OPPRETTET,BEKREFTET, OPPRETTET,FERDIGSTILT"
 	})
-	void skalFeiletMedIkkeLovligVarselStatusOvergang(String oldForsendelseStatus, String newForsendelseStatus,
-													 VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
+	void skalFeiletMedULovligVarselStatusOvergang(String oldForsendelseStatus, String newForsendelseStatus,
+												  VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, oldVarselStatus);
 
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
@@ -652,12 +652,6 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 
 	@Test
 	void skalFeiletHvisBodyRequestErNull() {
-		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(OVERSENDT.name(),VarselStatusCode.OPPRETTET);
-
-		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
-				.map(DokumentInfo::getDokumentInfoId)
-				.toList();
-
 		webTestClient.method(PUT)
 				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))

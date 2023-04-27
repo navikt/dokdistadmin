@@ -74,8 +74,8 @@ public class AdministrerForsendelseController {
 		log.info("rdist001 har mottatt kall om å oppdatere forsendelse med forsendelseId={}",
 				oppdaterForsendelseRequest.getForsendelseId());
 
-		oppdaterForsendelseService.oppdatereForsendelse(oppdaterForsendelseRequest);
-		log.info("rdist001 har oppdatert forsendelse med {}", oppdaterForsendelseRequest);
+		oppdaterForsendelseService.oppdaterForsendelse(oppdaterForsendelseRequest);
+		log.info("rdist001 har oppdatert forsendelse med forsendelseId={}", oppdaterForsendelseRequest.getForsendelseId());
 
 		return ResponseEntity.ok().build();
 	}

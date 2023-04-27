@@ -14,17 +14,17 @@ import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.slf4j.MDC;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusOvergangValidering.isDigitalAdresseSett;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusOvergangValidering.isDistribusjonStatusEqualToDokumentStatus;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusOvergangValidering.isDokumentStatusEqualToForsendelseStatus;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusOvergangValidering.isLovligStatusOvergang;
+import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isDigitalAdresseSatt;
+import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isDistribusjonStatusEqualToDokumentStatus;
+import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isDokumentStatusEqualToForsendelseStatus;
+import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligStatusovergang;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
@@ -35,7 +35,7 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
-@Component
+@Service
 @Transactional(readOnly = true)
 public class OppdaterForsendelseService {
 
@@ -49,9 +49,9 @@ public class OppdaterForsendelseService {
 	}
 
 	@Transactional
-	public void oppdatereForsendelse(OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+	public void oppdaterForsendelse(OppdaterForsendelseRequest oppdaterForsendelseRequest) {
 
-		DokumentInfo dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(oppdaterForsendelseRequest.getForsendelseId());
+		DokumentInfo dokumentInfo = dokumentInfoRepository.fetchDokumentInfo(oppdaterForsendelseRequest.getForsendelseId());
 
 		if (isNull(dokumentInfo)) {
 			throw new ForsendelseIkkeFunnetException(format("Forsendelse med forsendelseId=%s ikke funnet i dokdistDb",
@@ -84,7 +84,7 @@ public class OppdaterForsendelseService {
 		} else if (isDokumentStatusEqualToForsendelseStatus(dokumentStatus, nyForsendelseStatus)) {
 			throw new DokumentStatusErAlleredeSattException(format("DokumentStatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus på forsendelse er allerede dokumentStatus=%s",
 					nyForsendelseStatus, dokumentStatus));
-		} else if (isLovligStatusOvergang(dokumentStatus, nyForsendelseStatus)) {
+		} else if (isLovligStatusovergang(dokumentStatus, nyForsendelseStatus)) {
 			setForsendelseStatus(dokumentInfo, nyForsendelseStatus);
 			dokumentInfoRepository.updateDokumentStatus(dokumentInfo.getDokumentInfoId(), valueOf(nyForsendelseStatus), MDC.get(USER_ID));
 			DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();
@@ -118,7 +118,7 @@ public class OppdaterForsendelseService {
 	}
 
 	private void oppdaterDigitalDistribusjonAdresseFraDPI(DokumentInfo dokumentInfo, OppdaterForsendelseRequest oppdaterForsendelseRequest) {
-		if (isDigitalAdresseSett(oppdaterForsendelseRequest)) {
+		if (isDigitalAdresseSatt(oppdaterForsendelseRequest)) {
 			dokumentInfo.setDigitalDistributorId(oppdaterForsendelseRequest.getDigitalLeverandoeradresse());
 			dokumentInfo.setDigitalPostkasseAdresse(oppdaterForsendelseRequest.getDigitalPostkasseadresse());
 			dokumentInfoRepository.updateDokumentDigitalDistribujonAdresse(oppdaterForsendelseRequest.getForsendelseId(),
