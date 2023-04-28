@@ -8,15 +8,13 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEks
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.security.token.support.core.api.Protected;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,18 +22,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @Validated
@@ -46,11 +38,13 @@ public class AdministrerForsendelseController {
 
 	private final AdministrerForsendelseService forsendelserService;
 	private final VarselInfoService varselInfoService;
+	private final OppdaterForsendelseService oppdaterForsendelseService;
 
 	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
-											VarselInfoService varselInfoService) {
+											VarselInfoService varselInfoService, OppdaterForsendelseService oppdaterForsendelseService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
+		this.oppdaterForsendelseService = oppdaterForsendelseService;
 	}
 
 	@PostMapping
@@ -74,6 +68,17 @@ public class AdministrerForsendelseController {
 		log.info("rdist001 har hentet forsendelse med forsendelseId={}", forsendelseId);
 
 		return ResponseEntity.ok(hentForsendelseResponse);
+	}
+
+	@PutMapping("/oppdaterforsendelse")
+	public ResponseEntity<String> oppdaterForsendelse(@RequestBody @Valid @NotNull OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+		log.info("rdist001 har mottatt kall om å oppdatere forsendelse med forsendelseId={}",
+				oppdaterForsendelseRequest.getForsendelseId());
+
+		oppdaterForsendelseService.oppdaterForsendelse(oppdaterForsendelseRequest);
+		log.info("rdist001 har oppdatert forsendelse med forsendelseId={}", oppdaterForsendelseRequest.getForsendelseId());
+
+		return ResponseEntity.ok().build();
 	}
 
 	@GetMapping("/hentekspederteforsendelser")
@@ -149,25 +154,4 @@ public class AdministrerForsendelseController {
 
 		return ResponseEntity.ok().build();
 	}
-
-
-	@ResponseStatus(BAD_REQUEST)
-	@ExceptionHandler({
-			MethodArgumentNotValidException.class,
-			ConstraintViolationException.class,
-			MethodArgumentTypeMismatchException.class
-	})
-	public ResponseEntity<String> inputValidationExceptionHandler(Exception exception) {
-		String errormessage;
-		if (exception instanceof MethodArgumentNotValidException e) {
-			errormessage = e.getAllErrors().stream()
-					.map(DefaultMessageSourceResolvable::getDefaultMessage)
-					.collect(Collectors.joining(", "));
-		} else {
-			errormessage = exception.getMessage();
-		}
-		log.warn("rdist001 Validering av input feilet fordi: {}", errormessage);
-		return ResponseEntity.badRequest().body(errormessage);
-	}
-
 }

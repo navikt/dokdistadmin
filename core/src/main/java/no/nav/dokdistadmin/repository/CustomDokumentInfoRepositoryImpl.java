@@ -63,5 +63,4 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 				.setParameter("dokumentInfoId", dokumentInfoId)
 				.getResultStream().findFirst().orElse(null);
 	}
-
 }
