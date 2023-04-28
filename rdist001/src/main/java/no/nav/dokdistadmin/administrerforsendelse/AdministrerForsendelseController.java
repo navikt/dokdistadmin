@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -70,7 +71,7 @@ public class AdministrerForsendelseController {
 	}
 
 	@PutMapping("/oppdaterforsendelse")
-	public ResponseEntity<String> oppdaterForsendelse(@RequestBody @Valid OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+	public ResponseEntity<String> oppdaterForsendelse(@RequestBody @Valid @NotNull OppdaterForsendelseRequest oppdaterForsendelseRequest) {
 		log.info("rdist001 har mottatt kall om å oppdatere forsendelse med forsendelseId={}",
 				oppdaterForsendelseRequest.getForsendelseId());
 

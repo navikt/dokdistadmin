@@ -554,7 +554,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"OVERSENDT,FEILET",
 			"OVERSENDT,BEKREFTET"
 	})
-	void skalOppdaterForsendelseStatus(String oldForsendelseStatus, String newForsendelseStatus) {
+	void skalOppdatereForsendelseStatus(String oldForsendelseStatus, String newForsendelseStatus) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, VarselStatusCode.OPPRETTET);
 		List<Long> dokumentInfoIds = distribusjonInfo.getDokumentInfos().stream()
 				.map(DokumentInfo::getDokumentInfoId)
@@ -629,7 +629,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 			"OVERSENDT,FEILET,FEILET,OPPRETTET",
 			"OPPRETTET,BEKREFTET, OPPRETTET,FERDIGSTILT"
 	})
-	void skalFeiletMedULovligVarselStatusOvergang(String oldForsendelseStatus, String newForsendelseStatus,
+	void skalFeiletMedUlovligVarselStatusOvergang(String oldForsendelseStatus, String newForsendelseStatus,
 												  VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, oldVarselStatus);
 
@@ -651,7 +651,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 	}
 
 	@Test
-	void skalFeiletHvisBodyRequestErNull() {
+	void skalFeiletHvisForsendelseIdErNull() {
 		webTestClient.method(PUT)
 				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
@@ -660,6 +660,16 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 						.build())
 				.exchange()
 				.expectStatus()
-				.isNotFound();
+				.isBadRequest();
+	}
+
+	@Test
+	void skalFeiletHvisBodyRequestIsNull() {
+		webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus()
+				.isBadRequest();
 	}
 }

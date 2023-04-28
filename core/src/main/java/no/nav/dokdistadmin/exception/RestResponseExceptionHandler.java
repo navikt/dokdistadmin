@@ -44,7 +44,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 			}
 	)
 	public ResponseEntity<Object> inputValidationExceptionHandler(Exception ex) {
-		log.warn("rdist001 feilet funkjonell med feilmelding={}", ex.getMessage());
+		log.warn("rdist001 feilet funkjonelt med feilmelding={}", ex.getMessage());
 
 		if (ex instanceof ForsendelseIkkeFunnetException) {
 			return new ResponseEntity<>(responseBody(ex), NOT_FOUND);
