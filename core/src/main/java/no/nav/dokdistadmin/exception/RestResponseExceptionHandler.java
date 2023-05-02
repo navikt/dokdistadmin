@@ -5,6 +5,7 @@ import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattExce
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoelgeException;
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
+import no.nav.dokdistadmin.exception.functional.PostdestinasjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -32,21 +33,20 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @ControllerAdvice
 public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
-	@ExceptionHandler(
-			{
-					ConstraintViolationException.class,
-					MethodArgumentTypeMismatchException.class,
-					UlovligStatusOvergangException.class,
-					DokumentStatusErAlleredeSattException.class,
-					OppdaterVarselInfoException.class,
-					ForsendelseIkkeFunnetException.class,
-					KanIkkeBestemmeDokumentrekkefoelgeException.class
-			}
-	)
+	@ExceptionHandler({
+			ConstraintViolationException.class,
+			MethodArgumentTypeMismatchException.class,
+			UlovligStatusOvergangException.class,
+			DokumentStatusErAlleredeSattException.class,
+			OppdaterVarselInfoException.class,
+			ForsendelseIkkeFunnetException.class,
+			KanIkkeBestemmeDokumentrekkefoelgeException.class,
+			PostdestinasjonIkkeFunnetException.class
+	})
 	public ResponseEntity<Object> inputValidationExceptionHandler(Exception ex) {
-		log.warn("rdist001 feilet funkjonelt med feilmelding={}", ex.getMessage());
+		log.warn("rdist001 feilet funksjonelt med feilmelding={}", ex.getMessage());
 
-		if (ex instanceof ForsendelseIkkeFunnetException) {
+		if (ex instanceof ForsendelseIkkeFunnetException || ex instanceof PostdestinasjonIkkeFunnetException) {
 			return new ResponseEntity<>(responseBody(ex), NOT_FOUND);
 		} else if (ex instanceof KanIkkeBestemmeDokumentrekkefoelgeException) {
 			return new ResponseEntity<>(responseBody(ex), NO_CONTENT);

@@ -9,6 +9,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEks
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.post.HentPostdestinasjonResponse;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -39,12 +41,16 @@ public class AdministrerForsendelseController {
 	private final AdministrerForsendelseService forsendelserService;
 	private final VarselInfoService varselInfoService;
 	private final OppdaterForsendelseService oppdaterForsendelseService;
+	private final PostService postService;
 
 	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
-											VarselInfoService varselInfoService, OppdaterForsendelseService oppdaterForsendelseService) {
+											VarselInfoService varselInfoService,
+											OppdaterForsendelseService oppdaterForsendelseService,
+											PostService postService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
 		this.oppdaterForsendelseService = oppdaterForsendelseService;
+		this.postService = postService;
 	}
 
 	@PostMapping
@@ -153,5 +159,16 @@ public class AdministrerForsendelseController {
 		log.info("oppdatervarselinfo har oppdatert antall={} varselinfo på forsendelse med forsendelseId={}", antallOppdaterteVarselInfo, oppdaterVarselInfoRequest.getForsendelseId());
 
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("hentpostdestinasjon/{landkode}")
+	public ResponseEntity<HentPostdestinasjonResponse> hentPostdestinasjon(@PathVariable("landkode") @NotBlank String landkode) {
+		log.info("hentPostdestinasjon har mottatt kall om å hente postdestinasjon for landkode={}", landkode);
+
+		var postdestinasjon = postService.hentPostdestinasjon(landkode);
+
+		log.info("hentPostdestinasjon har hentet postdestinasjon for landkode={}", landkode);
+
+		return ResponseEntity.ok(postdestinasjon);
 	}
 }

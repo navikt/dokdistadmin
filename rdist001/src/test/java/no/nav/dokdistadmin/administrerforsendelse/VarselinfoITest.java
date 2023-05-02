@@ -17,7 +17,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -54,7 +53,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(
 		classes = {ApplicationTestConfig.class},
 		webEnvironment = RANDOM_PORT)
-@AutoConfigureWebTestClient
 @AutoConfigureTestDatabase
 @ActiveProfiles({"itest"})
 public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest {

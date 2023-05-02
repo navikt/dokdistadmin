@@ -14,23 +14,23 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 
 	@Modifying
 	@Query("""
-					update DistribusjonInfo dist set dist.distribusjonStatus = :distribusjonStatus,
+			update DistribusjonInfo dist set dist.distribusjonStatus = :distribusjonStatus,
 			dist.changeStamp.endretAv = :endretAv,
 			dist.changeStamp.endretDato = current_timestamp
 			where dist.distribusjonInfoId in :distribusjonInfoId
 			""")
 	void updateDistribusjonStatus(@Param("distribusjonInfoId") Long distribusjonInfoId,
-										 @Param("distribusjonStatus") DistribusjonStatusCode distribusjonStatus,
-										 @Param("endretAv") String endretAv);
+								  @Param("distribusjonStatus") DistribusjonStatusCode distribusjonStatus,
+								  @Param("endretAv") String endretAv);
 
 	@Modifying
 	@Query("""
-				update DistribusjonInfo dist set dist.varselStatus = :varselStatus,
+			update DistribusjonInfo dist set dist.varselStatus = :varselStatus,
 			dist.changeStamp.endretAv = :endretAv,
 			dist.changeStamp.endretDato = current_timestamp
 			where dist.distribusjonInfoId in :distribusjonInfoId
 							""")
 	void updateDistribusjonInfoVarselStatus(@Param("distribusjonInfoId") Long distribusjonInfoId,
-												   @Param("varselStatus") VarselStatusCode varselStatus,
-												   @Param("endretAv") String endretAv);
+											@Param("varselStatus") VarselStatusCode varselStatus,
+											@Param("endretAv") String endretAv);
 }
