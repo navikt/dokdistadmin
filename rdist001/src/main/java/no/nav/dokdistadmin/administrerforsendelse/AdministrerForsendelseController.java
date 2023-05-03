@@ -161,7 +161,7 @@ public class AdministrerForsendelseController {
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping("hentpostdestinasjon/{landkode}")
+	@GetMapping("/hentpostdestinasjon/{landkode}")
 	public ResponseEntity<HentPostdestinasjonResponse> hentPostdestinasjon(
 			@PathVariable("landkode") @NotBlank(message = "landkode må ha en verdi") String landkode) {
 
