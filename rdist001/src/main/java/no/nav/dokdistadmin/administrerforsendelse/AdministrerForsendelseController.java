@@ -162,7 +162,9 @@ public class AdministrerForsendelseController {
 	}
 
 	@GetMapping("hentpostdestinasjon/{landkode}")
-	public ResponseEntity<HentPostdestinasjonResponse> hentPostdestinasjon(@PathVariable("landkode") @NotBlank String landkode) {
+	public ResponseEntity<HentPostdestinasjonResponse> hentPostdestinasjon(
+			@PathVariable("landkode") @NotBlank(message = "landkode må ha en verdi") String landkode) {
+
 		log.info("hentPostdestinasjon har mottatt kall om å hente postdestinasjon for landkode={}", landkode);
 
 		var postdestinasjon = postService.hentPostdestinasjon(landkode);

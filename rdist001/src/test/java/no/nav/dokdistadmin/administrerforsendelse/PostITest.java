@@ -16,6 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.transaction.annotation.Transactional;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -29,6 +30,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class PostITest extends AbstractOauth2Test implements DatabaseTest {
 
 	private static final String HENTPOSTDESTINASJON_URI = "/rest/v1/administrerforsendelse/hentpostdestinasjon";
+	private static final String LANDKODE_NORGE = "NO";
+	private static final String LANDKODE_SVERIGE = "SE";
+	private static final String POSTDESTINASJON = "INNLAND";
 
 	@Autowired
 	LandkodePostDestRepository landkodePostDestRepository;
@@ -38,7 +42,7 @@ public class PostITest extends AbstractOauth2Test implements DatabaseTest {
 
 	@BeforeEach
 	void setup() {
-		var landkodePostDest = new LandkodePostDest("NO", "INNLAND");
+		var landkodePostDest = new LandkodePostDest(LANDKODE_NORGE, POSTDESTINASJON);
 
 		landkodePostDestRepository.save(landkodePostDest);
 
@@ -47,10 +51,8 @@ public class PostITest extends AbstractOauth2Test implements DatabaseTest {
 
 	@Test
 	void skalFinnePostdestinasjon() {
-		var landkode = "NO";
-
 		var response = webTestClient.get()
-				.uri(format(HENTPOSTDESTINASJON_URI + "/%s", landkode))
+				.uri(format(HENTPOSTDESTINASJON_URI + "/%s", LANDKODE_NORGE))
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus().isOk()
@@ -59,14 +61,13 @@ public class PostITest extends AbstractOauth2Test implements DatabaseTest {
 				.getResponseBody();
 
 		assertNotNull(response);
+		assertThat(response.postdestinasjon()).isEqualTo(POSTDESTINASJON);
 	}
 
 	@Test
 	void skalKasteNotFoundHvisPostdestinasjonIkkeFunnet() {
-		var landkode = "SE";
-
 		webTestClient.get()
-				.uri(format(HENTPOSTDESTINASJON_URI + "/%s", landkode))
+				.uri(format(HENTPOSTDESTINASJON_URI + "/%s", LANDKODE_SVERIGE))
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus().isNotFound();
@@ -74,7 +75,6 @@ public class PostITest extends AbstractOauth2Test implements DatabaseTest {
 
 	@Test
 	void skalKastBadRequestHvisLandkodenErBlankEllerNull() {
-
 		webTestClient.get()
 				.uri(HENTPOSTDESTINASJON_URI + "/ ")
 				.headers(headers -> headers.setBearerAuth(jwt()))
