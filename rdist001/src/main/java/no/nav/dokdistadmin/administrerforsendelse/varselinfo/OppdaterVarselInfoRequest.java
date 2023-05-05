@@ -16,7 +16,7 @@ public class OppdaterVarselInfoRequest {
 	private Long forsendelseId;
 
 	@Valid
-	@NotEmpty(message = "notifikasjoner må innehold minst en notifikasjon")
+	@NotEmpty(message = "notifikasjoner må inneholde minst en notifikasjon")
 	private List<Notifikasjon> notifikasjoner;
 
 }

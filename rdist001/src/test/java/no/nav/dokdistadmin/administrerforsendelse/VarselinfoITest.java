@@ -283,7 +283,7 @@ public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest 
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).contains("notifikasjoner må innehold minst en notifikasjon");
+		assertThat(response).contains("notifikasjoner må inneholde minst en notifikasjon");
 	}
 
 	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel, LocalDateTime varslingstidspunkt) {
