@@ -16,7 +16,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.ConstraintViolationException;
@@ -35,7 +34,6 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
 	@ExceptionHandler({
 			ConstraintViolationException.class,
-			MethodArgumentTypeMismatchException.class,
 			UlovligStatusOvergangException.class,
 			DokumentStatusErAlleredeSattException.class,
 			OppdaterVarselInfoException.class,
@@ -60,6 +58,8 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 		String errormessage = ex.getBindingResult().getFieldErrors().stream()
 				.map(DefaultMessageSourceResolvable::getDefaultMessage)
 				.collect(Collectors.joining(", "));
+
+		log.warn("rdist001 feilet funksjonelt med feilmelding={}", errormessage);
 
 		return new ResponseEntity<>(errormessage, BAD_REQUEST);
 	}
