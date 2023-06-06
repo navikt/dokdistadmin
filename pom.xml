@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.10</version>
+		<version>2.7.12</version>
 	</parent>
 
 	<groupId>no.nav.dokdistadmin</groupId>
@@ -31,7 +31,7 @@
 		<h2.version>1.4.200</h2.version>
 
 		<!-- Test -->
-		<spring-cloud-contract-wiremock.version>4.0.2</spring-cloud-contract-wiremock.version>
+		<spring-cloud-contract-wiremock.version>4.0.3</spring-cloud-contract-wiremock.version>
 		<datasource-proxy-spring-boot-starter.version>1.9.0</datasource-proxy-spring-boot-starter.version>
 
 		<!-- Plugins -->
