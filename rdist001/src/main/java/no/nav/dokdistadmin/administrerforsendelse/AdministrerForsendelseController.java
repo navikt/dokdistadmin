@@ -6,6 +6,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemE
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
@@ -42,15 +43,18 @@ public class AdministrerForsendelseController {
 	private final VarselInfoService varselInfoService;
 	private final OppdaterForsendelseService oppdaterForsendelseService;
 	private final PostService postService;
+	private final FeilregistrerForsendelseService feilregistrerForsendelseService;
 
 	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
 											VarselInfoService varselInfoService,
 											OppdaterForsendelseService oppdaterForsendelseService,
-											PostService postService) {
+											PostService postService,
+											FeilregistrerForsendelseService feilregistrerForsendelseService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
 		this.oppdaterForsendelseService = oppdaterForsendelseService;
 		this.postService = postService;
+		this.feilregistrerForsendelseService = feilregistrerForsendelseService;
 	}
 
 	@PostMapping
@@ -68,21 +72,34 @@ public class AdministrerForsendelseController {
 	@GetMapping("/{forsendelseId}")
 	public ResponseEntity<HentForsendelseResponse> hentForsendelse(
 			@PathVariable("forsendelseId") @Positive(message = "forsendelseId må være et positivt tall") Long forsendelseId) {
-		log.info("rdist001 har mottatt kall om å hente forsendelse med forsendelseId={}", forsendelseId);
+		log.info("hentForsendelse har mottatt kall om å hente forsendelse med forsendelseId={}", forsendelseId);
 
 		HentForsendelseResponse hentForsendelseResponse = forsendelserService.hentForsendelse(forsendelseId);
-		log.info("rdist001 har hentet forsendelse med forsendelseId={}", forsendelseId);
+		log.info("hentForsendelse har hentet forsendelse med forsendelseId={}", forsendelseId);
 
 		return ResponseEntity.ok(hentForsendelseResponse);
 	}
 
 	@PutMapping("/oppdaterforsendelse")
 	public ResponseEntity<String> oppdaterForsendelse(@RequestBody @Valid @NotNull OppdaterForsendelseRequest oppdaterForsendelseRequest) {
-		log.info("rdist001 har mottatt kall om å oppdatere forsendelse med forsendelseId={}",
+		log.info("oppdaterForsendelse har mottatt kall om å oppdatere forsendelse med forsendelseId={}",
 				oppdaterForsendelseRequest.getForsendelseId());
 
 		oppdaterForsendelseService.oppdaterForsendelse(oppdaterForsendelseRequest);
-		log.info("rdist001 har oppdatert forsendelse med forsendelseId={}", oppdaterForsendelseRequest.getForsendelseId());
+		log.info("oppdaterForsendelse har oppdatert forsendelse med forsendelseId={}", oppdaterForsendelseRequest.getForsendelseId());
+
+		return ResponseEntity.ok().build();
+	}
+
+	@PutMapping("/feilregistrerforsendelse")
+	public ResponseEntity<Void> feilregistrerForsendelse(@RequestBody @Valid @NotNull FeilregistrerForsendelseRequest feilregistrerForsendelseRequest) {
+		log.info("feilregistrerForsendelse har mottatt kall om å feilregistrere forsendelse med forsendelseId={}",
+				feilregistrerForsendelseRequest.getForsendelseId());
+
+		feilregistrerForsendelseService.feilregistrerForsendelse(feilregistrerForsendelseRequest);
+
+		log.info("feilregistrerForsendelse har feilregistrert forsendelse med forsendelseId={}",
+				feilregistrerForsendelseRequest.getForsendelseId());
 
 		return ResponseEntity.ok().build();
 	}

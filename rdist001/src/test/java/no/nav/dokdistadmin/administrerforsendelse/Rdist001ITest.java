@@ -85,7 +85,6 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
 	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
 
-
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
 
 	@Autowired

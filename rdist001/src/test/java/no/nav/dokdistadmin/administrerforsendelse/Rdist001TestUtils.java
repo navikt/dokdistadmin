@@ -1,6 +1,7 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
 
+import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.domain.ChangeStamp;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
@@ -10,6 +11,7 @@ import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentReferanse;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.domain.FeilTypeCode;
 import no.nav.dokdistadmin.domain.Postadresse;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 import no.nav.dokdistadmin.domain.VarselInfo;
@@ -68,6 +70,7 @@ public class Rdist001TestUtils {
 	public static final String ARKIV_DOKUMENT_INFO_ID = "1234";
 	public static final String DOKUMENT_TYPE_ID = "U000001";
 	public static final String BATCH_ID = "batchId";
+	public static final String DETALJER = "detaljer";
 	public static final LocalDateTime OPPRETTET_DATO = now(systemDefaultZone()).minusHours(5).minusMinutes(23);
 	public static final LocalDateTime DISTRIBUSJON_DATO = now(systemDefaultZone()).minusHours(5);
 
@@ -254,6 +257,15 @@ public class Rdist001TestUtils {
 						.poststed(POSTSTED)
 						.landkode(LANDKODE)
 						.build())
+				.build();
+	}
+
+	public static FeilregistrerForsendelseRequest createFeilregistrerForsendelseRequestWithForsendelseId(Long forsendelseId) {
+		return FeilregistrerForsendelseRequest.builder()
+				.forsendelseId(forsendelseId)
+				.feilTypeCode(FeilTypeCode.MELDINGSFEIL)
+				.tidspunkt(LocalDateTime.now())
+				.detaljer(DETALJER)
 				.build();
 	}
 }

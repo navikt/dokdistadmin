@@ -1,12 +1,14 @@
 package no.nav.dokdistadmin.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoelgeException;
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
 import no.nav.dokdistadmin.exception.functional.PostdestinasjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
+import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -19,8 +21,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.ConstraintViolationException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -37,20 +37,30 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 			UlovligStatusOvergangException.class,
 			DokumentStatusErAlleredeSattException.class,
 			OppdaterVarselInfoException.class,
-			ForsendelseIkkeFunnetException.class,
-			KanIkkeBestemmeDokumentrekkefoelgeException.class,
-			PostdestinasjonIkkeFunnetException.class
+			ValideringFeiletException.class
 	})
-	public ResponseEntity<Object> inputValidationExceptionHandler(Exception ex) {
-		log.warn("rdist001 feilet funksjonelt med feilmelding={}", ex.getMessage());
+	public ResponseEntity<Object> inputValidationExceptionHandler(Exception e) {
+		log.warn("rdist001 feilet funksjonelt med feilmelding={}", e.getMessage());
 
-		if (ex instanceof ForsendelseIkkeFunnetException || ex instanceof PostdestinasjonIkkeFunnetException) {
-			return new ResponseEntity<>(responseBody(ex), NOT_FOUND);
-		} else if (ex instanceof KanIkkeBestemmeDokumentrekkefoelgeException) {
-			return new ResponseEntity<>(responseBody(ex), NO_CONTENT);
-		} else {
-			return new ResponseEntity<>(responseBody(ex), BAD_REQUEST);
-		}
+		return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), BAD_REQUEST);
+	}
+
+	@ExceptionHandler({
+			ForsendelseIkkeFunnetException.class,
+			PostdestinasjonIkkeFunnetException.class,
+			DistribusjonIkkeFunnetException.class
+	})
+	public ResponseEntity<Object> resourceNotFoundExceptionHandler(Exception e) {
+		log.warn("rdist001 feilet funksjonelt med feilmelding={}", e.getMessage());
+		return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), NOT_FOUND);
+	}
+
+	@ExceptionHandler({
+			KanIkkeBestemmeDokumentrekkefoelgeException.class
+	})
+	public ResponseEntity<Object> noContentExceptionHandler(Exception e) {
+		log.warn("rdist001 feilet funksjonelt med feilmelding={}", e.getMessage());
+		return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), NO_CONTENT);
 	}
 
 	@Override
@@ -67,19 +77,15 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	@ExceptionHandler({
 			DokdistadminTechnicalException.class
 	})
-	public ResponseEntity<Object> handleTechnicalException(Exception ex) throws Exception {
-		if (ex instanceof DokdistadminTechnicalException) {
-			log.warn("rdist001 feilet teknisk med feilmelding={}", ex.getMessage());
-			return new ResponseEntity<>(responseBody(ex), INTERNAL_SERVER_ERROR);
+	public ResponseEntity<Object> handleTechnicalException(Exception e) throws Exception {
+		if (e instanceof DokdistadminTechnicalException) {
+			log.warn("rdist001 feilet teknisk med feilmelding={}", e.getMessage());
+			return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), INTERNAL_SERVER_ERROR);
 		} else {
-			throw ex;
+			throw e;
 		}
 	}
 
-	private Map<String, Object> responseBody(Exception e) {
-		Map<String, Object> responseBody = new HashMap<>();
-		responseBody.put("message", e.getMessage());
-		responseBody.put("error", e.getStackTrace());
-		return responseBody;
+	public record ErrorResponseBody(String message, StackTraceElement[] error) {
 	}
 }
