@@ -9,23 +9,37 @@ import no.nav.dokdistadmin.repository.VarselInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
 
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@DataJpaTest
-@ContextConfiguration(classes = {RepositoryConfig.class})
-@ActiveProfiles("itest")
-public abstract class AbstractRepositoryTest {
+@Transactional
+@SpringBootTest(
+		classes = {ApplicationTestConfig.class},
+		webEnvironment = RANDOM_PORT)
+@AutoConfigureTestDatabase
+@ActiveProfiles({"itest"})
+public abstract class AbstractITest extends AbstractOauth2Test {
+
+	@Autowired
+	public WebTestClient webTestClient;
+
+	@Autowired
+	protected DokumentInfoRepository dokumentInfoRepository;
 
 	@Autowired
 	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
 
 	@Autowired
-	protected DokumentInfoRepository dokumentInfoRepository;
+	protected VarselInfoRepository varselInfoRepository;
 
 	@Autowired
 	protected FeilkvitteringRepository feilkvitteringRepository;
@@ -37,17 +51,17 @@ public abstract class AbstractRepositoryTest {
 	protected LandkodePostDestRepository landkodePostDestRepository;
 
 	@Autowired
-	protected VarselInfoRepository varselInfoRepository;
+	protected EntityManager entityManager;
 
 	@BeforeEach
 	public void setUp() {
 		if (MDC.get(USER_ID) == null) {
-			MDC.put(USER_ID, "repoTest");
+			MDC.put(USER_ID, "ITest");
 		}
 		emptyDatabases();
 	}
 
-	public void emptyDatabases() {
+	protected void emptyDatabases() {
 		varselInfoRepository.deleteAll();
 		landkodePostDestRepository.deleteAll();
 		feilkvitteringRepository.deleteAll();
@@ -56,7 +70,7 @@ public abstract class AbstractRepositoryTest {
 		dokumentDistribusjonRepository.deleteAll();
 	}
 
-	public void commitAndBeginNewTransaction() {
+	protected void commitAndBeginNewTransaction() {
 		TestTransaction.flagForCommit();
 		TestTransaction.end();
 		TestTransaction.start();

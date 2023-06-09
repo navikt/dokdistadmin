@@ -8,19 +8,13 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEks
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
-import no.nav.dokdistadmin.config.AbstractOauth2Test;
-import no.nav.dokdistadmin.config.ApplicationTestConfig;
-import no.nav.dokdistadmin.config.DatabaseTest;
+import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.VarselStatusCode;
-import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
-import no.nav.dokdistadmin.repository.DokumentInfoRepository;
-import no.nav.dokdistadmin.repository.VarselInfoRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -29,15 +23,7 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -59,24 +45,16 @@ import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
-import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@Transactional
-@SpringBootTest(
-		classes = {ApplicationTestConfig.class},
-		webEnvironment = RANDOM_PORT)
-@AutoConfigureTestDatabase
-@ActiveProfiles({"itest"})
-public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
+public class Rdist001ITest extends AbstractITest {
 
 	private static final String HENTEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentekspederteforsendelser";
 	private static final String AVSTEMEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemekspederteforsendelser";
@@ -86,32 +64,6 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
 
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
-
-	@Autowired
-	public WebTestClient webTestClient;
-
-	@Autowired
-	protected DokumentInfoRepository dokumentInfoRepository;
-
-	@Autowired
-	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
-
-	@Autowired
-	protected VarselInfoRepository varselInfoRepository;
-
-	@Autowired
-	protected EntityManager entityManager;
-
-	@BeforeEach
-	void setup() {
-		if (MDC.get(USER_ID) == null) {
-			MDC.put(USER_ID, "Rdist001ITest");
-		}
-
-		varselInfoRepository.deleteAll();
-		dokumentInfoRepository.deleteAll();
-		dokumentDistribusjonRepository.deleteAll();
-	}
 
 	private DistribusjonInfo setupDatabase() {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());

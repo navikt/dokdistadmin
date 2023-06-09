@@ -7,9 +7,9 @@ import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.Feilkvittering;
-import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
+import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +28,12 @@ public class FeilregistrerForsendelseService {
 	public static final String FEILREGISTRER_FORSENDELSE_FEILMELDING = "rdist001 kunne ikke feilregistrere forsendelse med forsendelseId=%s. Feilmelding=%s";
 
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
+	private final DokumentInfoRepository dokumentInfoRepository;
 
-	public FeilregistrerForsendelseService(DokumentDistribusjonRepository dokumentDistribusjonRepository) {
+	public FeilregistrerForsendelseService(DokumentDistribusjonRepository dokumentDistribusjonRepository,
+										   DokumentInfoRepository dokumentInfoRepository) {
 		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
+		this.dokumentInfoRepository = dokumentInfoRepository;
 	}
 
 	@Transactional
@@ -38,18 +41,15 @@ public class FeilregistrerForsendelseService {
 
 		Long forsendelseId = feilregistrerForsendelseRequest.getForsendelseId();
 
-		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.getDistribusjonInfoByDokumentInfoId(forsendelseId);
-		if (distribusjonInfo == null) {
-			throw new DistribusjonIkkeFunnetException(format(FEILREGISTRER_FORSENDELSE_FEILMELDING, forsendelseId, "Fant ikke distribusjon tilhørende forsendelse"));
+		DokumentInfo dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(forsendelseId);
+
+		if (dokumentInfo == null) {
+			throw new ForsendelseIkkeFunnetException(format(FEILREGISTRER_FORSENDELSE_FEILMELDING, forsendelseId, "Fant ikke forsendelse med forsendelseId=%s"));
 		}
 
+		DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();
+
 		validerDistribusjonInfo(distribusjonInfo);
-
-		DokumentInfo dokumentInfo = distribusjonInfo.getDokumentInfos().stream()
-				.filter(dok -> forsendelseId.equals(dok.getDokumentInfoId()))
-				.findFirst()
-				.orElseThrow(() -> new ForsendelseIkkeFunnetException(format(FEILREGISTRER_FORSENDELSE_FEILMELDING, forsendelseId, "Fant ikke forsendelse med forsendelseId=%s"))); //TODO <- Dette er ikke mulig
-
 		validerDokumentInfo(dokumentInfo);
 
 		Feilkvittering feilkvittering = toFeilkvittering(feilregistrerForsendelseRequest, dokumentInfo);
