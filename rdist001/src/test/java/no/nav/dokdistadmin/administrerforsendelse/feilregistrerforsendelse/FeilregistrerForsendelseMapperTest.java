@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DETALJER;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.PART;
 import static no.nav.dokdistadmin.domain.FeilTypeCode.MELDINGSFEIL;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,11 +16,12 @@ class FeilregistrerForsendelseMapperTest {
 
 	@Test
 	void shouldMapToFeilkvittering() {
-		FeilregistrerForsendelseRequest feilregistrerForsendelse = new FeilregistrerForsendelseRequest();
-		feilregistrerForsendelse.setTidspunkt(LocalDateTime.now());
-		feilregistrerForsendelse.setDetaljer("Detaljer");
-		feilregistrerForsendelse.setPart("Part");
-		feilregistrerForsendelse.setFeilTypeCode(MELDINGSFEIL);
+		FeilregistrerForsendelseRequest feilregistrerForsendelse = FeilregistrerForsendelseRequest.builder()
+				.tidspunkt(LocalDateTime.now())
+				.detaljer(DETALJER)
+				.part(PART)
+				.feilTypeCode(MELDINGSFEIL)
+				.build();
 
 		DokumentInfo dokumentInfo = new DokumentInfo();
 

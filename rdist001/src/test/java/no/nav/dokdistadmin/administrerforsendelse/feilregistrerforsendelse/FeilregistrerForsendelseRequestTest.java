@@ -1,6 +1,5 @@
 package no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse;
 
-import no.nav.dokdistadmin.domain.FeilTypeCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
@@ -8,9 +7,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
-
 import java.time.LocalDateTime;
 
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DETALJER;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.PART;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.RESENDING_DISTRIBUSJON_ID;
+import static no.nav.dokdistadmin.domain.FeilTypeCode.MELDINGSFEIL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FeilregistrerForsendelseRequestTest {
@@ -19,13 +21,14 @@ class FeilregistrerForsendelseRequestTest {
 
 	@Test
 	void skalValidereFeilregistrerForsendelseRequest() {
-		FeilregistrerForsendelseRequest request = new FeilregistrerForsendelseRequest();
-		request.setForsendelseId(1L);
-		request.setFeilTypeCode(FeilTypeCode.MELDINGSFEIL);
-		request.setTidspunkt(LocalDateTime.now());
-		request.setDetaljer("Detaljer");
-		request.setPart("Part");
-		request.setResendingDistribusjonId("ResendingDistribusjonId");
+		FeilregistrerForsendelseRequest request = FeilregistrerForsendelseRequest.builder()
+				.forsendelseId(1L)
+				.feilTypeCode(MELDINGSFEIL)
+				.tidspunkt(LocalDateTime.now())
+				.detaljer(DETALJER)
+				.part(PART)
+				.resendingDistribusjonId(RESENDING_DISTRIBUSJON_ID)
+				.build();
 
 		var violations = validator.validate(request);
 
@@ -35,8 +38,9 @@ class FeilregistrerForsendelseRequestTest {
 	@ParameterizedTest
 	@ValueSource(longs = {0L, -1L})
 	void skalFeilvalidereUgyldigForsendelseId(Long forsendelseId) {
-		FeilregistrerForsendelseRequest request = new FeilregistrerForsendelseRequest();
-		request.setForsendelseId(forsendelseId);
+		FeilregistrerForsendelseRequest request = FeilregistrerForsendelseRequest.builder()
+				.forsendelseId(forsendelseId)
+				.build();
 
 		var violations = validator.validateProperty(request, "forsendelseId");
 
@@ -50,8 +54,9 @@ class FeilregistrerForsendelseRequestTest {
 
 	@Test
 	void skalFeilvalidereUgyldigFeiltype() {
-		FeilregistrerForsendelseRequest request = new FeilregistrerForsendelseRequest();
-		request.setFeilTypeCode(null);
+		FeilregistrerForsendelseRequest request = FeilregistrerForsendelseRequest.builder()
+				.feilTypeCode(null)
+				.build();
 
 		var violations = validator.validateProperty(request, "feilTypeCode");
 
@@ -65,8 +70,9 @@ class FeilregistrerForsendelseRequestTest {
 
 	@Test
 	void skalFeilvalidereUgyldigTidspunkt() {
-		FeilregistrerForsendelseRequest request = new FeilregistrerForsendelseRequest();
-		request.setTidspunkt(null);
+		FeilregistrerForsendelseRequest request = FeilregistrerForsendelseRequest.builder()
+				.tidspunkt(null)
+				.build();
 
 		var violations = validator.validateProperty(request, "tidspunkt");
 
@@ -82,8 +88,9 @@ class FeilregistrerForsendelseRequestTest {
 	@ValueSource(strings = {"", " "})
 	@NullSource
 	void skalFeilvalidereUgyldigDetaljer(String detaljer) {
-		FeilregistrerForsendelseRequest request = new FeilregistrerForsendelseRequest();
-		request.setDetaljer(detaljer);
+		FeilregistrerForsendelseRequest request = FeilregistrerForsendelseRequest.builder()
+				.detaljer(detaljer)
+				.build();
 
 		var violations = validator.validateProperty(request, "detaljer");
 

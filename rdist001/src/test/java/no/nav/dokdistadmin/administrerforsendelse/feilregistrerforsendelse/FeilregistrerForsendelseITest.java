@@ -1,9 +1,10 @@
 package no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse;
 
 import no.nav.dokdistadmin.config.AbstractITest;
-import no.nav.dokdistadmin.exception.RestResponseExceptionHandler.ErrorResponseBody;
 import org.junit.jupiter.api.Test;
 
+import static java.lang.String.format;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.RESENDING_DISTRIBUSJON_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createFeilregistrerForsendelseRequestWithForsendelseId;
@@ -38,7 +39,7 @@ public class FeilregistrerForsendelseITest extends AbstractITest {
 	@Test
 	void skalReturnereBadRequestVedFeilregistrerForsendelseValideringsfeil() {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
-		distribusjonInfo.setResendingDistribusjonId("1");
+		distribusjonInfo.setResendingDistribusjonId(RESENDING_DISTRIBUSJON_ID);
 		distribusjonInfo.addDokumentInfo(createDokumentInfo());
 		dokumentDistribusjonRepository.save(distribusjonInfo);
 		commitAndBeginNewTransaction();
@@ -52,13 +53,14 @@ public class FeilregistrerForsendelseITest extends AbstractITest {
 				.exchange()
 				.expectStatus()
 				.isBadRequest()
-				.returnResult(ErrorResponseBody.class)
+				.returnResult(String.class)
 				.getResponseBody()
 				.blockFirst();
 
 		assertThat(response)
-				.satisfies(errorResponse -> assertThat(errorResponse.message())
-						.contains("Feltet resendingDistribusjonId på forsendelsen du prøver å feilregistrere kan ikke ha en verdi, men har verdien=1"));
+				.satisfies(errorResponse -> assertThat(response)
+						.contains(format("rdist001 kunne ikke feilregistrere forsendelse. Feilmelding=Feltet resendingDistribusjonId på forsendelsen du prøver å feilregistrere kan ikke ha en verdi, men har verdien=%s",
+								RESENDING_DISTRIBUSJON_ID)));
 	}
 
 }

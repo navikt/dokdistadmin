@@ -29,6 +29,7 @@ import static no.nav.dokdistadmin.domain.DistribusjonstidspunktKode.KJERNETID;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.FagomradeCode.DAG;
+import static no.nav.dokdistadmin.domain.FeilTypeCode.MELDINGSFEIL;
 import static no.nav.dokdistadmin.domain.ModusCode.P;
 import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
@@ -71,6 +72,8 @@ public class Rdist001TestUtils {
 	public static final String DOKUMENT_TYPE_ID = "U000001";
 	public static final String BATCH_ID = "batchId";
 	public static final String DETALJER = "detaljer";
+	public static final String PART = "part";
+	public static final String RESENDING_DISTRIBUSJON_ID = "1";
 	public static final LocalDateTime OPPRETTET_DATO = now(systemDefaultZone()).minusHours(5).minusMinutes(23);
 	public static final LocalDateTime DISTRIBUSJON_DATO = now(systemDefaultZone()).minusHours(5);
 
@@ -263,7 +266,7 @@ public class Rdist001TestUtils {
 	public static FeilregistrerForsendelseRequest createFeilregistrerForsendelseRequestWithForsendelseId(Long forsendelseId) {
 		return FeilregistrerForsendelseRequest.builder()
 				.forsendelseId(forsendelseId)
-				.feilTypeCode(FeilTypeCode.MELDINGSFEIL)
+				.feilTypeCode(MELDINGSFEIL)
 				.tidspunkt(LocalDateTime.now())
 				.detaljer(DETALJER)
 				.build();

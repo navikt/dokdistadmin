@@ -10,9 +10,11 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.RESENDING_DISTRIBUSJON_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseValidator.validerDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseValidator.validerDokumentInfo;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 
@@ -22,25 +24,28 @@ public class FeilregistrerForsendelseValidatorTest {
 	@ValueSource(strings = {"", " "})
 	@NullSource
 	void skalValidereDistribusjonInfo(String resendingDistribusjonId) {
-		DistribusjonInfo distribusjonInfo = new DistribusjonInfo();
-		distribusjonInfo.setResendingDistribusjonId(resendingDistribusjonId);
+		DistribusjonInfo distribusjonInfo = DistribusjonInfo.builder()
+						.resendingDistribusjonId(resendingDistribusjonId)
+						.build();
 
-		FeilregistrerForsendelseValidator.validerDistribusjonInfo(distribusjonInfo);
+		assertThatCode(() -> validerDistribusjonInfo(distribusjonInfo)).doesNotThrowAnyException();
 	}
 
 	@ParameterizedTest
 	@EnumSource(value = DokumentStatusCode.class, mode = EXCLUDE, names = {"FEILET"})
 	void skalValidereDokumentInfo(DokumentStatusCode dokumentStatusCode) {
-		DokumentInfo dokumentInfo = new DokumentInfo();
-		dokumentInfo.setDokumentStatus(dokumentStatusCode);
+		DokumentInfo dokumentInfo = DokumentInfo.builder()
+						.dokumentStatus(dokumentStatusCode)
+						.build();
 
-		FeilregistrerForsendelseValidator.validerDokumentInfo(dokumentInfo);
+		assertThatCode(() -> validerDokumentInfo(dokumentInfo)).doesNotThrowAnyException();
 	}
 
 	@Test
 	void skalFeilvalidereDistribusjonInfoMedResendingDistribusjonId() {
-		DistribusjonInfo distribusjonInfo = new DistribusjonInfo();
-		distribusjonInfo.setResendingDistribusjonId("En verdi");
+		DistribusjonInfo distribusjonInfo = DistribusjonInfo.builder()
+						.resendingDistribusjonId(RESENDING_DISTRIBUSJON_ID)
+						.build();
 
 		assertThatThrownBy(() -> validerDistribusjonInfo(distribusjonInfo))
 				.isInstanceOf(ValideringFeiletException.class)
@@ -49,8 +54,9 @@ public class FeilregistrerForsendelseValidatorTest {
 
 	@Test
 	void skalFeilvalidereDokumentInfoMedDokumentStatusFeilet() {
-		DokumentInfo dokumentInfo = new DokumentInfo();
-		dokumentInfo.setDokumentStatus(FEILET);
+		DokumentInfo dokumentInfo = DokumentInfo.builder()
+						.dokumentStatus(FEILET)
+						.build();
 
 		assertThatThrownBy(() -> validerDokumentInfo(dokumentInfo))
 				.isInstanceOf(ValideringFeiletException.class)

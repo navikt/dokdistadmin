@@ -8,6 +8,7 @@ import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.Feilkvittering;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
+import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Transactional(readOnly = true)
 public class FeilregistrerForsendelseService {
 
-	public static final String FEILREGISTRER_FORSENDELSE_FEILMELDING = "rdist001 kunne ikke feilregistrere forsendelse med forsendelseId=%s. Feilmelding=%s";
+	public static final String FEILREGISTRER_FORSENDELSE_FEILMELDING = "rdist001 kunne ikke feilregistrere forsendelse. Feilmelding=%s";
 
 	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
 	private final DokumentInfoRepository dokumentInfoRepository;
@@ -44,7 +45,7 @@ public class FeilregistrerForsendelseService {
 		DokumentInfo dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(forsendelseId);
 
 		if (dokumentInfo == null) {
-			throw new ForsendelseIkkeFunnetException(format(FEILREGISTRER_FORSENDELSE_FEILMELDING, forsendelseId, "Fant ikke forsendelse med forsendelseId=%s"));
+			throw new ForsendelseIkkeFunnetException(format(FEILREGISTRER_FORSENDELSE_FEILMELDING, format("Fant ikke forsendelse med forsendelseId=%s", forsendelseId)));
 		}
 
 		DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();

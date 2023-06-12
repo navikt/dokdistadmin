@@ -7,7 +7,9 @@ import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 
 import static java.lang.String.format;
+import static no.nav.dokdistadmin.administrerforsendelse.FeilregistrerForsendelseService.FEILREGISTRER_FORSENDELSE_FEILMELDING;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class FeilregistrerForsendelseValidator {
@@ -23,15 +25,17 @@ public class FeilregistrerForsendelseValidator {
 	private static void validerResendingDistribusjonId(String resendingDistribusjonId) {
 		if (isNotBlank(resendingDistribusjonId)) {
 			throw new ValideringFeiletException(format(
-					"Feltet resendingDistribusjonId på forsendelsen du prøver å feilregistrere kan ikke ha en verdi, men har verdien=%s",
-					resendingDistribusjonId)
+					FEILREGISTRER_FORSENDELSE_FEILMELDING,
+					format("Feltet resendingDistribusjonId på forsendelsen du prøver å feilregistrere kan ikke ha en verdi, men har verdien=%s", resendingDistribusjonId))
 			);
 		}
 	}
 
 	private static void validateDokumentStatus(DokumentStatusCode dokumentStatusCode) {
 		if (FEILET.equals(dokumentStatusCode)) {
-			throw new ValideringFeiletException("Feltet dokumentStatusCode på forsendelsen du prøver å feilregistrere kan ikke ha verdien FEILET");
+			throw new ValideringFeiletException(format(
+					FEILREGISTRER_FORSENDELSE_FEILMELDING,
+					"Feltet dokumentStatusCode på forsendelsen du prøver å feilregistrere kan ikke ha verdien FEILET"));
 		}
 	}
 }

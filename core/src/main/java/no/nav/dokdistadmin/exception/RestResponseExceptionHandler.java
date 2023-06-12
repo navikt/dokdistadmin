@@ -1,5 +1,6 @@
 package no.nav.dokdistadmin.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
@@ -14,6 +15,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,16 +23,23 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
 @ControllerAdvice
 public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler {
+
+	private static final String RDIST001_FUNKSJONELL_FEILMELDING = "rdist001 feilet funksjonelt med feilmelding={}";
+	private static final String RDIST001_TEKNISK_FEILMELDING = "rdist001 feilet teknisk med feilmelding={}";
 
 	@ExceptionHandler({
 			ConstraintViolationException.class,
@@ -40,9 +49,9 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 			ValideringFeiletException.class
 	})
 	public ResponseEntity<Object> inputValidationExceptionHandler(Exception e) {
-		log.warn("rdist001 feilet funksjonelt med feilmelding={}", e.getMessage());
+		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
 
-		return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), BAD_REQUEST);
+		return getResponseEntity(BAD_REQUEST, e.getMessage());
 	}
 
 	@ExceptionHandler({
@@ -51,27 +60,40 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 			DistribusjonIkkeFunnetException.class
 	})
 	public ResponseEntity<Object> resourceNotFoundExceptionHandler(Exception e) {
-		log.warn("rdist001 feilet funksjonelt med feilmelding={}", e.getMessage());
-		return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), NOT_FOUND);
+		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
+
+		return getResponseEntity(NOT_FOUND, e.getMessage());
 	}
 
 	@ExceptionHandler({
 			KanIkkeBestemmeDokumentrekkefoelgeException.class
 	})
 	public ResponseEntity<Object> noContentExceptionHandler(Exception e) {
-		log.warn("rdist001 feilet funksjonelt med feilmelding={}", e.getMessage());
-		return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), NO_CONTENT);
+		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
+
+		return getResponseEntity(NO_CONTENT, e.getMessage());
 	}
 
 	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-		String errormessage = ex.getBindingResult().getFieldErrors().stream()
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+		String feilmelding = e.getBindingResult().getFieldErrors().stream()
 				.map(DefaultMessageSourceResolvable::getDefaultMessage)
 				.collect(Collectors.joining(", "));
 
-		log.warn("rdist001 feilet funksjonelt med feilmelding={}", errormessage);
+		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, feilmelding, e);
 
-		return new ResponseEntity<>(errormessage, BAD_REQUEST);
+		return getResponseEntity(BAD_REQUEST, feilmelding);
+	}
+
+	@Override
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+																  HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+		if (ex.getCause() instanceof InvalidFormatException ife) {
+			return handleInvalidFormatException(ex, ife);
+		}
+
+		return handleExceptionInternal(ex, ex.getMessage(), headers, BAD_REQUEST, request);
 	}
 
 	@ExceptionHandler({
@@ -79,13 +101,48 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	})
 	public ResponseEntity<Object> handleTechnicalException(Exception e) throws Exception {
 		if (e instanceof DokdistadminTechnicalException) {
-			log.warn("rdist001 feilet teknisk med feilmelding={}", e.getMessage());
-			return new ResponseEntity<>(new ErrorResponseBody(e.getMessage(), e.getStackTrace()), INTERNAL_SERVER_ERROR);
+			log.warn(RDIST001_TEKNISK_FEILMELDING, e.getMessage(), e);
+
+			return getResponseEntity(INTERNAL_SERVER_ERROR, e.getMessage());
 		} else {
 			throw e;
 		}
 	}
 
-	public record ErrorResponseBody(String message, StackTraceElement[] error) {
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<Object> handleAll(Exception e) {
+		String feilmelding = format("rdist001 feilet med feilmelding=%s", e.getMessage());
+
+		log.warn(feilmelding, e);
+
+		return getResponseEntity(INTERNAL_SERVER_ERROR, feilmelding);
 	}
+
+	private static ResponseEntity<Object> handleInvalidFormatException(HttpMessageNotReadableException e, InvalidFormatException invalidFormatException) {
+		String feilmelding;
+		var fieldName = invalidFormatException.getPath().get(0).getFieldName();
+		var value = invalidFormatException.getValue();
+		var targetType = invalidFormatException.getTargetType();
+
+		if (targetType.isEnum()) {
+			feilmelding = format("Feltet %s=%s må være en av %s", fieldName, value, Arrays.toString(targetType.getEnumConstants()));
+		} else if (targetType.equals(LocalDateTime.class)) {
+			feilmelding = format("Feltet %s=%s må være et gyldig tidspunkt", fieldName, value);
+		} else if (targetType.equals(Long.class)) {
+			feilmelding = format("Feltet %s=%s må være et tall", fieldName, value);
+		} else {
+			feilmelding = format("'%s' er ikke en gyldig verdi for feltet %s", value, fieldName);
+		}
+
+		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, feilmelding, e);
+
+		return getResponseEntity(BAD_REQUEST, feilmelding);
+	}
+
+	private static ResponseEntity<Object> getResponseEntity(HttpStatus status, String message) {
+		return ResponseEntity.status(status)
+				.contentType(APPLICATION_JSON)
+				.body(format("\"%s\"", message));
+	}
+
 }
