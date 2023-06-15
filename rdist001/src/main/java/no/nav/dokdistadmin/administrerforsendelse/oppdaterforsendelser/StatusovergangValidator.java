@@ -43,6 +43,7 @@ public class StatusovergangValidator {
 		return KLAR_FOR_DIST.name().equals(oldDokumentStatus) && OVERSENDT.name().equals(nyForsendelseStatus);
 	}
 
+	// Dokdistdpv forsendelser til Altinn støtter dette statusovergang
 	private static boolean isStatusOvergangKlarForDistToEkspedert(String oldDokumentStatus, String nyForsendelseStatus) {
 		return KLAR_FOR_DIST.name().equals(oldDokumentStatus) && EKSPEDERT.name().equals(nyForsendelseStatus);
 	}

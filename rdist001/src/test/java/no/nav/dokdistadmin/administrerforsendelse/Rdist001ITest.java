@@ -548,6 +548,7 @@ public class Rdist001ITest extends AbstractOauth2Test implements DatabaseTest {
 	@CsvSource(value = {
 			"OPPRETTET,KLAR_FOR_DIST",
 			"KLAR_FOR_DIST,OVERSENDT",
+			"KLAR_FOR_DIST,EKSPEDERT",
 			"OVERSENDT,EKSPEDERT",
 			"OVERSENDT,FEILET",
 			"OVERSENDT,BEKREFTET"
