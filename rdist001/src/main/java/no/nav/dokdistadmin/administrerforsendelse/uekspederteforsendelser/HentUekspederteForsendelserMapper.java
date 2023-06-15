@@ -47,7 +47,7 @@ public class HentUekspederteForsendelserMapper {
 				.dokumentId(dokumentInfo.getDokumentId())
 				.dokumentStatus(dokumentInfo.getDokumentStatus().name())
 				.bestillendeFagsystem(dokumentInfo.getBestillendeFagsystem())
-				.fagomradeCode(dokumentInfo.getFagomrade() == null ? null : dokumentInfo.getFagomrade().name())
+				.fagomradeCode(dokumentInfo.getFagomrade() == null ? null : dokumentInfo.getFagomrade())
 				.journalpostId(dokumentInfo.getArkivkode())
 				.konversasjonId(dokumentInfo.getKonversasjonId())
 				.brevProduksjonApplikasjon(dokumentInfo.getBrevProduksjonApplikasjon())

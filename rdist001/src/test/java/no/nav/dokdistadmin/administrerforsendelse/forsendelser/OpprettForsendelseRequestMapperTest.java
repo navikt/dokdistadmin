@@ -22,6 +22,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.BESTI
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENT_OBJEKT_REFERANSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENT_PRODUKSJON_APP;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENT_TYPE_ID;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FAGOMRADE_DAG;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FORSENDELSE_TITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.LANDKODE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.MOTTAKER_ID;
@@ -35,7 +36,6 @@ import static no.nav.dokdistadmin.domain.ArkivSystemCode.JOARK;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonsTypeKode.VEDTAK;
 import static no.nav.dokdistadmin.domain.DistribusjonstidspunktKode.KJERNETID;
-import static no.nav.dokdistadmin.domain.FagomradeCode.DAG;
 import static no.nav.dokdistadmin.domain.ModusCode.T;
 import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
@@ -61,7 +61,7 @@ class OpprettForsendelseRequestMapperTest {
 		assertThat(distribusjonInfo.getModus()).isEqualTo(T);
 
 		assertThat(dokumentInfo.getBestillendeFagsystem()).isEqualTo(BESTILLENDE_FAGSYSTEM);
-		assertThat(dokumentInfo.getFagomrade()).isEqualTo(DAG);
+		assertThat(dokumentInfo.getFagomrade()).isEqualTo(FAGOMRADE_DAG);
 		assertThat(dokumentInfo.getForsendelseTittel()).isEqualTo(FORSENDELSE_TITTEL);
 		assertThat(dokumentInfo.getBrevProduksjonApplikasjon()).isEqualTo(DOKUMENT_PRODUKSJON_APP);
 		assertThat(dokumentInfo.getMottakerId()).isEqualTo(MOTTAKER_ID);

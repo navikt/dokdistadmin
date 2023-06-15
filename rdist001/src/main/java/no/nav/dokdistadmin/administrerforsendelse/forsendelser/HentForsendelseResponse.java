@@ -5,7 +5,6 @@ import lombok.Value;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
-import no.nav.dokdistadmin.domain.FagomradeCode;
 import no.nav.dokdistadmin.domain.ModusCode;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class HentForsendelseResponse {
 	ModusCode modus;
 	String forsendelseStatus;
 	String distribusjonKanal;
-	FagomradeCode tema;
+	String tema;
 	String forsendelseTittel;
 	String batchId;
 	String dokumentProdApp;

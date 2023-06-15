@@ -11,7 +11,6 @@ import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentReferanse;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
-import no.nav.dokdistadmin.domain.FeilTypeCode;
 import no.nav.dokdistadmin.domain.Postadresse;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 import no.nav.dokdistadmin.domain.VarselInfo;
@@ -28,7 +27,6 @@ import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonstidspunktKode.KJERNETID;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
-import static no.nav.dokdistadmin.domain.FagomradeCode.DAG;
 import static no.nav.dokdistadmin.domain.FeilTypeCode.MELDINGSFEIL;
 import static no.nav.dokdistadmin.domain.ModusCode.P;
 import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
@@ -74,6 +72,7 @@ public class Rdist001TestUtils {
 	public static final String DETALJER = "detaljer";
 	public static final String PART = "part";
 	public static final String RESENDING_DISTRIBUSJON_ID = "1";
+	public static final String FAGOMRADE_DAG = "DAG";
 	public static final LocalDateTime OPPRETTET_DATO = now(systemDefaultZone()).minusHours(5).minusMinutes(23);
 	public static final LocalDateTime DISTRIBUSJON_DATO = now(systemDefaultZone()).minusHours(5);
 
@@ -157,7 +156,7 @@ public class Rdist001TestUtils {
 				.mottakerId(MOTTAKER_ID)
 				.mottakerNavn(MOTTAKER_NAVN)
 				.mottakerIdType(PERSON)
-				.fagomrade(DAG)
+				.fagomrade(FAGOMRADE_DAG)
 				.konversasjonId(KONVERSASJON_ID)
 				.arkivkode(ARKIV_KODE)
 				.brevProduksjonApplikasjon(BREVPRODUKSJON_APPLIKASJONCODE)
@@ -233,7 +232,7 @@ public class Rdist001TestUtils {
 				.bestillingsId(BESTILLINGS_ID)
 				.distribusjonsKanal(SDP)
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM)
-				.tema(DAG)
+				.tema(FAGOMRADE_DAG)
 				.forsendelseTittel(FORSENDELSE_TITTEL)
 				.dokumentProdApp(DOKUMENT_PRODUKSJON_APP)
 				.originalDistribusjonId(ORIGINAL_DISTRIBUSJON_ID)

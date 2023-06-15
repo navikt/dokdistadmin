@@ -126,9 +126,8 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name = "k_dokument_status", nullable = false, length = 20)
 	private DokumentStatusCode dokumentStatus;
 
-	@Enumerated(EnumType.STRING)
 	@Column(name = "k_fagomrade", length = 20)
-	private FagomradeCode fagomrade;
+	private String fagomrade;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "k_arkiv_system", length = 20)
@@ -197,24 +196,4 @@ public class DokumentInfo extends AbstractDomainObject {
 		return Collections.unmodifiableSet(varselInfos);
 	}
 
-	public void addFilInfo(FilInfo filInfo) {
-		if (filInfo != null) {
-			this.filInfos.add(filInfo);
-		}
-	}
-
-	public Set<FilInfo> getFilInfos() {
-		return Collections.unmodifiableSet(filInfos);
-	}
-
-	public void addFeilkvittering(Feilkvittering feilkvittering) {
-		if (feilkvittering != null) {
-			this.feilkvitterings.add(feilkvittering);
-			feilkvittering.setDokumentInfo(this);
-		}
-	}
-
-	public Set<Feilkvittering> getFeilkvitterings() {
-		return Collections.unmodifiableSet(feilkvitterings);
-	}
 }
