@@ -14,6 +14,7 @@ public class StatusovergangValidator {
 	public static boolean isLovligStatusovergang(String oldDokumentStatus, String nyForsendelseStatus) {
 		return isStatusOvergangOpprettetToKlarForDist(oldDokumentStatus, nyForsendelseStatus) ||
 				isStatusOvergangKlarForDistToOversendt(oldDokumentStatus, nyForsendelseStatus) ||
+				isStatusOvergangKlarForDistToEkspedert(oldDokumentStatus,nyForsendelseStatus) ||
 				isStatusOvergangOversendtToBekreftet(oldDokumentStatus, nyForsendelseStatus) ||
 				isStatusOvergangOversendtToEkspedert(oldDokumentStatus, nyForsendelseStatus) ||
 				isStatusOvergangOversendtToFeilet(oldDokumentStatus, nyForsendelseStatus) ||
@@ -40,6 +41,11 @@ public class StatusovergangValidator {
 
 	private static boolean isStatusOvergangKlarForDistToOversendt(String oldDokumentStatus, String nyForsendelseStatus) {
 		return KLAR_FOR_DIST.name().equals(oldDokumentStatus) && OVERSENDT.name().equals(nyForsendelseStatus);
+	}
+
+	// Dokdistdpv forsendelser til Altinn støtter dette statusovergang
+	private static boolean isStatusOvergangKlarForDistToEkspedert(String oldDokumentStatus, String nyForsendelseStatus) {
+		return KLAR_FOR_DIST.name().equals(oldDokumentStatus) && EKSPEDERT.name().equals(nyForsendelseStatus);
 	}
 
 	private static boolean isStatusOvergangOversendtToBekreftet(String oldDokumentStatus, String nyForsendelseStatus) {
