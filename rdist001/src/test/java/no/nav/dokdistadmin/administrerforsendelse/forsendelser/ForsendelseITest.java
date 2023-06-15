@@ -1,12 +1,8 @@
 package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
+import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.administrerforsendelse.Forsendelse;
-import no.nav.dokdistadmin.config.AbstractOauth2Test;
-import no.nav.dokdistadmin.config.ApplicationTestConfig;
-import no.nav.dokdistadmin.config.DatabaseTest;
 import no.nav.dokdistadmin.domain.DokumentInfo;
-import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
-import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.utils.TestDatabaseCleanup;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,11 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.transaction.annotation.Transactional;
 
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.BESTILLINGS_ID;
@@ -31,26 +22,10 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@Transactional
-@SpringBootTest(
-		classes = {ApplicationTestConfig.class},
-		webEnvironment = RANDOM_PORT)
-@AutoConfigureTestDatabase
-@ActiveProfiles({"itest"})
-public class ForsendelseITest extends AbstractOauth2Test implements DatabaseTest {
+public class ForsendelseITest extends AbstractITest {
 
 	private static final String ADMINISTRER_FORSENDELSE_URI = "/rest/v1/administrerforsendelse";
-
-	@Autowired
-	public WebTestClient webTestClient;
-
-	@Autowired
-	protected DokumentInfoRepository dokumentInfoRepository;
-
-	@Autowired
-	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
 
 	@Autowired
 	private TestDatabaseCleanup testDatabaseCleanup;

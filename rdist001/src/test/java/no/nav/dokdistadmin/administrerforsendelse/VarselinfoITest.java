@@ -2,25 +2,12 @@ package no.nav.dokdistadmin.administrerforsendelse;
 
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.Notifikasjon;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
-import no.nav.dokdistadmin.config.AbstractOauth2Test;
-import no.nav.dokdistadmin.config.ApplicationTestConfig;
-import no.nav.dokdistadmin.config.DatabaseTest;
+import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
-import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
-import no.nav.dokdistadmin.repository.DokumentInfoRepository;
-import no.nav.dokdistadmin.repository.VarselInfoRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -42,45 +29,14 @@ import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
 import static no.nav.dokdistadmin.repository.TestUtils.createDokumentInfo;
-import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@Transactional
-@SpringBootTest(
-		classes = {ApplicationTestConfig.class},
-		webEnvironment = RANDOM_PORT)
-@AutoConfigureTestDatabase
-@ActiveProfiles({"itest"})
-public class VarselinfoITest extends AbstractOauth2Test implements DatabaseTest {
+public class VarselinfoITest extends AbstractITest {
 
 	private static final String OPPDATERVARSELINFO_URI = "/rest/v1/administrerforsendelse/oppdatervarselinfo";
-
-	@Autowired
-	public WebTestClient webTestClient;
-
-	@Autowired
-	protected DokumentInfoRepository dokumentInfoRepository;
-
-	@Autowired
-	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
-
-	@Autowired
-	protected VarselInfoRepository varselInfoRepository;
-
-	@BeforeEach
-	void setup() {
-		if (MDC.get(USER_ID) == null) {
-			MDC.put(USER_ID, "VarselInfoITest");
-		}
-
-		varselInfoRepository.deleteAll();
-		dokumentInfoRepository.deleteAll();
-		dokumentDistribusjonRepository.deleteAll();
-	}
 
 	private DistribusjonInfo setupDatabase() {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(DITTNAV));
