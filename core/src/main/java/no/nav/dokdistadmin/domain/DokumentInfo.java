@@ -196,4 +196,11 @@ public class DokumentInfo extends AbstractDomainObject {
 		return Collections.unmodifiableSet(varselInfos);
 	}
 
+	public void addFeilkvittering(Feilkvittering feilkvittering) {
+		if (feilkvittering != null) {
+			this.feilkvitterings.add(feilkvittering);
+			feilkvittering.setDokumentInfo(this);
+		}
+	}
+
 }
