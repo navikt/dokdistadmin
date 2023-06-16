@@ -1,0 +1,1 @@
+alter sequence dokument_info_seq cache 100;

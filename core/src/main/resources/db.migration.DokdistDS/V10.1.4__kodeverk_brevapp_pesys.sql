@@ -1,0 +1,1 @@
+insert into K_BREV_PROD_APP (k_brev_prod_app,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('AT05','PESYS',timestamp '2020-04-01 08:12:00','T. Gebremedhin',NULL,NULL);

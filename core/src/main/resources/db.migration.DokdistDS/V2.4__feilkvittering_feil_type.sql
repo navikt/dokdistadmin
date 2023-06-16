@@ -1,0 +1,20 @@
+CREATE TABLE K_FEIL_TYPE
+(
+	k_feil_type		     VARCHAR2(20) NOT NULL ,
+	dekode               VARCHAR2(200) NOT NULL ,
+	opprettet_dato       TIMESTAMP NOT NULL ,
+	opprettet_av         VARCHAR2(20) NOT NULL ,
+	endret_dato          TIMESTAMP NULL ,
+	endret_av            VARCHAR2(20) NULL 
+);
+
+CREATE UNIQUE INDEX XPKK_FEIL_TYPE ON K_FEIL_TYPE
+(k_feil_type   ASC);
+
+ALTER TABLE K_FEIL_TYPE
+	ADD CONSTRAINT  XPKK_FEIL_TYPE PRIMARY KEY (k_feil_type);
+	
+ALTER TABLE FEILKVITTERING RENAME COLUMN feiltype to k_feil_type;
+
+ALTER TABLE FEILKVITTERING
+	ADD (CONSTRAINT R_38 FOREIGN KEY (k_feil_type) REFERENCES K_FEIL_TYPE (k_feil_type));

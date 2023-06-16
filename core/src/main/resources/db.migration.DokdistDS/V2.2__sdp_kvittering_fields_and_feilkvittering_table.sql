@@ -1,0 +1,30 @@
+ALTER TABLE DOKUMENT_INFO ADD (
+	aapnetdato TIMESTAMP NULL
+);
+
+ALTER TABLE VARSEL_INFO ADD (
+	varsling_feilet_tidspunkt     TIMESTAMP NULL,
+	varsling_feilet_beskrivelse   VARCHAR2(500) NULL
+);
+
+CREATE SEQUENCE FEILKVITTERING_SEQ START WITH 1 INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE;
+
+CREATE TABLE FEILKVITTERING
+(
+	feilkvittering_id       NUMBER(11) NOT NULL ,
+	feiltype                VARCHAR2(20) NULL,
+	feilpart                VARCHAR2(20) NULL,
+	detaljer                VARCHAR2(1000) NULL,
+	feilet_tidspunkt        TIMESTAMP NOT NULL,
+	versjon                 NUMBER(9) NOT NULL,
+  dokument_info_id        NUMBER(11) NOT NULL
+);
+
+CREATE UNIQUE INDEX XPKFEILKVITTERING ON FEILKVITTERING
+(feilkvittering_id   ASC);
+
+CREATE INDEX XIF1FEILKVITTERING ON FEILKVITTERING
+(dokument_info_id   ASC);
+
+ALTER TABLE FEILKVITTERING
+ADD (CONSTRAINT R_37 FOREIGN KEY (dokument_info_id) REFERENCES DOKUMENT_INFO (dokument_info_id));

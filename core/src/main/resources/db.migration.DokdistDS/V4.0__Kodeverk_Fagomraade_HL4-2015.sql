@@ -1,0 +1,4 @@
+INSERT INTO K_FAGOMRADE (k_fagomrade, dekode, opprettet_dato, opprettet_av, endret_dato, endret_av) VALUES ('SIK', 'Sikkerhetstiltak', timestamp '2015-09-09 10:00:00', 'R. Bjurstrøm', NULL, NULL);
+INSERT INTO K_FAGOMRADE (k_fagomrade, dekode, opprettet_dato, opprettet_av, endret_dato, endret_av) VALUES ('UFM', 'Unntak fra medlemskap', timestamp '2015-09-09 10:00:00', 'R. Bjurstrøm', NULL, NULL);
+INSERT INTO K_FAGOMRADE (k_fagomrade, dekode, opprettet_dato, opprettet_av, endret_dato, endret_av) VALUES ('TSR', 'Tilleggsstønad arbeidsøkere', timestamp '2015-09-09 10:00:00', 'R. Bjurstrøm', NULL, NULL);
+INSERT INTO K_FAGOMRADE (k_fagomrade, dekode, opprettet_dato, opprettet_av, endret_dato, endret_av) VALUES ('TSO', 'Tilleggsstønad', timestamp '2015-09-09 10:00:00', 'R. Bjurstrøm', NULL, NULL);

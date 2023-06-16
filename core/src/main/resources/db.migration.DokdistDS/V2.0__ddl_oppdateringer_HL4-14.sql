@@ -1,0 +1,134 @@
+--Dokumentdistribusjon DDL v200
+
+CREATE SEQUENCE DOKUMENT_REFERANSE_SEQ START WITH 1 INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE;
+CREATE SEQUENCE VARSEL_INFO_SEQ START WITH 1 INCREMENT BY 1 NOMAXVALUE NOCYCLE NOCACHE;
+
+ALTER TABLE DOKUMENT_INFO ADD (
+	konversasjon_id VARCHAR2(50) NULL,
+	avsender_id VARCHAR2(20) NULL,
+	digital_distributor_id VARCHAR2(20) NULL,
+	digital_postkasse_adresse VARCHAR2(100) NULL,
+	apningskvittering CHAR(1) NULL,
+	virkningsdato TIMESTAMP NULL,
+	k_sikkerhetsniva VARCHAR2(20) NULL
+);
+
+CREATE INDEX XIF7DOKUMENT_INFO ON DOKUMENT_INFO
+(k_sikkerhetsniva   ASC);
+
+CREATE TABLE DOKUMENT_REFERANSE
+(
+	opprettet_dato       TIMESTAMP NOT NULL ,
+	opprettet_av         VARCHAR2(20) NOT NULL ,
+	endret_dato          TIMESTAMP NULL ,
+	endret_av            VARCHAR2(20) NULL ,
+	versjon              NUMBER(9) NOT NULL ,
+	dokument_referanse_id NUMBER(11) NOT NULL ,
+	dokument_info_id     NUMBER(11) NOT NULL ,
+	k_refererer_til      VARCHAR2(20) NOT NULL ,
+	dokument_uri         VARCHAR2(200) NOT NULL ,
+	fil_storrelse        NUMBER(11) NULL
+);
+
+CREATE UNIQUE INDEX XPKDOKUMENT_REFERANSE ON DOKUMENT_REFERANSE
+(dokument_referanse_id   ASC);
+
+ALTER TABLE DOKUMENT_REFERANSE
+	ADD CONSTRAINT  XPKDOKUMENT_REFERANSE PRIMARY KEY (dokument_referanse_id);
+
+CREATE INDEX XIF1DOKUMENT_REFERANSE ON DOKUMENT_REFERANSE
+(dokument_info_id   ASC);
+
+CREATE INDEX XIF2DOKUMENT_REFERANSE ON DOKUMENT_REFERANSE
+(k_refererer_til   ASC);
+
+CREATE TABLE K_REFERERER_TIL
+(
+	k_refererer_til      VARCHAR2(20) NOT NULL ,
+	dekode               VARCHAR2(200) NOT NULL ,
+	opprettet_dato       TIMESTAMP NOT NULL ,
+	opprettet_av         VARCHAR2(20) NOT NULL ,
+	endret_dato          TIMESTAMP NULL ,
+	endret_av            VARCHAR2(20) NULL 
+);
+
+CREATE UNIQUE INDEX XPKK_REFERERER_TIL ON K_REFERERER_TIL
+(k_refererer_til   ASC);
+
+ALTER TABLE K_REFERERER_TIL
+	ADD CONSTRAINT  XPKK_REFERERER_TIL PRIMARY KEY (k_refererer_til);
+
+CREATE TABLE K_SIKKERHETSNIVA
+(
+	k_sikkerhetsniva     VARCHAR2(20) NOT NULL ,
+	dekode               VARCHAR2(200) NOT NULL ,
+	opprettet_dato       TIMESTAMP NOT NULL ,
+	opprettet_av         VARCHAR2(20) NOT NULL ,
+	endret_dato          TIMESTAMP NULL ,
+	endret_av            VARCHAR2(20) NULL 
+);
+
+CREATE UNIQUE INDEX XPKK_SIKKERHETSNIVA ON K_SIKKERHETSNIVA
+(k_sikkerhetsniva   ASC);
+
+ALTER TABLE K_SIKKERHETSNIVA
+	ADD CONSTRAINT  XPKK_SIKKERHETSNIVA PRIMARY KEY (k_sikkerhetsniva);
+
+CREATE TABLE K_VARSLING_KANAL
+(
+	k_varsling_kanal     VARCHAR2(20) NOT NULL ,
+	dekode               VARCHAR2(200) NOT NULL ,
+	opprettet_dato       TIMESTAMP NOT NULL ,
+	opprettet_av         VARCHAR2(20) NOT NULL ,
+	endret_dato          TIMESTAMP NULL ,
+	endret_av            VARCHAR2(20) NULL 
+);
+
+CREATE UNIQUE INDEX XPKK_VARSLING_KANAL ON K_VARSLING_KANAL
+(k_varsling_kanal   ASC);
+
+ALTER TABLE K_VARSLING_KANAL
+	ADD CONSTRAINT  XPKK_VARSLING_KANAL PRIMARY KEY (k_varsling_kanal);
+
+CREATE TABLE VARSEL_INFO
+(
+	varsel_info_id       NUMBER(11) NOT NULL ,
+	opprettet_dato       TIMESTAMP NOT NULL ,
+	opprettet_av         VARCHAR2(20) NOT NULL ,
+	endret_dato          TIMESTAMP NULL ,
+	endret_av            VARCHAR2(20) NULL ,
+	versjon              NUMBER(9) NOT NULL ,
+	k_varsling_kanal     VARCHAR2(20) NOT NULL ,
+	varslingstekst       VARCHAR2(500) NULL ,
+	epost_adresse        VARCHAR2(100) NULL ,
+	mobiltelefon_nummer  VARCHAR2(20) NULL ,
+	antall_repetisjoner  NUMBER(9) NULL ,
+	dokument_info_id     NUMBER(11) NOT NULL 
+);
+
+CREATE UNIQUE INDEX XPKVARSEL_INFO ON VARSEL_INFO
+(varsel_info_id   ASC);
+
+ALTER TABLE VARSEL_INFO
+	ADD CONSTRAINT  XPKVARSEL_INFO PRIMARY KEY (varsel_info_id);
+
+CREATE INDEX XIF1VARSEL_INFO ON VARSEL_INFO
+(k_varsling_kanal   ASC);
+
+CREATE INDEX XIF2VARSEL_INFO ON VARSEL_INFO
+(dokument_info_id   ASC);
+
+ALTER TABLE DOKUMENT_INFO
+	ADD (CONSTRAINT R_36 FOREIGN KEY (k_sikkerhetsniva) REFERENCES K_SIKKERHETSNIVA (k_sikkerhetsniva));
+
+ALTER TABLE DOKUMENT_REFERANSE
+	ADD (CONSTRAINT R_32 FOREIGN KEY (dokument_info_id) REFERENCES DOKUMENT_INFO (dokument_info_id));
+
+ALTER TABLE DOKUMENT_REFERANSE
+	ADD (CONSTRAINT R_33 FOREIGN KEY (k_refererer_til) REFERENCES K_REFERERER_TIL (k_refererer_til));
+
+ALTER TABLE VARSEL_INFO
+	ADD (CONSTRAINT R_34 FOREIGN KEY (k_varsling_kanal) REFERENCES K_VARSLING_KANAL (k_varsling_kanal));
+
+ALTER TABLE VARSEL_INFO
+	ADD (CONSTRAINT R_35 FOREIGN KEY (dokument_info_id) REFERENCES DOKUMENT_INFO (dokument_info_id));
