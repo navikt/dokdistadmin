@@ -5,6 +5,7 @@ import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.max;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
@@ -299,6 +301,77 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 						it.getChangeStamp().getEndretAv() != null &&
 						it.getChangeStamp().getEndretDato() != null));
 	}
+
+	@Test
+	void shouldFindByDokumentId() {
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		dokumentInfo.setDistribusjonInfo(distribusjon);
+		dokumentInfoRepository.save(dokumentInfo);
+
+		var result = dokumentInfoRepository.findIdsByDokumentId(dokumentInfo.getDokumentId());
+
+		Assertions.assertThat(result)
+				.singleElement()
+				.satisfies(it -> assertThat(it.getDokumentInfoId()).isEqualTo(dokumentInfo.getDokumentInfoId()));
+	}
+
+	@Test
+	void shouldFindByKonversasjonId() {
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		dokumentInfo.setDistribusjonInfo(distribusjon);
+		dokumentInfoRepository.save(dokumentInfo);
+
+		var result = dokumentInfoRepository.findIdsByKonversasjonId(KONVERSASJON_ID);
+
+		Assertions.assertThat(result)
+				.singleElement()
+				.satisfies(it -> assertThat(it.getDokumentInfoId()).isEqualTo(dokumentInfo.getDokumentInfoId()));
+	}
+
+	@Test
+	void shouldFindByJournalpostId() {
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		dokumentInfo.setDistribusjonInfo(distribusjon);
+		dokumentInfo.setArkivkode(JOURNALPOST_ID);
+		dokumentInfoRepository.save(dokumentInfo);
+
+		var result = dokumentInfoRepository.findTopByArkivkodeOrderByDokumentInfoIdDesc(JOURNALPOST_ID);
+
+		Assertions.assertThat(result)
+				.isNotNull()
+				.satisfies(it -> assertThat(it.getDokumentInfoId()).isEqualTo(dokumentInfo.getDokumentInfoId()));
+	}
+
+	@Test
+	void shouldFindTopByJournalpostId() {
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		DokumentInfo dokumentInfo1 = createDokumentInfo();
+		dokumentInfo1.setDistribusjonInfo(distribusjon);
+		dokumentInfo1.setArkivkode(JOURNALPOST_ID);
+		dokumentInfoRepository.save(dokumentInfo1);
+
+		DokumentInfo dokumentInfo2 = createDokumentInfo();
+		dokumentInfo2.setDistribusjonInfo(distribusjon);
+		dokumentInfo2.setArkivkode(JOURNALPOST_ID);
+		dokumentInfoRepository.save(dokumentInfo2);
+
+		var expected = max(List.of(dokumentInfo1.getDokumentInfoId(), dokumentInfo2.getDokumentInfoId()));
+
+		var result = dokumentInfoRepository.findTopByArkivkodeOrderByDokumentInfoIdDesc(JOURNALPOST_ID);
+
+		Assertions.assertThat(result)
+				.isNotNull()
+				.satisfies(it -> assertThat(it.getDokumentInfoId()).isEqualTo(expected));
+	}
+
+
 
 	private Set<DokumentInfo> getDokumentInfoSet(DistribusjonInfo distribusjonInfo) {
 		return Set.of(

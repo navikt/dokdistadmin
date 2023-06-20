@@ -7,6 +7,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.finnforsendelse.FinnForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
@@ -78,6 +79,21 @@ public class AdministrerForsendelseController {
 		log.info("hentForsendelse har hentet forsendelse med forsendelseId={}", forsendelseId);
 
 		return ResponseEntity.ok(hentForsendelseResponse);
+	}
+
+	@GetMapping("/finnforsendelse")
+	public ResponseEntity<Forsendelse> finnForsendelse(@RequestBody @Valid FinnForsendelseRequest finnForsendelseRequest) {
+		log.info("finnforsendelse har mottatt kall om å finne forsendelse med {}={}",
+				finnForsendelseRequest.getOppslagsnoekkel().getValue(),
+				finnForsendelseRequest.getVerdi());
+
+		var forsendelse = forsendelserService.finnForsendelse(finnForsendelseRequest);
+
+		log.info("finnforsendelse har funnet forsendelse med forsendelseId={} og {}={}", forsendelse.getForsendelseId(),
+				finnForsendelseRequest.getOppslagsnoekkel().getValue(),
+				finnForsendelseRequest.getVerdi());
+
+		return ResponseEntity.ok(forsendelse);
 	}
 
 	@PutMapping("/oppdaterforsendelse")

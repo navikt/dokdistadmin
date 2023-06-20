@@ -4,6 +4,7 @@ import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.repository.projections.DokumentInfoIdHolder;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -24,6 +25,12 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 	DokumentInfo findDokumentInfoByKonversasjonId(String konversasjonsId);
 
 	DokumentInfo findDokumentInfoByArkivkode(String arkivkode);
+
+	List<DokumentInfoIdHolder> findIdsByDokumentId(String dokumentId);
+
+	List<DokumentInfoIdHolder> findIdsByKonversasjonId(String konversasjonId);
+
+	DokumentInfoIdHolder findTopByArkivkodeOrderByDokumentInfoIdDesc(String arkivkode);
 
 	@Query("""
 			select dok from DokumentInfo dok

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
+import no.nav.dokdistadmin.exception.functional.FlereForsendelserFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoelgeException;
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
@@ -72,6 +74,15 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
 
 		return getResponseEntity(NO_CONTENT, e.getMessage());
+	}
+
+	@ExceptionHandler({
+			FlereForsendelserFunnetException.class
+	})
+	public ResponseEntity<Object> conflictExceptionHandler(Exception e) {
+		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
+
+		return getResponseEntity(CONFLICT, e.getMessage());
 	}
 
 	@Override
