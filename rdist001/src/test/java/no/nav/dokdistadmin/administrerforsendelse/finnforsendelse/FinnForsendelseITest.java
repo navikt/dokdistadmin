@@ -2,6 +2,7 @@ package no.nav.dokdistadmin.administrerforsendelse.finnforsendelse;
 
 import no.nav.dokdistadmin.administrerforsendelse.Forsendelse;
 import no.nav.dokdistadmin.config.AbstractITest;
+import no.nav.dokdistadmin.domain.Oppslagsnoekkel;
 import no.nav.dokdistadmin.utils.TestDatabaseCleanup;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,20 +12,20 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.BESTILLINGS_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDokumentId;
+import static no.nav.dokdistadmin.domain.Oppslagsnoekkel.BESTILLINGSID;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.CONFLICT;
 
 public class FinnForsendelseITest extends AbstractITest {
 
-	private static final String FINN_FORSENDELSE_URI = "/rest/v1/administrerforsendelse/finnforsendelse";
+	private static final String FINN_FORSENDELSE_URI = "/rest/v1/administrerforsendelse/finnforsendelse/%s/%s";
 
 	@Autowired
 	private TestDatabaseCleanup testDatabaseCleanup;
@@ -60,15 +61,9 @@ public class FinnForsendelseITest extends AbstractITest {
 
 		commitAndBeginNewTransaction();
 
-		var request = FinnForsendelseRequest.builder()
-				.oppslagsnoekkel(oppslagsnoekkel)
-				.verdi("123")
-				.build();
-
-		var response = webTestClient.method(HttpMethod.GET)
-				.uri(FINN_FORSENDELSE_URI)
+		var response = webTestClient.get()
+				.uri(format(FINN_FORSENDELSE_URI, oppslagsnoekkel.name().toLowerCase(), "123"))
 				.headers(headers -> headers.setBearerAuth(jwt()))
-				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk()
 				.expectBody(Forsendelse.class)
@@ -85,22 +80,19 @@ public class FinnForsendelseITest extends AbstractITest {
 	@ParameterizedTest
 	@EnumSource(value = Oppslagsnoekkel.class)
 	void skalGiNotFoundDersomForsendelsenIkkeFinnes(Oppslagsnoekkel oppslagsnoekkel) {
-		var request = FinnForsendelseRequest.builder()
-				.oppslagsnoekkel(oppslagsnoekkel)
-				.verdi("verdi")
-				.build();
 
-		var response = webTestClient.method(HttpMethod.GET)
-				.uri(FINN_FORSENDELSE_URI)
+		var response = webTestClient.get()
+				.uri(format(FINN_FORSENDELSE_URI, oppslagsnoekkel.name().toLowerCase(), "123"))
 				.headers(headers -> headers.setBearerAuth(jwt()))
-				.bodyValue(request)
 				.exchange()
 				.expectStatus().isNotFound()
 				.expectBody(String.class)
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).contains(format("Fant ikke forsendelse med %s=%s", request.getOppslagsnoekkel().getValue(), request.getVerdi()));
+		assertThat(response).contains(format("finnForsendelse fant ikke forsendelse med %s=%s",
+				oppslagsnoekkel.value,
+				"123"));
 	}
 
 	@Test
@@ -114,22 +106,18 @@ public class FinnForsendelseITest extends AbstractITest {
 
 		commitAndBeginNewTransaction();
 
-		var request = FinnForsendelseRequest.builder()
-				.oppslagsnoekkel(Oppslagsnoekkel.BESTILLINGSID)
-				.verdi(BESTILLINGS_ID)
-				.build();
-
-		var response = webTestClient.method(HttpMethod.GET)
-				.uri(FINN_FORSENDELSE_URI)
+		var response = webTestClient.get()
+				.uri(format(FINN_FORSENDELSE_URI, BESTILLINGSID.name().toLowerCase(), BESTILLINGS_ID))
 				.headers(headers -> headers.setBearerAuth(jwt()))
-				.bodyValue(request)
 				.exchange()
-				.expectStatus().isEqualTo(HttpStatus.CONFLICT)
+				.expectStatus().isEqualTo(CONFLICT)
 				.expectBody(String.class)
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).contains(format("Fant flere enn en forsendelse med %s=%s", request.getOppslagsnoekkel().getValue(), request.getVerdi()));
+		assertThat(response).contains(format("finnForsendelse fant flere enn en forsendelse med %s=%s",
+				BESTILLINGSID.value,
+				BESTILLINGS_ID));
 	}
 
 }

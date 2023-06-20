@@ -8,7 +8,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
-import no.nav.dokdistadmin.administrerforsendelse.finnforsendelse.FinnForsendelseRequest;
+import no.nav.dokdistadmin.domain.Oppslagsnoekkel;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponseMapper;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
@@ -187,11 +187,10 @@ public class AdministrerForsendelseService {
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
 
-	public Forsendelse finnForsendelse(FinnForsendelseRequest finnForsendelseRequest) {
-		var oppslagsnoekkel = finnForsendelseRequest.getOppslagsnoekkel();
-		var verdi = finnForsendelseRequest.getVerdi();
+	public Forsendelse finnForsendelse(String oppslagsnoekkel, String verdi) {
+		Oppslagsnoekkel noekkel = Oppslagsnoekkel.fromString(oppslagsnoekkel);
 
-		List<DokumentInfoIdHolder> forsendelser = switch (oppslagsnoekkel) {
+		List<DokumentInfoIdHolder> forsendelser = switch (noekkel) {
 			case KONVERSASJONSID -> dokumentInfoRepository.findIdsByKonversasjonId(verdi);
 			case BESTILLINGSID -> dokumentInfoRepository.findIdsByDokumentId(verdi);
 			case JOURNALPOSTID -> {
@@ -201,14 +200,14 @@ public class AdministrerForsendelseService {
 		};
 
 		if (forsendelser.isEmpty()) {
-			throw new ForsendelseIkkeFunnetException(format("Fant ikke forsendelse med %s=%s",
-					oppslagsnoekkel.getValue(),
+			throw new ForsendelseIkkeFunnetException(format("finnForsendelse fant ikke forsendelse med %s=%s",
+					noekkel.value,
 					verdi));
 		}
 
 		if (forsendelser.size() > 1) {
-			throw new FlereForsendelserFunnetException(format("Fant flere enn en forsendelse med %s=%s",
-					oppslagsnoekkel.getValue(),
+			throw new FlereForsendelserFunnetException(format("finnForsendelse fant flere enn en forsendelse med %s=%s",
+					noekkel.value,
 					verdi));
 		}
 

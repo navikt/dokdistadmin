@@ -7,7 +7,6 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
-import no.nav.dokdistadmin.administrerforsendelse.finnforsendelse.FinnForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
@@ -81,17 +80,16 @@ public class AdministrerForsendelseController {
 		return ResponseEntity.ok(hentForsendelseResponse);
 	}
 
-	@GetMapping("/finnforsendelse")
-	public ResponseEntity<Forsendelse> finnForsendelse(@RequestBody @Valid FinnForsendelseRequest finnForsendelseRequest) {
-		log.info("finnforsendelse har mottatt kall om å finne forsendelse med {}={}",
-				finnForsendelseRequest.getOppslagsnoekkel().getValue(),
-				finnForsendelseRequest.getVerdi());
+	@GetMapping("/finnforsendelse/{oppslagsnoekkel}/{verdi}")
+	public ResponseEntity<Forsendelse> finnForsendelse(
+			@PathVariable @NotBlank(message = "Sti-parameter oppslagsnoekkel må ha en verdi") String oppslagsnoekkel,
+			@PathVariable @NotBlank(message = "Sti-parameter verdi må ha en verdi") String verdi) {
+		log.info("finnforsendelse har mottatt kall om å finne forsendelse med {}={}", oppslagsnoekkel, verdi);
 
-		var forsendelse = forsendelserService.finnForsendelse(finnForsendelseRequest);
+		var forsendelse = forsendelserService.finnForsendelse(oppslagsnoekkel, verdi);
 
 		log.info("finnforsendelse har funnet forsendelse med forsendelseId={} og {}={}", forsendelse.getForsendelseId(),
-				finnForsendelseRequest.getOppslagsnoekkel().getValue(),
-				finnForsendelseRequest.getVerdi());
+				oppslagsnoekkel, verdi);
 
 		return ResponseEntity.ok(forsendelse);
 	}

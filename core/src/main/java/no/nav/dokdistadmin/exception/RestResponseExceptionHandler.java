@@ -40,8 +40,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ControllerAdvice
 public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
-	private static final String RDIST001_FUNKSJONELL_FEILMELDING = "rdist001 feilet funksjonelt med feilmelding={}";
-	private static final String RDIST001_TEKNISK_FEILMELDING = "rdist001 feilet teknisk med feilmelding={}";
+	private static final String RDIST001_FUNKSJONELL_FEILMELDING = "rdist001 feilet funksjonelt med feilmelding: {}";
+	private static final String RDIST001_TEKNISK_FEILMELDING = "rdist001 feilet teknisk med feilmelding: {}";
 
 	@ExceptionHandler({
 			ConstraintViolationException.class,
