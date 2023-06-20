@@ -86,7 +86,7 @@ class HentUekspederteForsendelserMapperTest {
 		assertThat(result.getDokumentId()).isEqualTo(dokumentInfo.getDokumentId());
 		assertThat(result.getDokumentStatus()).isEqualTo(dokumentInfo.getDokumentStatus().name());
 		assertThat(result.getBestillendeFagsystem()).isEqualTo(dokumentInfo.getBestillendeFagsystem());
-		assertThat(result.getFagomradeCode()).isEqualTo(dokumentInfo.getFagomrade().name());
+		assertThat(result.getFagomradeCode()).isEqualTo(dokumentInfo.getFagomrade());
 		assertThat(result.getJournalpostId()).isEqualTo(dokumentInfo.getArkivkode());
 		assertThat(result.getKonversasjonId()).isEqualTo(dokumentInfo.getKonversasjonId());
 		assertThat(result.getBrevProduksjonApplikasjon()).isEqualTo(dokumentInfo.getBrevProduksjonApplikasjon());

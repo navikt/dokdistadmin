@@ -8,7 +8,6 @@ import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
-import no.nav.dokdistadmin.domain.FagomradeCode;
 import no.nav.dokdistadmin.domain.MottakerIdTypeCode;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 
@@ -33,8 +32,8 @@ public class OpprettForsendelseRequest {
     @NotBlank(message = "bestillendeFagsystem må ha en verdi")
     private String bestillendeFagsystem;
 
-    @NotNull(message = "tema kan ikke være null")
-    private FagomradeCode tema;
+    @NotBlank(message = "tema må ha en verdi")
+    private String tema;
 
     @NotBlank(message = "forsendelseTittel må ha en verdi")
     private String forsendelseTittel;

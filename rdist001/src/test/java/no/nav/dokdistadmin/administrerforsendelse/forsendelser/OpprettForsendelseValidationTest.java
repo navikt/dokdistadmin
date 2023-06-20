@@ -85,17 +85,19 @@ class OpprettForsendelseValidationTest {
 				});
 	}
 
-	@Test
-	void skalFeilvalidereUgyldigTema() {
+	@ParameterizedTest
+	@ValueSource(strings = {"", " "})
+	@NullSource
+	void skalFeilvalidereUgyldigTema(String tema) {
 		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setTema(null);
+		opprettForsendelseRequest.setTema(tema);
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
 		assertThat(violations)
 				.hasSize(1)
 				.allSatisfy(it -> {
-					assertThat(it.getMessage()).isEqualTo("tema kan ikke være null");
+					assertThat(it.getMessage()).isEqualTo("tema må ha en verdi");
 					assertThat(it.getPropertyPath().toString()).isEqualTo("tema");
 				});
 	}
