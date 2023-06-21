@@ -7,6 +7,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseListResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
@@ -14,7 +15,10 @@ import no.nav.dokdistadmin.administrerforsendelse.post.HentPostdestinasjonRespon
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
+import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.security.token.support.core.api.Protected;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,12 +29,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 @Validated
@@ -92,6 +101,31 @@ public class AdministrerForsendelseController {
 				oppslagsnoekkel, verdi);
 
 		return ResponseEntity.ok(forsendelse);
+	}
+
+	@GetMapping("/hentForsendelseListe")
+	public ResponseEntity<HentForsendelseListResponse> hentForsendelseListe(
+			@RequestParam(name = "distribusjonsTyper", required = false, defaultValue = "") List<String> distribusjonsTyper,
+			@RequestParam(name = "dokumentStatus", required = false, defaultValue = "") List<String> dokumentStatus,
+			@RequestParam(name = "distribusjonKanal") Optional<String> distribusjonKanal,
+			@RequestParam(name = "journalpostListe") @NotEmpty List<Long> journalpostListe
+	) {
+		log.info("hentForsendelseListe har mottatt kall om å hente forsendelser med forsendelseIds={}", journalpostListe);
+
+		List<HentForsendelseResponse> hentForsendelseListe = forsendelserService.hentForsendelseListe(
+				journalpostListe,
+				distribusjonsTyper.stream()
+						.map(type -> safelyMapToEnum("distribusjonsTyper", DistribusjonsTypeKode::valueOf, type))
+						.toList(),
+				dokumentStatus.stream()
+						.map(status -> safelyMapToEnum("dokumentStatus", DokumentStatusCode::valueOf, status))
+						.toList(),
+				distribusjonKanal
+						.map(kanal -> safelyMapToEnum("distribusjonKanal", DistribusjonKanalCode::valueOf, kanal)));
+
+		log.info("hentForsendelseListe har hentet forsendelser med forsendelseIds={}", journalpostListe);
+
+		return ResponseEntity.ok(new HentForsendelseListResponse(hentForsendelseListe));
 	}
 
 	@PutMapping("/oppdaterforsendelse")
@@ -196,5 +230,13 @@ public class AdministrerForsendelseController {
 		log.info("hentPostdestinasjon har hentet postdestinasjon for landkode={}", landkode);
 
 		return ResponseEntity.ok(postdestinasjon);
+	}
+
+	private static <U> U safelyMapToEnum(String paramname, Function<String, U> enumMapper, String input) {
+		try {
+			return enumMapper.apply(input.toUpperCase());
+		} catch (IllegalArgumentException | NullPointerException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "\"" + input + "\" er ikke en gyldig verdi for parameteret \"" + paramname + "\"");
+		}
 	}
 }

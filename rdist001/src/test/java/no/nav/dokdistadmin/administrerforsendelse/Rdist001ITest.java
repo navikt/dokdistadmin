@@ -6,12 +6,14 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseListResponse;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
+import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.VarselStatusCode;
@@ -27,7 +29,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
@@ -39,6 +43,9 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
+import static no.nav.dokdistadmin.domain.DistribusjonsTypeKode.ANNET;
+import static no.nav.dokdistadmin.domain.DistribusjonsTypeKode.VEDTAK;
+import static no.nav.dokdistadmin.domain.DistribusjonsTypeKode.VIKTIG;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
@@ -62,6 +69,7 @@ public class Rdist001ITest extends AbstractITest {
 	private static final String AVSTEMFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemforsendelser";
 	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
 	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
+	private static final String HENTFORSENDELSELISTE_URI = "/rest/v1/administrerforsendelse/hentForsendelseListe";
 
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
 
@@ -362,6 +370,69 @@ public class Rdist001ITest extends AbstractITest {
 					assertThat(it.getAvstemtDato()).isNotNull();
 				});
 	}
+
+	static Stream<Arguments> skalHenteForsendelserListeMedIdDistribusjonstypeParameterSource() {
+		final String viktigEllerVedtak = Stream.of(VIKTIG, VEDTAK).map(DistribusjonsTypeKode::name).collect(Collectors.joining(","));
+		final String ekspedertEllerBekreftet = Stream.of(EKSPEDERT, BEKREFTET).map(DokumentStatusCode::name).collect(Collectors.joining(","));
+
+		return Stream.of(
+				Arguments.of(null, null, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{ANNET, VEDTAK, VIKTIG, null}, 4*4),
+				Arguments.of(TRYGDERETTEN.name(), null, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK}, 4),
+				Arguments.of(TRYGDERETTEN.name(), null, null, SDP, new DistribusjonsTypeKode[]{VEDTAK}, 0),
+				Arguments.of(null, viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK, ANNET}, 4),
+				Arguments.of(null, null, ekspedertEllerBekreftet, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK}, 2),
+				Arguments.of(null, viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK, null}, 4),
+				Arguments.of(TRYGDERETTEN.name(), viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VIKTIG}, 4)
+		);
+	}
+
+	@ParameterizedTest
+	@MethodSource("skalHenteForsendelserListeMedIdDistribusjonstypeParameterSource")
+	public void skalHenteForsendelserListeMedIdDistribusjonstype(String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam,
+						  DistribusjonKanalCode distribusjonskanal, DistribusjonsTypeKode[] distribusjonstyper, int dokumentInfosMatched) {
+		Stream.of(distribusjonstyper).forEach(distribusjonstype -> {
+			var distribusjonSomSkalHentes = createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal);
+			distribusjonSomSkalHentes.setDistribusjonstype(distribusjonstype);
+
+			var opprettetDokument = createDokumentInfoWithStatusCodeAndDokumentId(OPPRETTET, "opprettetDokument" + distribusjonstype);
+			var oversendtDokument = createDokumentInfoWithStatusCodeAndDokumentId(OVERSENDT, "oversendtDokument" + distribusjonstype);
+			var ekspedertDokument = createDokumentInfoWithStatusCodeAndDokumentId(EKSPEDERT, "ekspedertDokument" + distribusjonstype);
+			var bekreftetDokument = createDokumentInfoWithStatusCodeAndDokumentId(BEKREFTET, "bekreftetDokument" + distribusjonstype);
+
+			distribusjonSomSkalHentes.addDokumentInfo(opprettetDokument);
+			distribusjonSomSkalHentes.addDokumentInfo(oversendtDokument);
+			distribusjonSomSkalHentes.addDokumentInfo(ekspedertDokument);
+			distribusjonSomSkalHentes.addDokumentInfo(bekreftetDokument);
+
+			dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+		});
+
+		commitAndBeginNewTransaction();
+
+		String forsendelseIdsParam = StreamSupport.stream(dokumentDistribusjonRepository.findAll().spliterator(), false)
+				.flatMap(dinfo -> dinfo.getDokumentInfos().stream())
+				.map(DokumentInfo::getDokumentInfoId)
+				.map(String::valueOf)
+				.collect(Collectors.joining(","));
+
+		var response = webTestClient.get()
+				.uri(HENTFORSENDELSELISTE_URI +
+						"?journalpostListe=" + forsendelseIdsParam +
+						(distribusjonskanalQueryParam != null ? "&distribusjonKanal=" + distribusjonskanalQueryParam : "" ) +
+						(distribusjonstyperQueryParam != null ? "&distribusjonsTyper=" + distribusjonstyperQueryParam : "" ) +
+						(dokumentstatusQueryParam != null ?     "&dokumentStatus=" + dokumentstatusQueryParam : "" )
+				)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentForsendelseListResponse.class)
+				.getResponseBody()
+				.blockFirst();
+
+		assertNotNull(response);
+		assertThat(response.forsendelseListe()).hasSize(dokumentInfosMatched);
+	}
+
 
 	@Test
 	void skalKunHenteEformidlingforsendelserMedDokumentstatusOversendtEllerBekreftet() {

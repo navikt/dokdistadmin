@@ -1,10 +1,16 @@
 package no.nav.dokdistadmin.repository;
 
+import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
+import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.hibernate.annotations.QueryHints.PASS_DISTINCT_THROUGH;
 
@@ -62,5 +68,36 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 				.setHint(PASS_DISTINCT_THROUGH, false)
 				.setParameter("dokumentInfoId", dokumentInfoId)
 				.getResultStream().findFirst().orElse(null);
+	}
+
+	@Override
+	public Stream<DokumentInfo> fetchDokumentInfoList(List<Long> journalpostIds, List<DistribusjonsTypeKode> distribusjonsTyper, List<DokumentStatusCode> dokumentStatus, Optional<DistribusjonKanalCode> distribusjonsKanal) {
+		TypedQuery<DokumentInfo> query = entityManager.createQuery(
+						"""
+									select distinct dok
+									from DokumentInfo dok
+									join fetch dok.distribusjonInfo distinfo
+									left join fetch dok.postadresse
+									left join fetch dok.dokumentReferanses
+									where dok.dokumentInfoId in (:journalpostIds)
+								""" +
+								(dokumentStatus.isEmpty() ? "" : " and dok.dokumentStatus in (:dokumentstatuser) ") +
+								(distribusjonsTyper.isEmpty() ? "" : " and distinfo.distribusjonstype in (:distribusjonstyper) ") +
+								(distribusjonsKanal.isEmpty() ? "" : " and distinfo.distribusjonKanal = :kanal ")
+						, DokumentInfo.class)
+				.setHint(PASS_DISTINCT_THROUGH, false)
+				.setParameter("journalpostIds", journalpostIds);
+
+		if (!dokumentStatus.isEmpty()) {
+			query.setParameter("dokumentstatuser", dokumentStatus);
+		}
+		if (!distribusjonsTyper.isEmpty()) {
+			query.setParameter("distribusjonstyper", distribusjonsTyper);
+		}
+		distribusjonsKanal.ifPresent(kanal ->
+				query.setParameter("kanal", kanal)
+		);
+
+		return query.getResultStream();
 	}
 }

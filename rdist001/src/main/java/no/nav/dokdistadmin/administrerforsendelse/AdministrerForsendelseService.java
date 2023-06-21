@@ -18,6 +18,7 @@ import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUe
 import no.nav.dokdistadmin.config.DokdistadminProperties;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.exception.functional.FlereForsendelserFunnetException;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -212,5 +214,11 @@ public class AdministrerForsendelseService {
 		}
 
 		return new Forsendelse(forsendelser.get(0).getDokumentInfoId());
+	}
+
+	public List<HentForsendelseResponse> hentForsendelseListe(List<Long> journalpostListe, List<DistribusjonsTypeKode> distribusjonsTyper, List<DokumentStatusCode> dokumentStatus, Optional<DistribusjonKanalCode> distribusjonsKanal) {
+		return dokumentInfoRepository.fetchDokumentInfoList(journalpostListe, distribusjonsTyper, dokumentStatus, distribusjonsKanal)
+				.map(HentForsendelseResponseMapper::map)
+				.toList();
 	}
 }
