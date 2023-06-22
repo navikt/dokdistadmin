@@ -1,0 +1,1 @@
+insert into K_BREV_PROD_APP (k_brev_prod_app,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('SU_SE_BAKOVER','SU_SE_BAKOVER',timestamp '2020-09-07 10:00:00','E. Axelsson',NULL,NULL);

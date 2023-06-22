@@ -1,0 +1,1 @@
+insert into K_BEST_FAGSYSTEM (k_best_fagsystem,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('FS36','Vedtaksløsning Foreldrepenger',timestamp '2017-03-03 10:00:00','F.Laane',NULL,NULL);

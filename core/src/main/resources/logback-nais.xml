@@ -23,4 +23,7 @@
 	<logger name="no.nav.dokdistadmin" level="INFO" additivity="false">
 		<appender-ref ref="applikasjonslogg"/>
 	</logger>
+	<logger name="org.flyway" level="INFO" additivity="false">
+		<appender-ref ref="applikasjonslogg"/>
+	</logger>
 </included>

@@ -1,0 +1,2 @@
+-- Dokumentdistribusjon_Kodeverk-102
+insert into K_KANAL_BEHANDLING (k_kanal_behandling,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('B_C4_X_D_UP','B_C4_X_D_UP',timestamp '2014-01-22 10:00:00','T. Bjørge',NULL,NULL);

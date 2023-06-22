@@ -1,0 +1,5 @@
+insert into K_KANAL_BEHANDLING (k_kanal_behandling,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('A_C4_X_D_UP_F','A_C4_X_D_UP_F',timestamp '2015-05-18 10:00:00','Ø. Ølberg',NULL,NULL);
+insert into K_KANAL_BEHANDLING (k_kanal_behandling,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('A_C5_X_D_UP_F','A_C5_X_D_UP_F',timestamp '2015-05-18 10:00:00','Ø. Ølberg',NULL,NULL);
+insert into K_KANAL_BEHANDLING (k_kanal_behandling,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('B_C4_X_D_UP_F','B_C4_X_D_UP_F',timestamp '2015-05-18 10:00:00','Ø. Ølberg',NULL,NULL);
+insert into K_KANAL_BEHANDLING (k_kanal_behandling,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('B_C5_X_D_UP_F','B_C5_X_D_UP_F',timestamp '2015-05-18 10:00:00','Ø. Ølberg',NULL,NULL);
+insert into K_KANAL_BEHANDLING (k_kanal_behandling,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('P_PK_E_D_UP_F','P_PK_E_D_UP_F',timestamp '2015-05-18 10:00:00','Ø. Ølberg',NULL,NULL);

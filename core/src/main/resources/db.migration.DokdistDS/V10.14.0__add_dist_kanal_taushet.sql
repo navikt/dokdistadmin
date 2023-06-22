@@ -1,0 +1,2 @@
+INSERT INTO K_DIST_KANAL (k_dist_kanal, dekode, opprettet_dato, opprettet_av, endret_dato, endret_av)
+VALUES ('DPVT', 'Taushetsbelagt digital post til virksomhet', timestamp '2022-06-30 13:00:00', 'MMA-6046', NULL, NULL);

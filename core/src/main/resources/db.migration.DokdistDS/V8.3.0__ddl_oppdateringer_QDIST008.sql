@@ -1,0 +1,146 @@
+CREATE TABLE K_MOTTAKER_ID_TYPE(
+  K_MOTTAKER_ID_TYPE              VARCHAR2(50 CHAR)  NOT NULL,
+  DEKODE                          VARCHAR2(200 CHAR) NOT NULL,
+  OPPRETTET_DATO                  TIMESTAMP          NOT NULL,
+  OPPRETTET_AV                    VARCHAR2(50 CHAR)  NOT NULL,
+  ENDRET_DATO                     TIMESTAMP          NULL,
+  ENDRET_AV                       VARCHAR2(50 CHAR)  NULL,
+  CONSTRAINT XPK_MOTTAKER_ID_TYPE PRIMARY KEY (K_MOTTAKER_ID_TYPE)
+);
+
+INSERT INTO K_MOTTAKER_ID_TYPE (k_mottaker_id_type,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av)
+ SELECT
+  'PERSON',
+  'Person',
+  timestamp '2019-02-11 10:00:00',
+  'Sigurd Midttun',
+  NULL,
+  NULL
+ FROM dual
+  WHERE NOT EXISTS (SELECT 1
+                   FROM K_MOTTAKER_ID_TYPE
+                   WHERE k_mottaker_id_type = 'PERSON');
+
+INSERT INTO K_MOTTAKER_ID_TYPE (k_mottaker_id_type,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av)
+ SELECT
+  'ORGANISASJON',
+  'Organisasjon',
+  timestamp '2019-02-11 10:00:00',
+  'Sigurd Midttun',
+  NULL,
+  NULL
+ FROM dual
+  WHERE NOT EXISTS (SELECT 1
+                   FROM K_MOTTAKER_ID_TYPE
+                   WHERE k_mottaker_id_type = 'ORGANISASJON');
+
+
+INSERT INTO K_MOTTAKER_ID_TYPE (k_mottaker_id_type,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av)
+ SELECT
+  'SAMHANDLER_HPR',
+  'Samhandler hpr',
+  timestamp '2019-02-11 10:00:00',
+  'Sigurd Midttun',
+  NULL,
+  NULL
+ FROM dual
+  WHERE NOT EXISTS (SELECT 1
+                   FROM K_MOTTAKER_ID_TYPE
+                   WHERE k_mottaker_id_type = 'SAMHANDLER_HPR');
+
+
+ALTER TABLE DOKUMENT_INFO ADD (
+  k_mottaker_id_type    VARCHAR2(50) NULL,
+  forsendelse_tittel  VARCHAR2(1500) NULL,
+  batch_id            VARCHAR2(50)   NULL
+);
+
+ALTER TABLE DOKUMENT_INFO
+  ADD CONSTRAINT R_MOTTAKER_ID_TYPE
+FOREIGN KEY (K_MOTTAKER_ID_TYPE)
+REFERENCES K_MOTTAKER_ID_TYPE;
+
+ALTER TABLE DOKUMENT_REFERANSE ADD (
+  rekkefolge              NUMBER(11)   NULL,
+  arkiv_dokument_info_id  VARCHAR2(20) NULL,
+  dokumenttype_id         VARCHAR2(20) NULL
+);
+
+INSERT INTO K_DOKUMENT_STATUS (k_dokument_status,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av)
+ SELECT
+  'KLAR_FOR_DIST',
+  'Klar for dist',
+  timestamp '2019-02-06 10:00:00',
+  'Sigurd Midttun',
+  NULL,
+  NULL
+ FROM dual
+  WHERE NOT EXISTS (SELECT 1
+                   FROM K_DOKUMENT_STATUS
+                   WHERE k_dokument_status = 'KLAR_FOR_DIST');
+
+INSERT INTO K_DOKUMENT_STATUS (k_dokument_status,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av)
+ SELECT
+  'BEKREFTET',
+  'Bekreftet',
+  timestamp '2019-02-06 10:00:00',
+  'Sigurd Midttun',
+  NULL,
+  NULL
+ FROM dual
+  WHERE NOT EXISTS (SELECT 1
+                   FROM K_DOKUMENT_STATUS
+                   WHERE k_dokument_status = 'BEKREFTET');
+
+INSERT INTO K_DIST_STATUS (k_dist_status,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av)
+ SELECT
+  'KLAR_FOR_DIST',
+  'Klar for dist',
+  timestamp '2019-02-06 10:00:00',
+  'Sigurd Midttun',
+  NULL,
+  NULL
+ FROM dual
+  WHERE NOT EXISTS (SELECT 1
+                   FROM K_DIST_STATUS
+                   WHERE k_dist_status = 'KLAR_FOR_DIST');
+
+
+CREATE OR REPLACE VIEW DVH_DOKUMENT_INFO
+(DOKUMENT_INFO_ID, DOKUMENT_ID, MOTTAKER_ID,
+    ARKIVKODE, AVSTEMT_ARKIV_DATO, ANTALL_SIDER,
+    ANTALL_ARK, OPPRETTET_DATO, OPPRETTET_AV,
+    ENDRET_DATO, ENDRET_AV, DISTRIBUSJON_INFO_ID,
+    K_DOKUMENT_STATUS, K_FAGOMRADE, K_BEST_FAGSYSTEM,
+    K_ARKIV_SYSTEM, VERSJON, EKSPEDERT_DATO,
+    MOTTAKER_NAVN, BREVKODE, K_BREV_PROD_APP,
+    KONVERSASJON_ID, AVSENDER_ID, DIGITAL_DISTRIBUTOR_ID,
+    DIGITAL_POSTKASSE_ADRESSE, APNINGSKVITTERING, VIRKNINGSDATO,
+    K_SIKKERHETSNIVA, AAPNETDATO, POSTADRESSE_ID, MOTTAKER_ID_TYPE, FORSENDELSE_TITTEL, BATCH_ID)
+  AS
+    SELECT
+           DOKUMENT_INFO_ID, DOKUMENT_ID, MOTTAKER_ID,
+           ARKIVKODE, AVSTEMT_ARKIV_DATO, ANTALL_SIDER,
+           ANTALL_ARK, OPPRETTET_DATO, OPPRETTET_AV,
+           ENDRET_DATO, ENDRET_AV, DISTRIBUSJON_INFO_ID,
+           K_DOKUMENT_STATUS, K_FAGOMRADE, K_BEST_FAGSYSTEM,
+           K_ARKIV_SYSTEM, VERSJON, EKSPEDERT_DATO,
+           MOTTAKER_NAVN, BREVKODE, K_BREV_PROD_APP,
+           KONVERSASJON_ID, AVSENDER_ID, DIGITAL_DISTRIBUTOR_ID,
+           DIGITAL_POSTKASSE_ADRESSE, APNINGSKVITTERING, VIRKNINGSDATO,
+           K_SIKKERHETSNIVA, AAPNETDATO, POSTADRESSE_ID, K_MOTTAKER_ID_TYPE,
+           FORSENDELSE_TITTEL, BATCH_ID
+    FROM DOKUMENT_INFO;
+
+CREATE OR REPLACE VIEW DVH_DOKUMENT_REFERANSE
+(OPPRETTET_DATO, OPPRETTET_AV, ENDRET_DATO,
+    ENDRET_AV, VERSJON, DOKUMENT_REFERANSE_ID,
+    DOKUMENT_INFO_ID, K_REFERERER_TIL, DOKUMENT_URI,
+    FIL_STORRELSE, REKKEFOLGE, ARKIV_DOKUMENT_INFO_ID, DOKUMENTTYPE_ID)
+  AS
+    SELECT
+           OPPRETTET_DATO, OPPRETTET_AV, ENDRET_DATO,
+           ENDRET_AV, VERSJON, DOKUMENT_REFERANSE_ID,
+           DOKUMENT_INFO_ID, K_REFERERER_TIL, DOKUMENT_URI,
+           FIL_STORRELSE, REKKEFOLGE, ARKIV_DOKUMENT_INFO_ID, DOKUMENTTYPE_ID
+    FROM DOKUMENT_REFERANSE;

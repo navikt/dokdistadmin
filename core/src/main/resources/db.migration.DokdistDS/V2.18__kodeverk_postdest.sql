@@ -1,0 +1,2 @@
+insert into K_POST_DEST (k_post_dest,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('VERDEN','Verden',timestamp '2015-07-16 10:00:00','S. Strom',NULL,NULL);
+insert into K_POST_DEST (k_post_dest,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('EUROPA','Europa',timestamp '2015-07-16 10:00:00','S. Strom',NULL,NULL);

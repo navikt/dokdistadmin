@@ -1,0 +1,3 @@
+ALTER TABLE DISTRIBUSJON_INFO ADD (
+	postnummer_sortert CHAR(1) NULL
+);

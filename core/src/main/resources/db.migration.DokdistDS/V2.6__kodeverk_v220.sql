@@ -1,0 +1,3 @@
+-- Dokumentdistribusjon_Kodeverk-220
+insert into K_BREV_PROD_APP (k_brev_prod_app,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('AVG_FEIL','AVG_FEIL',timestamp '2014-09-11 10:00:00','T. Bjørge',NULL,NULL);
+insert into K_BREV_PROD_APP (k_brev_prod_app,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('AVG_KRAV','AVG_KRAV',timestamp '2014-09-11 10:00:00','T. Bjørge',NULL,NULL);

@@ -1,0 +1,1 @@
+insert into K_BEST_FAGSYSTEM (k_best_fagsystem,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('RAY','Ray',timestamp '2015-11-11 10:00:00','G. Wiese',NULL,NULL);

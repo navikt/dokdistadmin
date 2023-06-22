@@ -1,0 +1,2 @@
+insert into K_BREV_PROD_APP (k_brev_prod_app,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('PREDATOR_AAR','PREDATOR_AAR',timestamp '2015-11-11 10:00:00','G. Wiese',NULL,NULL);
+insert into K_BREV_PROD_APP (k_brev_prod_app,dekode,opprettet_dato,opprettet_av,endret_dato,endret_av) VALUES ('RAY_AAR','RAY_AAR',timestamp '2015-11-11 10:00:00','G. Wiese',NULL,NULL);
