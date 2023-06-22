@@ -8,6 +8,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.domain.Oppslagsnoekkel;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponseMapper;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
@@ -19,9 +20,11 @@ import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.exception.functional.FlereForsendelserFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
+import no.nav.dokdistadmin.repository.projections.DokumentInfoIdHolder;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -182,4 +187,30 @@ public class AdministrerForsendelseService {
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
 
+	public Forsendelse finnForsendelse(String oppslagsnoekkel, String verdi) {
+		Oppslagsnoekkel noekkel = Oppslagsnoekkel.fromString(oppslagsnoekkel);
+
+		List<DokumentInfoIdHolder> forsendelser = switch (noekkel) {
+			case KONVERSASJONSID -> dokumentInfoRepository.findIdsByKonversasjonId(verdi);
+			case BESTILLINGSID -> dokumentInfoRepository.findIdsByDokumentId(verdi);
+			case JOURNALPOSTID -> {
+				var forsendelse = dokumentInfoRepository.findTopByArkivkodeOrderByDokumentInfoIdDesc(verdi);
+				yield forsendelse != null ? singletonList(forsendelse) : emptyList();
+			}
+		};
+
+		if (forsendelser.isEmpty()) {
+			throw new ForsendelseIkkeFunnetException(format("finnForsendelse fant ikke forsendelse med %s=%s",
+					noekkel.value,
+					verdi));
+		}
+
+		if (forsendelser.size() > 1) {
+			throw new FlereForsendelserFunnetException(format("finnForsendelse fant flere enn en forsendelse med %s=%s",
+					noekkel.value,
+					verdi));
+		}
+
+		return new Forsendelse(forsendelser.get(0).getDokumentInfoId());
+	}
 }

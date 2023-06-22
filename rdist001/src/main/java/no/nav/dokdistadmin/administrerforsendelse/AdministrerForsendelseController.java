@@ -80,6 +80,20 @@ public class AdministrerForsendelseController {
 		return ResponseEntity.ok(hentForsendelseResponse);
 	}
 
+	@GetMapping("/finnforsendelse/{oppslagsnoekkel}/{verdi}")
+	public ResponseEntity<Forsendelse> finnForsendelse(
+			@PathVariable @NotBlank(message = "Sti-parameter oppslagsnoekkel må ha en verdi") String oppslagsnoekkel,
+			@PathVariable @NotBlank(message = "Sti-parameter verdi må ha en verdi") String verdi) {
+		log.info("finnforsendelse har mottatt kall om å finne forsendelse med {}={}", oppslagsnoekkel, verdi);
+
+		var forsendelse = forsendelserService.finnForsendelse(oppslagsnoekkel, verdi);
+
+		log.info("finnforsendelse har funnet forsendelse med forsendelseId={} og {}={}", forsendelse.getForsendelseId(),
+				oppslagsnoekkel, verdi);
+
+		return ResponseEntity.ok(forsendelse);
+	}
+
 	@PutMapping("/oppdaterforsendelse")
 	public ResponseEntity<String> oppdaterForsendelse(@RequestBody @Valid @NotNull OppdaterForsendelseRequest oppdaterForsendelseRequest) {
 		log.info("oppdaterForsendelse har mottatt kall om å oppdatere forsendelse med forsendelseId={}",
