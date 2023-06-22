@@ -62,7 +62,6 @@ public class AdministrerForsendelseController {
 		log.info("opprettForsendelse har mottatt kall om å persistere forsendelse med bestillingsId={}", opprettForsendelseRequest.getBestillingsId());
 
 		Forsendelse forsendelse = forsendelserService.opprettForsendelse(opprettForsendelseRequest);
-
 		log.info("opprettForsendelse har persistert forsendelse med bestillingsId={}. ForsendelseId={}", opprettForsendelseRequest
 				.getBestillingsId(), forsendelse.getForsendelseId());
 
@@ -71,7 +70,8 @@ public class AdministrerForsendelseController {
 
 	@GetMapping("/{forsendelseId}")
 	public ResponseEntity<HentForsendelseResponse> hentForsendelse(
-			@PathVariable("forsendelseId") @Positive(message = "forsendelseId må være et positivt tall") Long forsendelseId) {
+			@PathVariable("forsendelseId") @Positive(message = "Sti-parameter forsendelseId må være et positivt tall") Long forsendelseId) {
+
 		log.info("hentForsendelse har mottatt kall om å hente forsendelse med forsendelseId={}", forsendelseId);
 
 		HentForsendelseResponse hentForsendelseResponse = forsendelserService.hentForsendelse(forsendelseId);
@@ -84,10 +84,10 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<Forsendelse> finnForsendelse(
 			@PathVariable @NotBlank(message = "Sti-parameter oppslagsnoekkel må ha en verdi") String oppslagsnoekkel,
 			@PathVariable @NotBlank(message = "Sti-parameter verdi må ha en verdi") String verdi) {
+
 		log.info("finnforsendelse har mottatt kall om å finne forsendelse med {}={}", oppslagsnoekkel, verdi);
 
 		var forsendelse = forsendelserService.finnForsendelse(oppslagsnoekkel, verdi);
-
 		log.info("finnforsendelse har funnet forsendelse med forsendelseId={} og {}={}", forsendelse.getForsendelseId(),
 				oppslagsnoekkel, verdi);
 
@@ -111,7 +111,6 @@ public class AdministrerForsendelseController {
 				feilregistrerForsendelseRequest.getForsendelseId());
 
 		feilregistrerForsendelseService.feilregistrerForsendelse(feilregistrerForsendelseRequest);
-
 		log.info("feilregistrerForsendelse har feilregistrert forsendelse med forsendelseId={}",
 				feilregistrerForsendelseRequest.getForsendelseId());
 
@@ -133,7 +132,6 @@ public class AdministrerForsendelseController {
 		log.info("avstemekspederteforsendelser har mottatt kall om å avstemme {} ekspederte forsendelser", forsendelserRequest.getForsendelser().size());
 
 		var antallOppdaterteForsendelser = forsendelserService.avstemEkspederteForsendelser(forsendelserRequest);
-
 		log.info("avstemekspederteforsendelser har oppdatert avstemtArkivDato på {} forsendelser", antallOppdaterteForsendelser);
 
 		return ResponseEntity.ok().build();
@@ -141,14 +139,13 @@ public class AdministrerForsendelseController {
 
 	@GetMapping("/hentuekspederteforsendelser/{distribusjonkanal}/{antallTimer}")
 	public ResponseEntity<HentUekspederteForsendelserResponse> hentUekspederteForsendelser(
-			@PathVariable String distribusjonkanal,
-			@PathVariable @PositiveOrZero(message = "antallTimer må være et positivt tall") Long antallTimer) {
+			@PathVariable @NotBlank(message = "Sti-parameter distribusjonkanal må ha en verdi") String distribusjonkanal,
+			@PathVariable @PositiveOrZero(message = "Sti-parameter antallTimer må være et positivt tall") Long antallTimer) {
 
 		log.info("hentuekspederteforsendelser har mottatt kall om å hente uekspederte forsendelser med distribusjonKanal={}, som er eldre enn {} timer",
 				distribusjonkanal, antallTimer);
 
 		HentUekspederteForsendelserResponse uekspederteForsendelser = forsendelserService.hentUekspederteForsendelser(distribusjonkanal, antallTimer);
-
 		log.info("hentuekspederteforsendelser har hentet {} uekspederte forsendelser med distribusjonkanal={}, som er eldre enn {} timer",
 				uekspederteForsendelser.getUekspederteForsendelser().size(), distribusjonkanal, antallTimer);
 
@@ -163,7 +160,6 @@ public class AdministrerForsendelseController {
 				avstemForsendelserRequest.getAvstemtReferanse());
 
 		var antallOppdaterteForsendelser = forsendelserService.avstemForsendelser(avstemForsendelserRequest);
-
 		log.info("avstemforsendelser har oppdatert avstemtReferanse og avstemtDato på {} forsendelser", antallOppdaterteForsendelser);
 
 		return ResponseEntity.ok().build();
@@ -174,7 +170,6 @@ public class AdministrerForsendelseController {
 		log.info("henteformidlingforsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanal={}", distribusjonKanal);
 
 		var result = forsendelserService.hentEformidlingForsendelser(distribusjonKanal);
-
 		log.info("henteformidlingforsendelser har hentet antall={} eformidlingforsendelser for distribusjonskanal={}",
 				result.getForsendelser().size(), distribusjonKanal);
 
@@ -186,7 +181,6 @@ public class AdministrerForsendelseController {
 		log.info("oppdatervarselinfo har mottatt kall om å oppdatere varselinfo på forsendelse med forsendelseId={}", oppdaterVarselInfoRequest.getForsendelseId());
 
 		var antallOppdaterteVarselInfo = varselInfoService.oppdaterVarselInfo(oppdaterVarselInfoRequest);
-
 		log.info("oppdatervarselinfo har oppdatert antall={} varselinfo på forsendelse med forsendelseId={}", antallOppdaterteVarselInfo, oppdaterVarselInfoRequest.getForsendelseId());
 
 		return ResponseEntity.ok().build();
@@ -194,12 +188,11 @@ public class AdministrerForsendelseController {
 
 	@GetMapping("/hentpostdestinasjon/{landkode}")
 	public ResponseEntity<HentPostdestinasjonResponse> hentPostdestinasjon(
-			@PathVariable("landkode") @NotBlank(message = "landkode må ha en verdi") String landkode) {
+			@PathVariable("landkode") @NotBlank(message = "Sti-parameter landkode må ha en verdi") String landkode) {
 
 		log.info("hentPostdestinasjon har mottatt kall om å hente postdestinasjon for landkode={}", landkode);
 
 		var postdestinasjon = postService.hentPostdestinasjon(landkode);
-
 		log.info("hentPostdestinasjon har hentet postdestinasjon for landkode={}", landkode);
 
 		return ResponseEntity.ok(postdestinasjon);
