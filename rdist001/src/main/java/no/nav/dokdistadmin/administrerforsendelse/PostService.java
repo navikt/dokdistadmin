@@ -19,7 +19,7 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 public class PostService {
 
-	public static final String OPPDATERPOSTADRESSE_FEILMELDING = "rdist001 kunne ikke feilregistrere forsendelse. Feilmelding=%s";
+	public static final String OPPDATERPOSTADRESSE_FEILMELDING = "rdist001 kunne ikke oppdatere postadresse. Feilmelding: %s";
 
 	LandkodePostDestRepository landkodePostDestRepository;
 	PostadresseRepository postadresseRepository;
@@ -59,6 +59,5 @@ public class PostService {
 		}
 
 		dokumentInfoRepository.save(dokumentInfo);
-		System.out.println("hei");
 	}
 }

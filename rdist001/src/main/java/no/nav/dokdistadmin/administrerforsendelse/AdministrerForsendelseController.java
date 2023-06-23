@@ -199,9 +199,8 @@ public class AdministrerForsendelseController {
 		return ResponseEntity.ok(postdestinasjon);
 	}
 
-	// TODO: Valider input
 	@PutMapping("/oppdaterpostadresse")
-	public ResponseEntity<Void> oppdaterPostadresse(@RequestBody OppdaterPostadresseRequest oppdaterPostadresseRequest) {
+	public ResponseEntity<Void> oppdaterPostadresse(@RequestBody @Valid OppdaterPostadresseRequest oppdaterPostadresseRequest) {
 		log.info("oppdaterPostadresse har mottatt kall om å oppdatere postadresse på forsendelse med forsendelseId={}", oppdaterPostadresseRequest.getForsendelseId());
 
 		postService.oppdaterPostadresse(oppdaterPostadresseRequest);

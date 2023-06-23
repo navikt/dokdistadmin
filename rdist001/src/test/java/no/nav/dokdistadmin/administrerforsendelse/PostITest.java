@@ -9,11 +9,19 @@ import no.nav.dokdistadmin.repository.LandkodePostDestRepository;
 import no.nav.dokdistadmin.repository.PostadresseRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
 import static java.lang.String.format;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_1;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_2;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_3;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.POSTNUMMER;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.POSTSTED;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithEkspedertDato;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +70,7 @@ public class PostITest extends AbstractITest {
 	}
 
 	@Test
-	void skalKasteNotFoundHvisPostdestinasjonIkkeFunnet() {
+	void skalReturnereNotFoundHvisPostdestinasjonIkkeFunnet() {
 		webTestClient.get()
 				.uri(format(HENTPOSTDESTINASJON_URI + "/%s", LANDKODE_SVERIGE))
 				.headers(headers -> headers.setBearerAuth(jwt()))
@@ -71,7 +79,7 @@ public class PostITest extends AbstractITest {
 	}
 
 	@Test
-	void skalKastBadRequestHvisLandkodenErBlankEllerNull() {
+	void skalReturnereBadRequestHvisLandkodenErBlankEllerNull() {
 		webTestClient.get()
 				.uri(HENTPOSTDESTINASJON_URI + "/ ")
 				.headers(headers -> headers.setBearerAuth(jwt()))
@@ -99,16 +107,7 @@ public class PostITest extends AbstractITest {
 		commitAndBeginNewTransaction();
 
 		var forsendelseId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
-
-		OppdaterPostadresseRequest request = OppdaterPostadresseRequest.builder()
-				.forsendelseId(forsendelseId)
-				.adresselinje1("adresselinje1")
-				.adresselinje2("adresselinje2")
-				.adresselinje3("adresselinje3")
-				.postnummer("6065")
-				.poststed("Ulstein")
-				.landkode("NO")
-				.build();
+		OppdaterPostadresseRequest request = createOppdaterPostadresseRequest(forsendelseId, "NO");
 
 		webTestClient.put()
 				.uri(OPPDATERPOSTADRESSE_URI)
@@ -116,6 +115,57 @@ public class PostITest extends AbstractITest {
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk();
-		System.out.println("hei");
+	}
+
+	@Test
+	void skalReturnereNotFoundForOppdaterPostadresseDersomForsendelseIkkeFinnes() {
+		OppdaterPostadresseRequest request = createOppdaterPostadresseRequest(123L, "NO");
+
+		webTestClient.put()
+				.uri(OPPDATERPOSTADRESSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isNotFound();
+	}
+
+	@ParameterizedTest
+	@ValueSource(longs = -1)
+	@NullSource
+	void skalReturnereBadRequestForOppdaterPostadresseHvisForsendelseIdErUgyldig(Long forsendelseId) {
+		var request = createOppdaterPostadresseRequest(forsendelseId, "NO");
+
+		webTestClient.put()
+				.uri(OPPDATERPOSTADRESSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isBadRequest();
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {"NOR", "N", "  "})
+	@NullSource
+	void skalReturnereBadRequestForOppdaterPostadresseHvisLandkodeErUgyldig(String landkode) {
+		var request = createOppdaterPostadresseRequest(123L, landkode);
+
+		webTestClient.put()
+				.uri(OPPDATERPOSTADRESSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isBadRequest();
+	}
+
+	private static OppdaterPostadresseRequest createOppdaterPostadresseRequest(Long forsendelseId, String landkode) {
+		return OppdaterPostadresseRequest.builder()
+				.forsendelseId(forsendelseId)
+				.adresselinje1(ADRESSELINJE_1)
+				.adresselinje2(ADRESSELINJE_2)
+				.adresselinje3(ADRESSELINJE_3)
+				.postnummer(POSTNUMMER)
+				.poststed(POSTSTED)
+				.landkode(landkode)
+				.build();
 	}
 }
