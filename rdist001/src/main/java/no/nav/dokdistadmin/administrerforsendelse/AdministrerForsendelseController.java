@@ -18,7 +18,6 @@ import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.security.token.support.core.api.Protected;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -39,7 +37,9 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+
+import static no.nav.dokdistadmin.administrerforsendelse.AdministrertForsendelseUtil.mapListToEnumValues;
+import static no.nav.dokdistadmin.administrerforsendelse.AdministrertForsendelseUtil.safelyMapToEnum;
 
 @Slf4j
 @Validated
@@ -103,27 +103,27 @@ public class AdministrerForsendelseController {
 		return ResponseEntity.ok(forsendelse);
 	}
 
-	@GetMapping("/hentForsendelseListe")
-	public ResponseEntity<HentForsendelseListResponse> hentForsendelseListe(
+	@GetMapping("/hentForsendelser")
+	public ResponseEntity<HentForsendelseListResponse> hentForsendelser(
 			@RequestParam(name = "distribusjonsTyper", required = false, defaultValue = "") List<String> distribusjonsTyper,
 			@RequestParam(name = "dokumentStatus", required = false, defaultValue = "") List<String> dokumentStatus,
-			@RequestParam(name = "distribusjonKanal") Optional<String> distribusjonKanal,
-			@RequestParam(name = "journalpostListe") @NotEmpty List<Long> journalpostListe
+			@RequestParam(name = "distribusjonKanal", required = false) Optional<String> distribusjonKanal,
+			@RequestParam(name = "journalpostListe") @NotEmpty(message = "journalpostListe kan ikke være null eller en tom liste") List<Long> journalpostListe
 	) {
-		log.info("hentForsendelseListe har mottatt kall om å hente forsendelser med forsendelseIds={}", journalpostListe);
+		log.info("hentForsendelseListe har mottatt kall om å hente forsendelser med " +
+						"journalpostIds={}, distribusjonsTyper={}, dokumentStatus={}, distribusjonsKanal={}",
+				journalpostListe, distribusjonsTyper, dokumentStatus, distribusjonKanal.orElse("<ikke satt>"));
 
 		List<HentForsendelseResponse> hentForsendelseListe = forsendelserService.hentForsendelseListe(
 				journalpostListe,
-				distribusjonsTyper.stream()
-						.map(type -> safelyMapToEnum("distribusjonsTyper", DistribusjonsTypeKode::valueOf, type))
-						.toList(),
-				dokumentStatus.stream()
-						.map(status -> safelyMapToEnum("dokumentStatus", DokumentStatusCode::valueOf, status))
-						.toList(),
+				mapListToEnumValues("distribusjonsTyper", DistribusjonsTypeKode::valueOf, distribusjonsTyper),
+				mapListToEnumValues("dokumentStatus", DokumentStatusCode::valueOf, dokumentStatus),
 				distribusjonKanal
 						.map(kanal -> safelyMapToEnum("distribusjonKanal", DistribusjonKanalCode::valueOf, kanal)));
 
-		log.info("hentForsendelseListe har hentet forsendelser med forsendelseIds={}", journalpostListe);
+		log.info("hentForsendelseListe har hentet forsendelser med journalpostId aka. arkivId={}",
+				hentForsendelseListe.stream().map(HentForsendelseResponse::getArkivInformasjon)
+						.map(HentForsendelseResponse.ArkivInformasjon::getArkivId).toList());
 
 		return ResponseEntity.ok(new HentForsendelseListResponse(hentForsendelseListe));
 	}
@@ -230,13 +230,5 @@ public class AdministrerForsendelseController {
 		log.info("hentPostdestinasjon har hentet postdestinasjon for landkode={}", landkode);
 
 		return ResponseEntity.ok(postdestinasjon);
-	}
-
-	private static <U> U safelyMapToEnum(String paramname, Function<String, U> enumMapper, String input) {
-		try {
-			return enumMapper.apply(input.toUpperCase());
-		} catch (IllegalArgumentException | NullPointerException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "\"" + input + "\" er ikke en gyldig verdi for parameteret \"" + paramname + "\"");
-		}
 	}
 }

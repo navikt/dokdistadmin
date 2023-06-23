@@ -25,10 +25,12 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -59,6 +61,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 public class Rdist001ITest extends AbstractITest {
@@ -69,7 +72,7 @@ public class Rdist001ITest extends AbstractITest {
 	private static final String AVSTEMFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemforsendelser";
 	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
 	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
-	private static final String HENTFORSENDELSELISTE_URI = "/rest/v1/administrerforsendelse/hentForsendelseListe";
+	private static final String HENTFORSENDELSELISTE_URI = "/rest/v1/administrerforsendelse/hentForsendelser";
 
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
 
@@ -371,25 +374,26 @@ public class Rdist001ITest extends AbstractITest {
 				});
 	}
 
-	static Stream<Arguments> skalHenteForsendelserListeMedIdDistribusjonstypeParameterSource() {
+	static Stream<Arguments> skalHenteForsendelserListeMedIdDistribusjonstype() {
 		final String viktigEllerVedtak = Stream.of(VIKTIG, VEDTAK).map(DistribusjonsTypeKode::name).collect(Collectors.joining(","));
 		final String ekspedertEllerBekreftet = Stream.of(EKSPEDERT, BEKREFTET).map(DokumentStatusCode::name).collect(Collectors.joining(","));
 
 		return Stream.of(
-				Arguments.of(null, null, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{ANNET, VEDTAK, VIKTIG, null}, 4*4),
-				Arguments.of(TRYGDERETTEN.name(), null, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK}, 4),
-				Arguments.of(TRYGDERETTEN.name(), null, null, SDP, new DistribusjonsTypeKode[]{VEDTAK}, 0),
-				Arguments.of(null, viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK, ANNET}, 4),
-				Arguments.of(null, null, ekspedertEllerBekreftet, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK}, 2),
-				Arguments.of(null, viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK, null}, 4),
-				Arguments.of(TRYGDERETTEN.name(), viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VIKTIG}, 4)
+				Arguments.of(null, null, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{ANNET, VEDTAK, VIKTIG, null}, OK, 4 * 4),
+				Arguments.of(TRYGDERETTEN.name(), null, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK}, OK, 4),
+				Arguments.of(TRYGDERETTEN.name(), null, null, SDP, new DistribusjonsTypeKode[]{VEDTAK}, OK, 0),
+				Arguments.of(null, viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK, ANNET}, OK, 4),
+				Arguments.of(null, null, ekspedertEllerBekreftet, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK}, OK, 2),
+				Arguments.of(null, viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VEDTAK, null}, OK, 4),
+				Arguments.of(TRYGDERETTEN.name(), viktigEllerVedtak, null, TRYGDERETTEN, new DistribusjonsTypeKode[]{VIKTIG}, OK, 4)
 		);
 	}
 
 	@ParameterizedTest
-	@MethodSource("skalHenteForsendelserListeMedIdDistribusjonstypeParameterSource")
+	@MethodSource
 	public void skalHenteForsendelserListeMedIdDistribusjonstype(String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam,
-						  DistribusjonKanalCode distribusjonskanal, DistribusjonsTypeKode[] distribusjonstyper, int dokumentInfosMatched) {
+																 DistribusjonKanalCode distribusjonskanal, DistribusjonsTypeKode[] distribusjonstyper,
+																 HttpStatus expectedStatus, int dokumentInfosMatched) {
 		Stream.of(distribusjonstyper).forEach(distribusjonstype -> {
 			var distribusjonSomSkalHentes = createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal);
 			distribusjonSomSkalHentes.setDistribusjonstype(distribusjonstype);
@@ -409,30 +413,63 @@ public class Rdist001ITest extends AbstractITest {
 
 		commitAndBeginNewTransaction();
 
-		String forsendelseIdsParam = StreamSupport.stream(dokumentDistribusjonRepository.findAll().spliterator(), false)
-				.flatMap(dinfo -> dinfo.getDokumentInfos().stream())
+		String journalpostIdsParam = StreamSupport.stream(dokumentInfoRepository.findAll().spliterator(), false)
 				.map(DokumentInfo::getDokumentInfoId)
 				.map(String::valueOf)
 				.collect(Collectors.joining(","));
 
-		var response = webTestClient.get()
+		var request = webTestClient.get()
 				.uri(HENTFORSENDELSELISTE_URI +
-						"?journalpostListe=" + forsendelseIdsParam +
-						(distribusjonskanalQueryParam != null ? "&distribusjonKanal=" + distribusjonskanalQueryParam : "" ) +
-						(distribusjonstyperQueryParam != null ? "&distribusjonsTyper=" + distribusjonstyperQueryParam : "" ) +
-						(dokumentstatusQueryParam != null ?     "&dokumentStatus=" + dokumentstatusQueryParam : "" )
+						"?journalpostListe=" + journalpostIdsParam +
+						(distribusjonskanalQueryParam != null ? "&distribusjonKanal=" + distribusjonskanalQueryParam : "") +
+						(distribusjonstyperQueryParam != null ? "&distribusjonsTyper=" + distribusjonstyperQueryParam : "") +
+						(dokumentstatusQueryParam != null ? "&dokumentStatus=" + dokumentstatusQueryParam : "")
+				)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange();
+
+		if (expectedStatus == OK) {
+			var response = request
+					.expectStatus().isOk()
+					.returnResult(HentForsendelseListResponse.class)
+					.getResponseBody()
+					.blockFirst();
+
+			assertNotNull(response);
+			assertThat(response.forsendelseListe()).hasSize(dokumentInfosMatched);
+		} else {
+			request.expectStatus().isEqualTo(expectedStatus);
+		}
+	}
+
+
+	static Stream<Arguments> skalValidereParametreForHentForsendelser() {
+		return Stream.of(
+				Arguments.of(null, null, null, null),
+				Arguments.of(null, "TRYGDERETTEN", null, null),
+				Arguments.of("1200,1201,1202,1034", "RYGDERETTEN", null, null),
+				Arguments.of("1200,1201,1202,1034", null, "IKTIG", null),
+				Arguments.of("1200,1201,1202,1034", null, null, "KSPEDERT")
+		);
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	public void skalValidereParametreForHentForsendelser(String journalpostListQueryParam, String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam) {
+		webTestClient.get()
+				.uri(HENTFORSENDELSELISTE_URI +
+						"?" + Stream.of(
+								(journalpostListQueryParam != null ? "journalpostListe=" + journalpostListQueryParam : null),
+								(distribusjonskanalQueryParam != null ? "distribusjonKanal=" + distribusjonskanalQueryParam : null),
+								(distribusjonstyperQueryParam != null ? "distribusjonsTyper=" + distribusjonstyperQueryParam : null),
+								(dokumentstatusQueryParam != null ? "dokumentStatus=" + dokumentstatusQueryParam : null))
+						.filter(Objects::nonNull)
+						.collect(Collectors.joining("&"))
 				)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
-				.expectStatus().isOk()
-				.returnResult(HentForsendelseListResponse.class)
-				.getResponseBody()
-				.blockFirst();
-
-		assertNotNull(response);
-		assertThat(response.forsendelseListe()).hasSize(dokumentInfosMatched);
+				.expectStatus().isBadRequest();
 	}
-
 
 	@Test
 	void skalKunHenteEformidlingforsendelserMedDokumentstatusOversendtEllerBekreftet() {
