@@ -3,10 +3,10 @@ package no.nav.dokdistadmin.administrerforsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.post.HentPostdestinasjonResponse;
 import no.nav.dokdistadmin.administrerforsendelse.post.OppdaterPostadresseRequest;
 import no.nav.dokdistadmin.config.AbstractITest;
+import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.LandkodePostDest;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.LandkodePostDestRepository;
-import no.nav.dokdistadmin.repository.PostadresseRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,9 +41,6 @@ public class PostITest extends AbstractITest {
 
 	@Autowired
 	DokumentInfoRepository dokumentInfoRepository;
-
-	@Autowired
-	PostadresseRepository postadresseRepository;
 
 	@BeforeEach
 	void setup() {
@@ -107,7 +104,7 @@ public class PostITest extends AbstractITest {
 		commitAndBeginNewTransaction();
 
 		var forsendelseId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
-		OppdaterPostadresseRequest request = createOppdaterPostadresseRequest(forsendelseId, "NO");
+		OppdaterPostadresseRequest request = createOppdaterPostadresseRequest(forsendelseId, LANDKODE_NORGE);
 
 		webTestClient.put()
 				.uri(OPPDATERPOSTADRESSE_URI)
@@ -115,6 +112,21 @@ public class PostITest extends AbstractITest {
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk();
+
+		commitAndBeginNewTransaction();
+
+		var oppdatert = dokumentInfoRepository.findById(forsendelseId);
+
+		assertThat(oppdatert.isPresent()).isTrue();
+		assertThat(oppdatert.get().getPostadresse())
+				.satisfies(actual -> {
+					assertThat(actual.getAdresselinje1()).isEqualTo(ADRESSELINJE_1);
+					assertThat(actual.getAdresselinje2()).isEqualTo(ADRESSELINJE_2);
+					assertThat(actual.getAdresselinje3()).isEqualTo(ADRESSELINJE_3);
+					assertThat(actual.getPostnummer()).isEqualTo(POSTNUMMER);
+					assertThat(actual.getPoststed()).isEqualTo(POSTSTED);
+					assertThat(actual.getLandkode()).isEqualTo(LANDKODE_NORGE);
+				});
 	}
 
 	@Test

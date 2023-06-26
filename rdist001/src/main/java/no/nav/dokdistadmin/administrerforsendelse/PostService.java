@@ -9,7 +9,6 @@ import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.PostdestinasjonIkkeFunnetException;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.LandkodePostDestRepository;
-import no.nav.dokdistadmin.repository.PostadresseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,17 +18,12 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 public class PostService {
 
-	public static final String OPPDATERPOSTADRESSE_FEILMELDING = "rdist001 kunne ikke oppdatere postadresse. Feilmelding: %s";
-
 	LandkodePostDestRepository landkodePostDestRepository;
-	PostadresseRepository postadresseRepository;
 	DokumentInfoRepository dokumentInfoRepository;
 
 	public PostService(LandkodePostDestRepository landkodePostDestRepository,
-					   PostadresseRepository postadresseRepository,
 					   DokumentInfoRepository dokumentInfoRepository) {
 		this.landkodePostDestRepository = landkodePostDestRepository;
-		this.postadresseRepository = postadresseRepository;
 		this.dokumentInfoRepository = dokumentInfoRepository;
 	}
 
@@ -49,7 +43,9 @@ public class PostService {
 		DokumentInfo dokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(request.getForsendelseId());
 
 		if (dokumentInfo == null) {
-			throw new ForsendelseIkkeFunnetException(format(OPPDATERPOSTADRESSE_FEILMELDING, format("Fant ikke forsendelse med forsendelseId=%s", request.getForsendelseId())));
+			throw new ForsendelseIkkeFunnetException(format(
+					"rdist001 kunne ikke oppdatere postadresse. Feilmelding: Fant ikke forsendelse med forsendelseId=%s",
+					request.getForsendelseId()));
 		}
 
 		if (dokumentInfo.getPostadresse() == null) {
