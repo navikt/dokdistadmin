@@ -108,7 +108,7 @@ public class AdministrerForsendelseController {
 			@RequestParam(name = "distribusjonsTyper", required = false, defaultValue = "") List<String> distribusjonsTyper,
 			@RequestParam(name = "dokumentStatus", required = false, defaultValue = "") List<String> dokumentStatus,
 			@RequestParam(name = "distribusjonKanal", required = false) Optional<String> distribusjonKanal,
-			@RequestParam(name = "journalpostListe") @NotEmpty(message = "journalpostListe kan ikke være null eller en tom liste") List<Long> journalpostListe
+			@RequestParam(name = "journalpostListe") @NotEmpty(message = "journalpostListe kan ikke være null eller en tom liste") List<String> journalpostListe
 	) {
 		log.info("hentForsendelseListe har mottatt kall om å hente forsendelser med " +
 						"journalpostIds={}, distribusjonsTyper={}, dokumentStatus={}, distribusjonsKanal={}",

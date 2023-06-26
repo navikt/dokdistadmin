@@ -71,7 +71,7 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	}
 
 	@Override
-	public Stream<DokumentInfo> fetchDokumentInfoList(List<Long> journalpostIds, List<DistribusjonsTypeKode> distribusjonsTyper, List<DokumentStatusCode> dokumentStatus, Optional<DistribusjonKanalCode> distribusjonsKanal) {
+	public Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds, List<DistribusjonsTypeKode> distribusjonsTyper, List<DokumentStatusCode> dokumentStatus, Optional<DistribusjonKanalCode> distribusjonsKanal) {
 		TypedQuery<DokumentInfo> query = entityManager.createQuery(
 						"""
 									select distinct dok
@@ -79,7 +79,7 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 									join fetch dok.distribusjonInfo distinfo
 									left join fetch dok.postadresse
 									left join fetch dok.dokumentReferanses
-									where dok.dokumentInfoId in (:journalpostIds)
+									where dok.arkivkode in (:journalpostIds)
 								""" +
 								(dokumentStatus.isEmpty() ? "" : " and dok.dokumentStatus in (:dokumentstatuser) ") +
 								(distribusjonsTyper.isEmpty() ? "" : " and distinfo.distribusjonstype in (:distribusjonstyper) ") +

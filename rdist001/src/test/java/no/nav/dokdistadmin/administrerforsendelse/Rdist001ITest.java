@@ -414,7 +414,7 @@ public class Rdist001ITest extends AbstractITest {
 		commitAndBeginNewTransaction();
 
 		String journalpostIdsParam = StreamSupport.stream(dokumentInfoRepository.findAll().spliterator(), false)
-				.map(DokumentInfo::getDokumentInfoId)
+				.map(DokumentInfo::getArkivkode)
 				.map(String::valueOf)
 				.collect(Collectors.joining(","));
 
