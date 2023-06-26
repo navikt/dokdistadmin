@@ -11,6 +11,7 @@ import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseRe
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.post.HentPostdestinasjonResponse;
+import no.nav.dokdistadmin.administrerforsendelse.post.OppdaterPostadresseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
@@ -196,5 +197,15 @@ public class AdministrerForsendelseController {
 		log.info("hentPostdestinasjon har hentet postdestinasjon for landkode={}", landkode);
 
 		return ResponseEntity.ok(postdestinasjon);
+	}
+
+	@PutMapping("/oppdaterpostadresse")
+	public ResponseEntity<Void> oppdaterPostadresse(@RequestBody @Valid OppdaterPostadresseRequest oppdaterPostadresseRequest) {
+		log.info("oppdaterPostadresse har mottatt kall om å oppdatere postadresse på forsendelse med forsendelseId={}", oppdaterPostadresseRequest.getForsendelseId());
+
+		postService.oppdaterPostadresse(oppdaterPostadresseRequest);
+		log.info("oppdaterPostadresse har oppdatert postadresse på forsendelse med forsendelseId={}", oppdaterPostadresseRequest.getForsendelseId());
+
+		return ResponseEntity.ok().build();
 	}
 }
