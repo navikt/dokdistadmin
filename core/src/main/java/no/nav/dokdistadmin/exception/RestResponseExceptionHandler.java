@@ -6,6 +6,7 @@ import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.FlereForsendelserFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
+import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetInfomeldingException;
 import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoelgeException;
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
 import no.nav.dokdistadmin.exception.functional.PostdestinasjonIkkeFunnetException;
@@ -63,6 +64,15 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	})
 	public ResponseEntity<Object> resourceNotFoundExceptionHandler(Exception e) {
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
+
+		return getResponseEntity(NOT_FOUND, e.getMessage());
+	}
+
+	@ExceptionHandler({
+			ForsendelseIkkeFunnetInfomeldingException.class,
+	})
+	public ResponseEntity<Object> resourceNotFoundInfomeldingExceptionHandler(Exception e) {
+		log.info(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
 
 		return getResponseEntity(NOT_FOUND, e.getMessage());
 	}

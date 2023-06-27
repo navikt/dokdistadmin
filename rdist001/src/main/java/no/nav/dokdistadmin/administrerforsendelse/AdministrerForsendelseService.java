@@ -22,6 +22,7 @@ import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.exception.functional.FlereForsendelserFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
+import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetInfomeldingException;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.projections.DokumentInfoIdHolder;
@@ -48,6 +49,7 @@ import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.RETURPOSTBEHANDLET;
+import static no.nav.dokdistadmin.domain.Oppslagsnoekkel.JOURNALPOSTID;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 @Slf4j
@@ -200,9 +202,15 @@ public class AdministrerForsendelseService {
 		};
 
 		if (forsendelser.isEmpty()) {
-			throw new ForsendelseIkkeFunnetException(format("finnForsendelse fant ikke forsendelse med %s=%s",
-					noekkel.value,
-					verdi));
+			if (JOURNALPOSTID.equals(noekkel)) {
+				throw new ForsendelseIkkeFunnetInfomeldingException(format("finnForsendelse fant ikke forsendelse med %s=%s. Dette er forventet for distribusjoner opprettet av bdist001",
+						noekkel.value,
+						verdi));
+			} else {
+				throw new ForsendelseIkkeFunnetException(format("finnForsendelse fant ikke forsendelse med %s=%s",
+						noekkel.value,
+						verdi));
+			}
 		}
 
 		if (forsendelser.size() > 1) {
