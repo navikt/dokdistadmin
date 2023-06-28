@@ -7,7 +7,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
-import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseListResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
@@ -104,28 +104,28 @@ public class AdministrerForsendelseController {
 	}
 
 	@GetMapping("/hentForsendelser")
-	public ResponseEntity<HentForsendelseListResponse> hentForsendelser(
-			@RequestParam(name = "distribusjonsTyper", required = false, defaultValue = "") List<String> distribusjonsTyper,
-			@RequestParam(name = "dokumentStatus", required = false, defaultValue = "") List<String> dokumentStatus,
-			@RequestParam(name = "distribusjonKanal", required = false) Optional<String> distribusjonKanal,
-			@RequestParam(name = "journalpostListe") @NotEmpty(message = "journalpostListe kan ikke være null eller en tom liste") List<String> journalpostListe
+	public ResponseEntity<HentForsendelserResponse> hentForsendelser(
+			@RequestParam(name = "distribusjonstyper", required = false, defaultValue = "") List<String> distribusjonstyper,
+			@RequestParam(name = "dokumentstatus", required = false, defaultValue = "") List<String> dokumentstatus,
+			@RequestParam(name = "distribusjonkanal", required = false) Optional<String> distribusjonkanal,
+			@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<String> journalpostliste
 	) {
-		log.info("hentForsendelseListe har mottatt kall om å hente forsendelser med " +
-						"journalpostIds={}, distribusjonsTyper={}, dokumentStatus={}, distribusjonsKanal={}",
-				journalpostListe, distribusjonsTyper, dokumentStatus, distribusjonKanal.orElse("<ikke satt>"));
+		log.info("hentForsendelser har mottatt kall om å hente forsendelser med " +
+						"journalpostIds={}, distribusjonstyper={}, dokumentstatus={}, distribusjonskanal={}",
+				journalpostliste, distribusjonstyper, dokumentstatus, distribusjonkanal.orElse("<ikke satt>"));
 
-		List<HentForsendelseResponse> hentForsendelseListe = forsendelserService.hentForsendelseListe(
-				journalpostListe,
-				mapListToEnumValues("distribusjonsTyper", DistribusjonsTypeKode::valueOf, distribusjonsTyper),
-				mapListToEnumValues("dokumentStatus", DokumentStatusCode::valueOf, dokumentStatus),
-				distribusjonKanal
-						.map(kanal -> safelyMapToEnum("distribusjonKanal", DistribusjonKanalCode::valueOf, kanal)));
+		List<HentForsendelseResponse> forsendelser = forsendelserService.hentForsendelser(
+				journalpostliste,
+				mapListToEnumValues("distribusjonstyper", DistribusjonsTypeKode::valueOf, distribusjonstyper),
+				mapListToEnumValues("dokumentstatus", DokumentStatusCode::valueOf, dokumentstatus),
+				distribusjonkanal
+						.map(kanal -> safelyMapToEnum("distribusjonkanal", DistribusjonKanalCode::valueOf, kanal)));
 
-		log.info("hentForsendelseListe har hentet forsendelser med journalpostId aka. arkivId={}",
-				hentForsendelseListe.stream().map(HentForsendelseResponse::getArkivInformasjon)
+		log.info("hentForsendelser har hentet forsendelser med journalpostIds aka. arkivIds={}",
+				forsendelser.stream().map(HentForsendelseResponse::getArkivInformasjon)
 						.map(HentForsendelseResponse.ArkivInformasjon::getArkivId).toList());
 
-		return ResponseEntity.ok(new HentForsendelseListResponse(hentForsendelseListe));
+		return ResponseEntity.ok(new HentForsendelserResponse(forsendelser));
 	}
 
 	@PutMapping("/oppdaterforsendelse")

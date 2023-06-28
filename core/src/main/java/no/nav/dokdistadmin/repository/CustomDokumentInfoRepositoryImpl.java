@@ -71,7 +71,7 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	}
 
 	@Override
-	public Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds, List<DistribusjonsTypeKode> distribusjonsTyper, List<DokumentStatusCode> dokumentStatus, Optional<DistribusjonKanalCode> distribusjonsKanal) {
+	public Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds, List<DistribusjonsTypeKode> distribusjonstyper, List<DokumentStatusCode> dokumentstatus, Optional<DistribusjonKanalCode> distribusjonskanal) {
 		TypedQuery<DokumentInfo> query = entityManager.createQuery(
 						"""
 									select distinct dok
@@ -81,20 +81,20 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 									left join fetch dok.dokumentReferanses
 									where dok.arkivkode in (:journalpostIds)
 								""" +
-								(dokumentStatus.isEmpty() ? "" : " and dok.dokumentStatus in (:dokumentstatuser) ") +
-								(distribusjonsTyper.isEmpty() ? "" : " and distinfo.distribusjonstype in (:distribusjonstyper) ") +
-								(distribusjonsKanal.isEmpty() ? "" : " and distinfo.distribusjonKanal = :kanal ")
+								(dokumentstatus.isEmpty() ? "" : " and dok.dokumentStatus in (:dokumentstatuser) ") +
+								(distribusjonstyper.isEmpty() ? "" : " and distinfo.distribusjonstype in (:distribusjonstyper) ") +
+								(distribusjonskanal.isEmpty() ? "" : " and distinfo.distribusjonKanal = :kanal ")
 						, DokumentInfo.class)
 				.setHint(PASS_DISTINCT_THROUGH, false)
 				.setParameter("journalpostIds", journalpostIds);
 
-		if (!dokumentStatus.isEmpty()) {
-			query.setParameter("dokumentstatuser", dokumentStatus);
+		if (!dokumentstatus.isEmpty()) {
+			query.setParameter("dokumentstatuser", dokumentstatus);
 		}
-		if (!distribusjonsTyper.isEmpty()) {
-			query.setParameter("distribusjonstyper", distribusjonsTyper);
+		if (!distribusjonstyper.isEmpty()) {
+			query.setParameter("distribusjonstyper", distribusjonstyper);
 		}
-		distribusjonsKanal.ifPresent(kanal ->
+		distribusjonskanal.ifPresent(kanal ->
 				query.setParameter("kanal", kanal)
 		);
 

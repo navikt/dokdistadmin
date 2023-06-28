@@ -216,8 +216,8 @@ public class AdministrerForsendelseService {
 		return new Forsendelse(forsendelser.get(0).getDokumentInfoId());
 	}
 
-	public List<HentForsendelseResponse> hentForsendelseListe(List<String> journalpostListe, List<DistribusjonsTypeKode> distribusjonsTyper, List<DokumentStatusCode> dokumentStatus, Optional<DistribusjonKanalCode> distribusjonsKanal) {
-		return dokumentInfoRepository.fetchDokumentInfoList(journalpostListe, distribusjonsTyper, dokumentStatus, distribusjonsKanal)
+	public List<HentForsendelseResponse> hentForsendelser(List<String> journalpostliste, List<DistribusjonsTypeKode> distribusjonstyper, List<DokumentStatusCode> dokumentstatus, Optional<DistribusjonKanalCode> distribusjonskanal) {
+		return dokumentInfoRepository.fetchDokumentInfoList(journalpostliste, distribusjonstyper, dokumentstatus, distribusjonskanal)
 				.map(HentForsendelseResponseMapper::map)
 				.toList();
 	}

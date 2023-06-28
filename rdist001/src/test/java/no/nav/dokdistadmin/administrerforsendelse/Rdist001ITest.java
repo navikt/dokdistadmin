@@ -6,7 +6,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
-import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseListResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.config.AbstractITest;
@@ -72,7 +72,7 @@ public class Rdist001ITest extends AbstractITest {
 	private static final String AVSTEMFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemforsendelser";
 	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
 	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
-	private static final String HENTFORSENDELSELISTE_URI = "/rest/v1/administrerforsendelse/hentForsendelser";
+	private static final String HENTFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentForsendelser";
 
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
 
@@ -374,7 +374,7 @@ public class Rdist001ITest extends AbstractITest {
 				});
 	}
 
-	static Stream<Arguments> skalHenteForsendelserListeMedIdDistribusjonstype() {
+	static Stream<Arguments> skalHenteForsendelserMedIdDistribusjonstype() {
 		final String viktigEllerVedtak = Stream.of(VIKTIG, VEDTAK).map(DistribusjonsTypeKode::name).collect(Collectors.joining(","));
 		final String ekspedertEllerBekreftet = Stream.of(EKSPEDERT, BEKREFTET).map(DokumentStatusCode::name).collect(Collectors.joining(","));
 
@@ -391,9 +391,9 @@ public class Rdist001ITest extends AbstractITest {
 
 	@ParameterizedTest
 	@MethodSource
-	public void skalHenteForsendelserListeMedIdDistribusjonstype(String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam,
-																 DistribusjonKanalCode distribusjonskanal, DistribusjonsTypeKode[] distribusjonstyper,
-																 HttpStatus expectedStatus, int dokumentInfosMatched) {
+	public void skalHenteForsendelserMedIdDistribusjonstype(String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam,
+															DistribusjonKanalCode distribusjonskanal, DistribusjonsTypeKode[] distribusjonstyper,
+															HttpStatus expectedStatus, int dokumentInfosMatched) {
 		Stream.of(distribusjonstyper).forEach(distribusjonstype -> {
 			var distribusjonSomSkalHentes = createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal);
 			distribusjonSomSkalHentes.setDistribusjonstype(distribusjonstype);
@@ -419,11 +419,11 @@ public class Rdist001ITest extends AbstractITest {
 				.collect(Collectors.joining(","));
 
 		var request = webTestClient.get()
-				.uri(HENTFORSENDELSELISTE_URI +
-						"?journalpostListe=" + journalpostIdsParam +
-						(distribusjonskanalQueryParam != null ? "&distribusjonKanal=" + distribusjonskanalQueryParam : "") +
-						(distribusjonstyperQueryParam != null ? "&distribusjonsTyper=" + distribusjonstyperQueryParam : "") +
-						(dokumentstatusQueryParam != null ? "&dokumentStatus=" + dokumentstatusQueryParam : "")
+				.uri(HENTFORSENDELSER_URI +
+						"?journalpostliste=" + journalpostIdsParam +
+						(distribusjonskanalQueryParam != null ? "&distribusjonkanal=" + distribusjonskanalQueryParam : "") +
+						(distribusjonstyperQueryParam != null ? "&distribusjonstyper=" + distribusjonstyperQueryParam : "") +
+						(dokumentstatusQueryParam != null ? "&dokumentstatus=" + dokumentstatusQueryParam : "")
 				)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange();
@@ -431,7 +431,7 @@ public class Rdist001ITest extends AbstractITest {
 		if (expectedStatus == OK) {
 			var response = request
 					.expectStatus().isOk()
-					.returnResult(HentForsendelseListResponse.class)
+					.returnResult(HentForsendelserResponse.class)
 					.getResponseBody()
 					.blockFirst();
 
@@ -457,12 +457,12 @@ public class Rdist001ITest extends AbstractITest {
 	@MethodSource
 	public void skalValidereParametreForHentForsendelser(String journalpostListQueryParam, String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam) {
 		webTestClient.get()
-				.uri(HENTFORSENDELSELISTE_URI +
+				.uri(HENTFORSENDELSER_URI +
 						"?" + Stream.of(
-								(journalpostListQueryParam != null ? "journalpostListe=" + journalpostListQueryParam : null),
-								(distribusjonskanalQueryParam != null ? "distribusjonKanal=" + distribusjonskanalQueryParam : null),
-								(distribusjonstyperQueryParam != null ? "distribusjonsTyper=" + distribusjonstyperQueryParam : null),
-								(dokumentstatusQueryParam != null ? "dokumentStatus=" + dokumentstatusQueryParam : null))
+								(journalpostListQueryParam != null ? "journalpostliste=" + journalpostListQueryParam : null),
+								(distribusjonskanalQueryParam != null ? "distribusjonkanal=" + distribusjonskanalQueryParam : null),
+								(distribusjonstyperQueryParam != null ? "distribusjonstyper=" + distribusjonstyperQueryParam : null),
+								(dokumentstatusQueryParam != null ? "dokumentstatus=" + dokumentstatusQueryParam : null))
 						.filter(Objects::nonNull)
 						.collect(Collectors.joining("&"))
 				)
