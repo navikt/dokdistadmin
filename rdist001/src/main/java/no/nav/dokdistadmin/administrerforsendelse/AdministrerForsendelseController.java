@@ -7,6 +7,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
@@ -15,6 +16,8 @@ import no.nav.dokdistadmin.administrerforsendelse.post.OppdaterPostadresseReques
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
+import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
+import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.security.token.support.core.api.Protected;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,9 +32,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
+import java.util.Optional;
+
+import static no.nav.dokdistadmin.administrerforsendelse.AdministrertForsendelseUtil.mapListToEnumValues;
+import static no.nav.dokdistadmin.administrerforsendelse.AdministrertForsendelseUtil.safelyMapToEnum;
 
 @Slf4j
 @Validated
@@ -93,6 +102,31 @@ public class AdministrerForsendelseController {
 				oppslagsnoekkel, verdi);
 
 		return ResponseEntity.ok(forsendelse);
+	}
+
+	@GetMapping("/hentForsendelser")
+	public ResponseEntity<HentForsendelserResponse> hentForsendelser(
+			@RequestParam(name = "distribusjonstyper", required = false, defaultValue = "") List<String> distribusjonstyper,
+			@RequestParam(name = "dokumentstatus", required = false, defaultValue = "") List<String> dokumentstatus,
+			@RequestParam(name = "distribusjonkanal", required = false) Optional<String> distribusjonkanal,
+			@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<String> journalpostliste
+	) {
+		log.info("hentForsendelser har mottatt kall om å hente forsendelser med " +
+						"journalpostIds={}, distribusjonstyper={}, dokumentstatus={}, distribusjonskanal={}",
+				journalpostliste, distribusjonstyper, dokumentstatus, distribusjonkanal.orElse("<ikke satt>"));
+
+		List<HentForsendelseResponse> forsendelser = forsendelserService.hentForsendelser(
+				journalpostliste,
+				mapListToEnumValues("distribusjonstyper", DistribusjonsTypeKode::valueOf, distribusjonstyper),
+				mapListToEnumValues("dokumentstatus", DokumentStatusCode::valueOf, dokumentstatus),
+				distribusjonkanal
+						.map(kanal -> safelyMapToEnum("distribusjonkanal", DistribusjonKanalCode::valueOf, kanal)));
+
+		log.info("hentForsendelser har hentet forsendelser med journalpostIds aka. arkivIds={}",
+				forsendelser.stream().map(HentForsendelseResponse::getArkivInformasjon)
+						.map(HentForsendelseResponse.ArkivInformasjon::getArkivId).toList());
+
+		return ResponseEntity.ok(new HentForsendelserResponse(forsendelser));
 	}
 
 	@PutMapping("/oppdaterforsendelse")
