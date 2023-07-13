@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.12</version>
+		<version>2.7.13</version>
 	</parent>
 
 	<groupId>no.nav.dokdistadmin</groupId>
@@ -27,8 +27,6 @@
 		<logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
 		<token-support.version>2.1.9</token-support.version>
 		<springdoc-openapi-ui.version>1.7.0</springdoc-openapi-ui.version>
-
-		<h2.version>1.4.200</h2.version>
 
 		<!-- Test -->
 		<spring-cloud-contract-wiremock.version>4.0.3</spring-cloud-contract-wiremock.version>
