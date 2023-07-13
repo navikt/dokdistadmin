@@ -9,5 +9,9 @@
 	<logger name="no.nav.dokdistadmin" level="INFO" additivity="false">
 		<appender-ref ref="CONSOLE"/>
 	</logger>
+	<!-- Fjernet warnings om å droppe constraints i embedded testdatabasen -->
+	<logger name="org.hibernate.tool.schema.internal" level="ERROR" additivity="false">
+		<appender-ref ref="CONSOLE"/>
+	</logger>
 
 </configuration>
