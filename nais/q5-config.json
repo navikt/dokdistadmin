@@ -1,0 +1,21 @@
+{
+  "APP_NAME": "dokdistadmin-q5",
+  "MIN_REPLICAS": 1,
+  "MAX_REPLICAS": 2,
+  "SPRING_DATASOURCE_URL": "jdbc:oracle:thin:@d26rac01-scan.test.local:1521/dokdist_q5_ha",
+  "DOKDISTADMIN_DB":"/oracle/data/dev/creds/dokdist_q5-user",
+  "DOKDISTADMIN_DATABASE_SCHEMA":"dokumentdistribusjon",
+  "DOKDISTADMIN_MODUS": "T",
+  "APPDYNAMICS": "/apikey/appdynamics/dev",
+  "APPD_NAME": "dokdistadmin_q5",
+  "INGRESSES": [
+    "https://dokdistadmin-q5.dev.intern.nav.no"
+  ],
+  "AZURE_IAC_RULES": [
+    {
+      "app": "dokdistfordeling-q5",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    }
+  ]
+}
