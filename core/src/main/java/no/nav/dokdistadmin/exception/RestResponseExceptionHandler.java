@@ -1,6 +1,7 @@
 package no.nav.dokdistadmin.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
@@ -16,6 +17,7 @@ import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,7 +26,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -96,20 +97,18 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	}
 
 	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
-		String feilmelding = e.getBindingResult().getFieldErrors().stream()
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+		String feilmelding = ex.getBindingResult().getFieldErrors().stream()
 				.map(DefaultMessageSourceResolvable::getDefaultMessage)
 				.collect(Collectors.joining(", "));
 
-		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, feilmelding, e);
+		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, feilmelding, ex);
 
 		return getResponseEntity(BAD_REQUEST, feilmelding);
 	}
 
 	@Override
-	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-																  HttpHeaders headers, HttpStatus status, WebRequest request) {
-
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		if (ex.getCause() instanceof InvalidFormatException ife) {
 			return handleInvalidFormatException(ex, ife);
 		}

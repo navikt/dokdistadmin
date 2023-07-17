@@ -3,9 +3,9 @@ package no.nav.dokdistadmin.administrerforsendelse.post;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 
 @Data
 @Builder

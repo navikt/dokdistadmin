@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import no.nav.dokdistadmin.domain.VarselStatusCode;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 
 @Data
