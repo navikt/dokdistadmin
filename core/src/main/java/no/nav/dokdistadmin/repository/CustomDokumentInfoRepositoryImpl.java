@@ -1,18 +1,16 @@
 package no.nav.dokdistadmin.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static org.hibernate.annotations.QueryHints.PASS_DISTINCT_THROUGH;
 
 @Repository
 public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepository {
@@ -44,13 +42,12 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	public List<DokumentInfo> fetchEkspedertDokumentInfo(List<Long> dokumentInfoIds) {
 		return entityManager.createQuery(
 						"""
-								select distinct dok
+								select dok
 								from DokumentInfo dok
 								join fetch dok.distribusjonInfo
 								left join fetch dok.postadresse
 								left join fetch dok.varselInfos
 								where dok.dokumentInfoId in (:dokumentInfoIds)""", DokumentInfo.class)
-				.setHint(PASS_DISTINCT_THROUGH, false)
 				.setParameter("dokumentInfoIds", dokumentInfoIds)
 				.getResultList();
 	}
@@ -59,13 +56,12 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	public DokumentInfo fetchDokumentInfo(Long dokumentInfoId) {
 		return entityManager.createQuery(
 						"""
-								select distinct dok
+								select dok
 								from DokumentInfo dok
 								join fetch dok.distribusjonInfo
 								left join fetch dok.postadresse
 								left join fetch dok.dokumentReferanses
 								where dok.dokumentInfoId = :dokumentInfoId""", DokumentInfo.class)
-				.setHint(PASS_DISTINCT_THROUGH, false)
 				.setParameter("dokumentInfoId", dokumentInfoId)
 				.getResultStream().findFirst().orElse(null);
 	}
@@ -74,7 +70,7 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	public Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds, List<DistribusjonsTypeKode> distribusjonstyper, List<DokumentStatusCode> dokumentstatus, Optional<DistribusjonKanalCode> distribusjonskanal) {
 		TypedQuery<DokumentInfo> query = entityManager.createQuery(
 						"""
-									select distinct dok
+									select dok
 									from DokumentInfo dok
 									join fetch dok.distribusjonInfo distinfo
 									left join fetch dok.postadresse
@@ -85,7 +81,6 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 								(distribusjonstyper.isEmpty() ? "" : " and distinfo.distribusjonstype in (:distribusjonstyper) ") +
 								(distribusjonskanal.isEmpty() ? "" : " and distinfo.distribusjonKanal = :kanal ")
 						, DokumentInfo.class)
-				.setHint(PASS_DISTINCT_THROUGH, false)
 				.setParameter("journalpostIds", journalpostIds);
 
 		if (!dokumentstatus.isEmpty()) {

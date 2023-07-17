@@ -22,22 +22,22 @@ public class ChangeStampInterceptorTest {
 
 	@Mock
 	private Type changeStampType;
-	
+
 	DistribusjonInfo entity = new DistribusjonInfo(1L, 1L);
-	
+
 	private final ChangeStampInterceptor interceptor = new ChangeStampInterceptor();
-	
+
 	@BeforeEach
 	public void setUp() {
-		when(changeStampType.getReturnedClass()).thenReturn(ChangeStamp.class);
+		when(changeStampType.getReturnedClass()).thenAnswer(invocationOnMock -> ChangeStamp.class);
 		MDC.put(USER_ID, USER);
 	}
-	
+
 	@Test
 	public void shouldCreateChangeStampOnSave() {
 		Object[] state = new Object[1];
-		interceptor.onSave(entity, null, state, null, new Type[] { changeStampType });
-		
+		interceptor.onSave(entity, (Object) null, state, new String[]{}, new Type[]{changeStampType});
+
 		ChangeStamp changeStamp = (ChangeStamp) state[0];
 		assertEquals(USER, changeStamp.getOpprettetAv());
 		assertNotNull(changeStamp.getOpprettetDato());
@@ -46,10 +46,10 @@ public class ChangeStampInterceptorTest {
 	@Test
 	public void shouldUpdateChangeStampOnUpdate() {
 		ChangeStamp changeStamp = new ChangeStamp("Other user");
-		Object[] currentState = new Object[] { changeStamp };
-		
-		interceptor.onFlushDirty(entity, null, currentState, null, null, new Type[] { changeStampType });
-		
+		Object[] currentState = new Object[]{changeStamp};
+
+		interceptor.onFlushDirty(entity, (Object) null, currentState, null, null, new Type[]{changeStampType});
+
 		assertEquals(USER, changeStamp.getEndretAv());
 		assertNotNull(changeStamp.getEndretDato());
 	}
