@@ -29,6 +29,7 @@ class HentForsendelseResponseMapperTest {
 		var hentForsendelseResponse = HentForsendelseResponseMapper.map(dokumentInfo);
 
 		var forventetDistribusjonInfo = dokumentInfo.getDistribusjonInfo();
+		assertThat(hentForsendelseResponse.getForsendelseId()).isEqualTo(dokumentInfo.getDokumentInfoId());
 		assertThat(hentForsendelseResponse.getBestillingsId()).isEqualTo(dokumentInfo.getDokumentId());
 		assertThat(hentForsendelseResponse.getOriginalBestillingsId()).isEqualTo(forventetDistribusjonInfo.getOriginalDistribusjonId());
 		assertThat(hentForsendelseResponse.getKonversasjonId()).isEqualTo(dokumentInfo.getKonversasjonId());

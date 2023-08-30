@@ -23,6 +23,7 @@ public class HentForsendelseResponseMapper {
 		final String arkivkode = dokumentInfo.getArkivkode();
 
 		return HentForsendelseResponse.builder()
+				.forsendelseId(dokumentInfo.getDokumentInfoId())
 				.bestillingsId(dokumentInfo.getDokumentId())
 				.originalBestillingsId(distribusjonInfo.getOriginalDistribusjonId())
 				.konversasjonId(dokumentInfo.getKonversasjonId())
