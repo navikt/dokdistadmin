@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class HentForsendelseResponse {
 
+	long forsendelseId;
 	String bestillingsId;
 	String originalBestillingsId;
 	String konversasjonId;
