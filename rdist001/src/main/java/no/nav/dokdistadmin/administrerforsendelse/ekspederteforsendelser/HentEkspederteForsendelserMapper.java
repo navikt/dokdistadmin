@@ -1,5 +1,9 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse.Digitalpostkasse;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse.PostadresseTo;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.Varsel.Epostvarsel;
+import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.Varsel.Smsvarsel;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.Postadresse;
@@ -11,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
@@ -37,20 +40,20 @@ public class HentEkspederteForsendelserMapper {
 				.build();
 	}
 
-	private static EkspedertForsendelse.Digitalpostkasse mapDigitalpostkasse(DokumentInfo dokumentInfo) {
-		return EkspedertForsendelse.Digitalpostkasse.builder()
+	private static Digitalpostkasse mapDigitalpostkasse(DokumentInfo dokumentInfo) {
+		return Digitalpostkasse.builder()
 				.digitalpostkasseadresse(dokumentInfo.getDigitalPostkasseAdresse())
 				.digitalpostkasseleverandor(dokumentInfo.getDigitalDistributorId())
 				.build();
 	}
 
-	private static EkspedertForsendelse.PostadresseTo mapPostadresse(DokumentInfo dokumentInfo) {
+	private static PostadresseTo mapPostadresse(DokumentInfo dokumentInfo) {
 		if (dokumentInfo.getPostadresse() == null) {
 			return null;
 		}
 
 		Postadresse postadresse = dokumentInfo.getPostadresse();
-		return EkspedertForsendelse.PostadresseTo.builder()
+		return PostadresseTo.builder()
 				.adresselinje1(postadresse.getAdresselinje1())
 				.adresselinje2(postadresse.getAdresselinje2())
 				.adresselinje3(postadresse.getAdresselinje3())
@@ -64,34 +67,34 @@ public class HentEkspederteForsendelserMapper {
 	private static Varsel mapVarslerForKanal(DistribusjonKanalCode kanal, Set<VarselInfo> varselInfos) {
 		if ((DITTNAV == kanal || SDP == kanal) && !varselInfos.isEmpty()) {
 			return Varsel.builder()
-					.epostVarsel(getEpostVarsler(varselInfos))
-					.smsVarsel(getSMSVarsler(varselInfos))
+					.epostvarsel(getEpostVarsler(varselInfos))
+					.smsvarsel(getSMSVarsler(varselInfos))
 					.build();
 		}
 		return null;
 	}
 
-	private static List<Varsel.EpostVarsel> getEpostVarsler(Set<VarselInfo> varselInfos) {
-		return varselInfos.stream()
+	private static List<Epostvarsel> getEpostVarsler(Set<VarselInfo> varsler) {
+		return varsler.stream()
 				.filter(varselInfo -> EPOST == varselInfo.getVarslingKanal())
-				.map(varselInfo -> Varsel.EpostVarsel.builder()
+				.map(varselInfo -> Epostvarsel.builder()
 						.adresse(varselInfo.getEpostAdresse())
 						.tittel(varselInfo.getVarslingstittel())
 						.tekst(varselInfo.getVarslingstekst())
-						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
+						.tidspunkt(varselInfo.getVarslingstidspunkt())
 						.build())
-				.collect(Collectors.toList());
+				.toList();
 	}
 
-	private static List<Varsel.SmsVarsel> getSMSVarsler(Set<VarselInfo> varselInfos) {
-		return varselInfos.stream()
+	private static List<Smsvarsel> getSMSVarsler(Set<VarselInfo> varsler) {
+		return varsler.stream()
 				.filter(varselInfo -> MOBILTELEFON == varselInfo.getVarslingKanal())
-				.map(varselInfo -> Varsel.SmsVarsel.builder()
+				.map(varselInfo -> Smsvarsel.builder()
 						.telefonnummer(varselInfo.getMobiltelefonNummer())
 						.tekst(varselInfo.getVarslingstekst())
-						.varslingstidspunkt(varselInfo.getVarslingstidspunkt())
+						.tidspunkt(varselInfo.getVarslingstidspunkt())
 						.build())
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private static DistribusjonKanalCode getDistribusjonKanal(DokumentInfo dokumentInfo) {
