@@ -13,23 +13,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Varsel {
-	private List<EpostVarsel> epostVarsel;
-	private List<SmsVarsel> smsVarsel;
+	private List<Epostvarsel> epostvarsel;
+	private List<Smsvarsel> smsvarsel;
 
 	@Data
 	@Builder
-	public static class EpostVarsel {
+	public static class Epostvarsel {
 		private String adresse;
 		private String tittel;
 		private String tekst;
-		private LocalDateTime varslingstidspunkt;
+		private LocalDateTime tidspunkt;
 	}
 
 	@Data
 	@Builder
-	public static class SmsVarsel {
+	public static class Smsvarsel {
 		private String telefonnummer;
 		private String tekst;
-		private LocalDateTime varslingstidspunkt;
+		private LocalDateTime tidspunkt;
 	}
 }
