@@ -42,6 +42,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithEkspedertDato;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCode;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCodeAndDokumentId;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
@@ -139,6 +140,23 @@ public class Rdist001ITest extends AbstractITest {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 		distribusjonInfo.addDokumentInfo(createDokumentInfo());
 		dokumentDistribusjonRepository.save(distribusjonInfo);
+		commitAndBeginNewTransaction();
+
+		webTestClient.method(GET)
+				.uri(HENTEKSPEDERTEFORSENDELSER_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(new HentEkspederteForsendelserRequest(2))
+				.exchange()
+				.expectStatus().isNoContent();
+	}
+
+	@Test
+	void skalGiNoContentDersomEkspedertForsendelseDITTNAV() {
+		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();
+		distribusjonInfo.setDistribusjonKanal(DITTNAV);
+		var actualDistribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
+		actualDistribusjonInfo.addDokumentInfo(createDokumentInfo());
+		dokumentDistribusjonRepository.save(actualDistribusjonInfo);
 		commitAndBeginNewTransaction();
 
 		webTestClient.method(GET)
