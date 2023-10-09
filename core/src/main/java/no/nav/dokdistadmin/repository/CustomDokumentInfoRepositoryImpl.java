@@ -8,6 +8,7 @@ import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.springframework.stereotype.Repository;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -22,18 +23,21 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	}
 
 	@Override
-	public List<Long> findEkspedertDokumentInfo(int topN) {
+	public List<Long> findEkspedertDokumentInfo(int topN, EnumSet<DistribusjonKanalCode> distribusjonKanal) {
 		return entityManager.createQuery(
 						"""
 								select dok.dokumentInfoId
 								from DokumentInfo dok
+								join dok.distribusjonInfo di
 								where dok.dokumentStatus = 'EKSPEDERT'
 								and dok.avstemtArkivDato is null
 								and dok.arkivSystem = 'JOARK'
 								and dok.arkivkode is not null
 								and dok.ekspedertDato is not null
 								and dok.ekspedertDato >= TO_DATE('2022-10-01', 'yyyy-mm-dd')
+								and di.distribusjonKanal in(:distribusjonKanal)
 								order by dok.ekspedertDato""", Long.class)
+				.setParameter("distribusjonKanal", distribusjonKanal)
 				.setMaxResults(topN)
 				.getResultList();
 	}
