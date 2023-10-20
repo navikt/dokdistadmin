@@ -42,7 +42,6 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithEkspedertDato;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCode;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCodeAndDokumentId;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
@@ -140,23 +139,6 @@ public class Rdist001ITest extends AbstractITest {
 		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 		distribusjonInfo.addDokumentInfo(createDokumentInfo());
 		dokumentDistribusjonRepository.save(distribusjonInfo);
-		commitAndBeginNewTransaction();
-
-		webTestClient.method(GET)
-				.uri(HENTEKSPEDERTEFORSENDELSER_URI)
-				.headers(headers -> headers.setBearerAuth(jwt()))
-				.bodyValue(new HentEkspederteForsendelserRequest(2))
-				.exchange()
-				.expectStatus().isNoContent();
-	}
-
-	@Test
-	void skalGiNoContentDersomEkspedertForsendelseDITTNAV() {
-		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();
-		distribusjonInfo.setDistribusjonKanal(DITTNAV);
-		var actualDistribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
-		actualDistribusjonInfo.addDokumentInfo(createDokumentInfo());
-		dokumentDistribusjonRepository.save(actualDistribusjonInfo);
 		commitAndBeginNewTransaction();
 
 		webTestClient.method(GET)
@@ -438,10 +420,10 @@ public class Rdist001ITest extends AbstractITest {
 
 		var request = webTestClient.get()
 				.uri(HENTFORSENDELSER_URI +
-						"?journalpostliste=" + journalpostIdsParam +
-						(distribusjonskanalQueryParam != null ? "&distribusjonkanal=" + distribusjonskanalQueryParam : "") +
-						(distribusjonstyperQueryParam != null ? "&distribusjonstyper=" + distribusjonstyperQueryParam : "") +
-						(dokumentstatusQueryParam != null ? "&dokumentstatus=" + dokumentstatusQueryParam : "")
+					 "?journalpostliste=" + journalpostIdsParam +
+					 (distribusjonskanalQueryParam != null ? "&distribusjonkanal=" + distribusjonskanalQueryParam : "") +
+					 (distribusjonstyperQueryParam != null ? "&distribusjonstyper=" + distribusjonstyperQueryParam : "") +
+					 (dokumentstatusQueryParam != null ? "&dokumentstatus=" + dokumentstatusQueryParam : "")
 				)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange();
@@ -476,13 +458,13 @@ public class Rdist001ITest extends AbstractITest {
 	public void skalValidereParametreForHentForsendelser(String journalpostListQueryParam, String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam) {
 		webTestClient.get()
 				.uri(HENTFORSENDELSER_URI +
-						"?" + Stream.of(
+					 "?" + Stream.of(
 								(journalpostListQueryParam != null ? "journalpostliste=" + journalpostListQueryParam : null),
 								(distribusjonskanalQueryParam != null ? "distribusjonkanal=" + distribusjonskanalQueryParam : null),
 								(distribusjonstyperQueryParam != null ? "distribusjonstyper=" + distribusjonstyperQueryParam : null),
 								(dokumentstatusQueryParam != null ? "dokumentstatus=" + dokumentstatusQueryParam : null))
-						.filter(Objects::nonNull)
-						.collect(Collectors.joining("&"))
+							 .filter(Objects::nonNull)
+							 .collect(Collectors.joining("&"))
 				)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()

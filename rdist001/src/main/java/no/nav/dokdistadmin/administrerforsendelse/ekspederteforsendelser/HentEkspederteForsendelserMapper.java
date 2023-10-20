@@ -77,6 +77,7 @@ public class HentEkspederteForsendelserMapper {
 	private static List<Epostvarsel> getEpostVarsler(Set<VarselInfo> varsler) {
 		return varsler.stream()
 				.filter(varselInfo -> EPOST == varselInfo.getVarslingKanal())
+				.filter(varselInfo -> varselInfo.getVarslingstidspunkt() != null)
 				.map(varselInfo -> Epostvarsel.builder()
 						.adresse(varselInfo.getEpostAdresse())
 						.tittel(varselInfo.getVarslingstittel())
@@ -89,6 +90,7 @@ public class HentEkspederteForsendelserMapper {
 	private static List<Smsvarsel> getSMSVarsler(Set<VarselInfo> varsler) {
 		return varsler.stream()
 				.filter(varselInfo -> MOBILTELEFON == varselInfo.getVarslingKanal())
+				.filter(varselInfo -> varselInfo.getVarslingstidspunkt() != null)
 				.map(varselInfo -> Smsvarsel.builder()
 						.telefonnummer(varselInfo.getMobiltelefonNummer())
 						.tekst(varselInfo.getVarslingstekst())

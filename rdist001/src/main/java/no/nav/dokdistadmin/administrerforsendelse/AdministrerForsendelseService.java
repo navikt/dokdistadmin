@@ -46,7 +46,6 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
@@ -65,7 +64,7 @@ public class AdministrerForsendelseService {
 	private static final int OPPRETTET_ANTALL_DAGER_SIDEN = 60;
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_EKSPEDERT = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT = EnumSet.of(OVERSENDT, BEKREFTET);
-	public static final EnumSet<DistribusjonKanalCode> DISTRIBUSJON_KANAL_UNNTATT_DITTNAV = EnumSet.complementOf(EnumSet.of(DITTNAV));
+	public static final EnumSet<DistribusjonKanalCode> DISTRIBUSJON_KANALER = EnumSet.allOf(DistribusjonKanalCode.class);
 
 	private final DokdistadminProperties dokdistadminProperties;
 	private final DokumentInfoRepository dokumentInfoRepository;
@@ -116,8 +115,7 @@ public class AdministrerForsendelseService {
 
 	public HentEkspederteForsendelserResponse hentEkspederteForsendelser(int maksForsendelser) {
 		int topN = maksForsendelser == 0 ? MAX_FORSENDELSER : maksForsendelser;
-		// FIXME Hent alle unntatt DITTNAV. DITTNAV kan hentes etter at https://jira.adeo.no/browse/MMA-7106 er rettet og migrering av feilede data er gjort
-		List<Long> dokumentInfoIds = dokumentInfoRepository.findEkspedertDokumentInfo(topN, DISTRIBUSJON_KANAL_UNNTATT_DITTNAV);
+		List<Long> dokumentInfoIds = dokumentInfoRepository.findEkspedertDokumentInfo(topN, DISTRIBUSJON_KANALER);
 
 		var partitioned = partitionList(dokumentInfoIds);
 
