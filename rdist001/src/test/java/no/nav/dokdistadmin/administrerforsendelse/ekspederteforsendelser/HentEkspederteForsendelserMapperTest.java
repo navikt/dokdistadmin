@@ -3,10 +3,13 @@ package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 import no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.Varsel.Epostvarsel;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.Varsel.Smsvarsel;
+import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DokumentInfo;
+import no.nav.dokdistadmin.domain.VarselInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_1;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRESSELINJE_2;
@@ -23,6 +26,8 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.POSTS
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEFONNUMMER;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDistribusjonKanal;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createEpostVarselInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createSMSVarselInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserMapper.mapForsendelse;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
@@ -30,7 +35,7 @@ import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class HentEkspedertForsendelserMapperTest {
+public class HentEkspederteForsendelserMapperTest {
 
 	private final DokumentInfo DOKUMENTINFO_DITTNAV = createDokumentInfoWithDistribusjonKanal(DITTNAV);
 	private final DokumentInfo DOKUMENTINFO_SDP = createDokumentInfoWithDistribusjonKanal(SDP);
@@ -142,4 +147,30 @@ public class HentEkspedertForsendelserMapperTest {
 				});
 	}
 
+	@Test
+	void shouldNotMapEpostVarselWhenVarslingstidspunktNull() {
+		DokumentInfo dokumentInfo = createDokumentInfoWithDistribusjonKanal(DITTNAV);
+		VarselInfo epostVarselInfo = createEpostVarselInfo();
+		epostVarselInfo.setVarslingstidspunkt(null);
+		dokumentInfo.setVarselInfos(Set.of(createSMSVarselInfo(), epostVarselInfo));
+
+		EkspedertForsendelse ekspedertForsendelse = mapForsendelse(dokumentInfo);
+
+		assertThat(ekspedertForsendelse.getVarsel().getEpostvarsel()).isEmpty();
+		assertThat(ekspedertForsendelse.getVarsel().getSmsvarsel()).hasSize(1);
+	}
+
+	@Test
+	void shouldNotMapSmsVarselWhenVarslingstidspunktNull() {
+		DokumentInfo dokumentInfo = createDokumentInfoWithDistribusjonKanal(DITTNAV);
+		dokumentInfo.setDistribusjonInfo(DistribusjonInfo.builder().distribusjonKanal(DITTNAV).build());
+		VarselInfo SMSVarselInfo = createSMSVarselInfo();
+		SMSVarselInfo.setVarslingstidspunkt(null);
+		dokumentInfo.setVarselInfos(Set.of(SMSVarselInfo, createEpostVarselInfo()));
+
+		EkspedertForsendelse ekspedertForsendelse = mapForsendelse(dokumentInfo);
+
+		assertThat(ekspedertForsendelse.getVarsel().getSmsvarsel()).isEmpty();
+		assertThat(ekspedertForsendelse.getVarsel().getEpostvarsel()).hasSize(1);
+	}
 }
