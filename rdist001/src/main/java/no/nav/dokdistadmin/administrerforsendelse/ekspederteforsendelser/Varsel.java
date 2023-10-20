@@ -6,15 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Varsel {
-	private List<Epostvarsel> epostvarsel;
-	private List<Smsvarsel> smsvarsel;
+	private Set<Epostvarsel> epostvarsel;
+	private Set<Smsvarsel> smsvarsel;
 
 	@Data
 	@Builder

@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
@@ -74,7 +75,7 @@ public class HentEkspederteForsendelserMapper {
 		return null;
 	}
 
-	private static List<Epostvarsel> getEpostVarsler(Set<VarselInfo> varsler) {
+	private static Set<Epostvarsel> getEpostVarsler(Set<VarselInfo> varsler) {
 		return varsler.stream()
 				.filter(varselInfo -> EPOST == varselInfo.getVarslingKanal())
 				.filter(varselInfo -> varselInfo.getVarslingstidspunkt() != null)
@@ -84,10 +85,10 @@ public class HentEkspederteForsendelserMapper {
 						.tekst(varselInfo.getVarslingstekst())
 						.tidspunkt(varselInfo.getVarslingstidspunkt())
 						.build())
-				.toList();
+				.collect(Collectors.toSet());
 	}
 
-	private static List<Smsvarsel> getSMSVarsler(Set<VarselInfo> varsler) {
+	private static Set<Smsvarsel> getSMSVarsler(Set<VarselInfo> varsler) {
 		return varsler.stream()
 				.filter(varselInfo -> MOBILTELEFON == varselInfo.getVarslingKanal())
 				.filter(varselInfo -> varselInfo.getVarslingstidspunkt() != null)
@@ -96,7 +97,7 @@ public class HentEkspederteForsendelserMapper {
 						.tekst(varselInfo.getVarslingstekst())
 						.tidspunkt(varselInfo.getVarslingstidspunkt())
 						.build())
-				.toList();
+				.collect(Collectors.toSet());
 	}
 
 	private static DistribusjonKanalCode getDistribusjonKanal(DokumentInfo dokumentInfo) {

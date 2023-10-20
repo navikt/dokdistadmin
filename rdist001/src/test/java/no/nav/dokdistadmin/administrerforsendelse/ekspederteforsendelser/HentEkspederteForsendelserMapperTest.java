@@ -8,6 +8,7 @@ import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.VarselInfo;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -55,7 +56,7 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(DITTNAV);
 					assertThat(forsendelse.getVarsel().getEpostvarsel()).hasSize(1);
 
-					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().get(0);
+					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().iterator().next();
 					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
 					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
 					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
@@ -63,7 +64,7 @@ public class HentEkspederteForsendelserMapperTest {
 
 					assertThat(forsendelse.getVarsel().getSmsvarsel()).hasSize(1);
 
-					Smsvarsel smsVarsel = forsendelse.getVarsel().getSmsvarsel().get(0);
+					Smsvarsel smsVarsel = forsendelse.getVarsel().getSmsvarsel().iterator().next();
 					assertThat(smsVarsel.getTelefonnummer()).isEqualTo(TELEFONNUMMER);
 					assertThat(smsVarsel.getTekst()).isEqualTo(MELDING);
 					assertThat(smsVarsel.getTidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
@@ -88,7 +89,7 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseleverandor()).isEqualTo(DIGITAL_DISTRIBUTOR_ID);
 					assertThat(forsendelse.getVarsel().getEpostvarsel()).hasSize(1);
 
-					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().get(0);
+					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().iterator().next();
 					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
 					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
 					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
@@ -96,7 +97,7 @@ public class HentEkspederteForsendelserMapperTest {
 
 					assertThat(forsendelse.getVarsel().getSmsvarsel()).hasSize(1);
 
-					Smsvarsel smsVarsel = forsendelse.getVarsel().getSmsvarsel().get(0);
+					Smsvarsel smsVarsel = forsendelse.getVarsel().getSmsvarsel().iterator().next();
 					assertThat(smsVarsel.getTelefonnummer()).isEqualTo(TELEFONNUMMER);
 					assertThat(smsVarsel.getTekst()).isEqualTo(MELDING);
 					assertThat(smsVarsel.getTidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
@@ -172,5 +173,31 @@ public class HentEkspederteForsendelserMapperTest {
 
 		assertThat(ekspedertForsendelse.getVarsel().getSmsvarsel()).isEmpty();
 		assertThat(ekspedertForsendelse.getVarsel().getEpostvarsel()).hasSize(1);
+	}
+
+	@Test
+	void shouldNotMapDuplicateVarsel() {
+		DokumentInfo dokumentInfo = createDokumentInfoWithDistribusjonKanal(DITTNAV);
+		dokumentInfo.setDistribusjonInfo(DistribusjonInfo.builder().distribusjonKanal(DITTNAV).build());
+		VarselInfo uniqueSms1 = createSMSVarselInfo();
+		VarselInfo uniqueSms2 = createSMSVarselInfo();
+		VarselInfo duplicateSms1 = createSMSVarselInfo();
+		duplicateSms1.setVarslingstidspunkt(LocalDateTime.now());
+		VarselInfo uniqueEpost1 = createEpostVarselInfo();
+		VarselInfo uniqueEpost2 = createEpostVarselInfo();
+		VarselInfo duplicateEpost1 = createEpostVarselInfo();
+		duplicateEpost1.setVarslingstidspunkt(LocalDateTime.now());
+		dokumentInfo.setVarselInfos(Set.of(
+				uniqueSms1, uniqueSms2, duplicateSms1,
+				uniqueEpost1, uniqueEpost2, duplicateEpost1
+		));
+
+		EkspedertForsendelse ekspedertForsendelse = mapForsendelse(dokumentInfo);
+
+		Varsel varsel = ekspedertForsendelse.getVarsel();
+		assertThat(varsel.getSmsvarsel()).hasSize(2);
+		assertThat(varsel.getSmsvarsel()).extracting(Smsvarsel::getTidspunkt).doesNotHaveDuplicates();
+		assertThat(varsel.getEpostvarsel()).hasSize(2);
+		assertThat(varsel.getEpostvarsel()).extracting(Epostvarsel::getTidspunkt).doesNotHaveDuplicates();
 	}
 }
