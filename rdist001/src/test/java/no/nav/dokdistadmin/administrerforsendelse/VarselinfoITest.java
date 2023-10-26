@@ -2,6 +2,7 @@ package no.nav.dokdistadmin.administrerforsendelse;
 
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.Notifikasjon;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
+import no.nav.dokdistadmin.administrerforsendelse.varselinfo.VarselInfoValidator;
 import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
@@ -24,6 +25,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEF
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTEKST;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTITTEL;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
+import static no.nav.dokdistadmin.administrerforsendelse.varselinfo.VarselInfoValidator.SLINGRINGSMONN_FOR_VARSLINGSTIDSPUNKT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
@@ -134,50 +136,25 @@ public class VarselinfoITest extends AbstractITest {
 	}
 
 	@Test
-	void skalGodtaVarslingstidspunktErNull_inntilVidere() {
+	void skalReturnereBadRequestDersomVarslingstidspunktErNull() {
 
-		setupDatabase();
-		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
-
-		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId());
+		var request = createOppdaterVarselInfoRequest(123L);
 		List<Notifikasjon> notifikasjoner = request.getNotifikasjoner();
 		notifikasjoner.add(createNotifikasjon(EPOST, Rdist001TestUtils.EPOSTADDRESS, VARSELTITTEL, null));
 
-		webTestClient.put()
+		var response = webTestClient.put()
 				.uri(OPPDATERVARSELINFO_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(request)
 				.exchange()
-				.expectStatus().isOk();
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
 
-		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false).count()).isEqualTo(3);
-
-		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
-
-		assertThat(varsler).anySatisfy(varsel -> {
-			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);
-			assertNull(varsel.getVarslingstittel());
-			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getMobiltelefonNummer()).isEqualTo(TELEFONNUMMER);
-			assertNull(varsel.getEpostAdresse());
-		});
-
-		assertThat(varsler).anySatisfy(varsel -> {
-			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
-			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
-			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESS);
-			assertNull(varsel.getMobiltelefonNummer());
-		});
-		assertThat(varsler).anySatisfy(varsel -> {
-			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
-			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
-			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
-			assertNull(varsel.getVarslingstidspunkt());
-			assertNull(varsel.getMobiltelefonNummer());
-		});
+		assertThat(response).containsSequence("varslingstidspunkt kan ikke være null");
 	}
+
 	@Test
 	void skalReturnereBadRequestDersomForsendelseIkkeEksisterer() {
 
@@ -240,6 +217,34 @@ public class VarselinfoITest extends AbstractITest {
 				.getResponseBody();
 
 		assertThat(response).contains("notifikasjoner må inneholde minst en notifikasjon");
+	}
+
+	@Test
+	void skalReturnereBadRequestDersomVarslingstidpunktErIFremtiden() {
+
+		var tidspunktIFremtiden = LocalDateTime.now().plusSeconds(SLINGRINGSMONN_FOR_VARSLINGSTIDSPUNKT + 1);
+
+		var epostNotifikasjon = createNotifikasjon(EPOST, EPOSTADDRESS, VARSELTITTEL, tidspunktIFremtiden);
+		var smsNotifikasjon = createNotifikasjon(MOBILTELEFON, TELEFONNUMMER, VARSELTITTEL, tidspunktIFremtiden);
+
+		var request = createOppdaterVarselInfoRequest(123L);
+		request.setNotifikasjoner(List.of(epostNotifikasjon, smsNotifikasjon));
+
+		var response = webTestClient.put()
+				.uri(OPPDATERVARSELINFO_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(request)
+				.exchange()
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).contains(
+				"Varslingstidspunkt er ikke gyldig for minst én notifikasjon i forsendelse med forsendelseId=123",
+				"kanal=EPOST med varslingstidspunkt=%s".formatted(tidspunktIFremtiden),
+				"kanal=MOBILTELEFON med varslingstidspunkt=%s".formatted(tidspunktIFremtiden));
+
 	}
 
 	private OppdaterVarselInfoRequest createOppdaterVarselInfoRequestWith(Long forsendelseId, VarslingKanalCode varslingKanalCode, String tekst, String kontaktinfo, String tittel, LocalDateTime varslingstidspunkt) {

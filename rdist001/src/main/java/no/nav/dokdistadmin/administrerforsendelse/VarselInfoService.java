@@ -10,11 +10,14 @@ import no.nav.dokdistadmin.repository.VarselInfoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequestMapper.mapOppdaterVarselInfoRequest;
+import static no.nav.dokdistadmin.administrerforsendelse.varselinfo.VarselInfoValidator.harUgyldigVarslingstidspunkt;
 
 @Slf4j
 @Service
@@ -36,6 +39,11 @@ public class VarselInfoService {
 	public long oppdaterVarselInfo(OppdaterVarselInfoRequest oppdaterVarselInfoRequest) {
 		Long dokumentInfoId = oppdaterVarselInfoRequest.getForsendelseId();
 
+		if (harUgyldigVarslingstidspunkt(oppdaterVarselInfoRequest.getNotifikasjoner())) {
+			log.warn(OPPDATERVARSELINFO_ERROR, oppdaterVarselInfoRequest.getForsendelseId(), "Varslingstidspunkt er ikke gyldig for minst én notifikasjon.");
+			throw new OppdaterVarselInfoException(ugyldigVarslingstidspunktFeilmelding(oppdaterVarselInfoRequest));
+		}
+
 		if (!dokumentInfoRepository.existsById(dokumentInfoId)) {
 			log.warn(OPPDATERVARSELINFO_ERROR, oppdaterVarselInfoRequest.getForsendelseId(), "Forsendelse ikke funnet.");
 			throw new OppdaterVarselInfoException(format("Forsendelse med forsendelseId=%s ikke funnet", oppdaterVarselInfoRequest.getForsendelseId()));
@@ -46,5 +54,17 @@ public class VarselInfoService {
 		var oppdaterteVarselInfo = varselInfoRepository.saveAll(varselInfoList);
 
 		return StreamSupport.stream(oppdaterteVarselInfo.spliterator(), false).count();
+	}
+
+	private static String ugyldigVarslingstidspunktFeilmelding(OppdaterVarselInfoRequest oppdaterVarselInfoRequest) {
+		return format("Varslingstidspunkt er ikke gyldig for minst én notifikasjon i forsendelse med forsendelseId=%s. Mottok=[%s], nåværende tidspunkt=%s",
+				oppdaterVarselInfoRequest.getForsendelseId(),
+				oppdaterVarselInfoRequest.getNotifikasjoner().stream()
+						.map(notifikasjon -> format("kanal=%s med varslingstidspunkt=%s",
+								notifikasjon.getKanal().name(),
+								notifikasjon.getVarslingstidspunkt().toString()))
+						.collect(Collectors.joining(", ")),
+				LocalDateTime.now()
+		);
 	}
 }
