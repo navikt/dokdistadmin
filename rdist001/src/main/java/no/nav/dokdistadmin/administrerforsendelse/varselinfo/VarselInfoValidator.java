@@ -10,6 +10,7 @@ public class VarselInfoValidator {
 
 	public static boolean harUgyldigVarslingstidspunkt(List<Notifikasjon> notifikasjoner) {
 		return notifikasjoner.stream()
+				.filter(notifikasjon -> notifikasjon.getVarslingstidspunkt() != null)
 				.anyMatch(notifikasjon -> notifikasjon.getVarslingstidspunkt().isAfter(now().plusSeconds(SLINGRINGSMONN_FOR_VARSLINGSTIDSPUNKT)));
 	}
 
