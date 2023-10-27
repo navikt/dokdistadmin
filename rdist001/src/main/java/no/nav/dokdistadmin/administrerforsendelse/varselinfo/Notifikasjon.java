@@ -2,13 +2,12 @@ package no.nav.dokdistadmin.administrerforsendelse.varselinfo;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Data
@@ -27,6 +26,6 @@ public class Notifikasjon {
 
 	private String tittel;
 
-	@PastOrPresent
+	@NotNull(message = "varslingstidspunkt kan ikke være null")
 	private LocalDateTime varslingstidspunkt;
 }
