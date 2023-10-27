@@ -2,7 +2,6 @@ package no.nav.dokdistadmin.administrerforsendelse;
 
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.Notifikasjon;
 import no.nav.dokdistadmin.administrerforsendelse.varselinfo.OppdaterVarselInfoRequest;
-import no.nav.dokdistadmin.administrerforsendelse.varselinfo.VarselInfoValidator;
 import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
@@ -136,23 +135,21 @@ public class VarselinfoITest extends AbstractITest {
 	}
 
 	@Test
-	void skalReturnereBadRequestDersomVarslingstidspunktErNull() {
+	void skalGodtaVarslingstidspunktNull() {
 
-		var request = createOppdaterVarselInfoRequest(123L);
+		setupDatabase();
+		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
+
+		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId());
 		List<Notifikasjon> notifikasjoner = request.getNotifikasjoner();
 		notifikasjoner.add(createNotifikasjon(EPOST, Rdist001TestUtils.EPOSTADDRESS, VARSELTITTEL, null));
 
-		var response = webTestClient.put()
+		webTestClient.put()
 				.uri(OPPDATERVARSELINFO_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(request)
 				.exchange()
-				.expectStatus().isBadRequest()
-				.expectBody(String.class)
-				.returnResult()
-				.getResponseBody();
-
-		assertThat(response).containsSequence("varslingstidspunkt kan ikke være null");
+				.expectStatus().isOk();
 	}
 
 	@Test

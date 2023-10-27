@@ -1,5 +1,6 @@
 package no.nav.dokdistadmin.administrerforsendelse.varselinfo;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -25,5 +26,16 @@ class VarselInfoValidatorTest {
 		var result = harUgyldigVarslingstidspunkt(List.of(notifikasjon));
 
 		assertThat(result).isEqualTo(valid);
+	}
+
+	@Test
+	void skalKunValidereVarslingstidspunktHvisDetErUliktNull() {
+		var notifikasjon = Notifikasjon.builder()
+				.varslingstidspunkt(null)
+				.build();
+
+		var result = harUgyldigVarslingstidspunkt(List.of(notifikasjon));
+
+		assertThat(result).isEqualTo(false);
 	}
 }
