@@ -109,6 +109,13 @@ public class Rdist001TestUtils {
 		return distribusjonInfo;
 	}
 
+	public static DokumentInfo createDokumentInfoWithAvstemtDato(LocalDateTime avstemtDato) {
+		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(EKSPEDERT);
+		dokumentInfo.setAvstemtDato(avstemtDato);
+
+		return dokumentInfo;
+	}
+
 	public static DokumentInfo createDokumentInfoWithDistribusjonKanal(DistribusjonKanalCode kanal) {
 		DokumentInfo dokumentInfo = createDokumentInfo();
 

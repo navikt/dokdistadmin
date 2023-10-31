@@ -71,7 +71,11 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	}
 
 	@Override
-	public Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds, List<DistribusjonsTypeKode> distribusjonstyper, List<DokumentStatusCode> dokumentstatus, Optional<DistribusjonKanalCode> distribusjonskanal) {
+	public Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds,
+													  List<DistribusjonsTypeKode> distribusjonstyper,
+													  List<DokumentStatusCode> dokumentstatus,
+													  boolean inkluderAvstemte,
+													  Optional<DistribusjonKanalCode> distribusjonskanal) {
 		TypedQuery<DokumentInfo> query = entityManager.createQuery(
 						"""
 									select dok
@@ -83,7 +87,8 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 								""" +
 								(dokumentstatus.isEmpty() ? "" : " and dok.dokumentStatus in (:dokumentstatuser) ") +
 								(distribusjonstyper.isEmpty() ? "" : " and distinfo.distribusjonstype in (:distribusjonstyper) ") +
-								(distribusjonskanal.isEmpty() ? "" : " and distinfo.distribusjonKanal = :kanal ")
+								(distribusjonskanal.isEmpty() ? "" : " and distinfo.distribusjonKanal = :kanal ") +
+								(inkluderAvstemte ? "" : " and dok.avstemtDato is null ")
 						, DokumentInfo.class)
 				.setParameter("journalpostIds", journalpostIds);
 

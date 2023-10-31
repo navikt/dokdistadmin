@@ -109,6 +109,7 @@ public class AdministrerForsendelseController {
 			@RequestParam(name = "distribusjonstyper", required = false, defaultValue = "") List<String> distribusjonstyper,
 			@RequestParam(name = "dokumentstatus", required = false, defaultValue = "") List<String> dokumentstatus,
 			@RequestParam(name = "distribusjonkanal", required = false) Optional<String> distribusjonkanal,
+			@RequestParam(name = "inkluderAvstemte", required = false, defaultValue = "true") boolean inkluderAvstemte,
 			@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<String> journalpostliste
 	) {
 		log.info("hentForsendelser har mottatt kall om å hente forsendelser med " +
@@ -119,6 +120,7 @@ public class AdministrerForsendelseController {
 				journalpostliste,
 				mapListToEnumValues("distribusjonstyper", DistribusjonsTypeKode::valueOf, distribusjonstyper),
 				mapListToEnumValues("dokumentstatus", DokumentStatusCode::valueOf, dokumentstatus),
+				inkluderAvstemte,
 				distribusjonkanal
 						.map(kanal -> safelyMapToEnum("distribusjonkanal", DistribusjonKanalCode::valueOf, kanal)));
 
