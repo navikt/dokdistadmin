@@ -6,6 +6,7 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.EkspedertForsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
+import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser.HentUekspederteForsendelserResponse;
@@ -31,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -39,6 +41,7 @@ import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDokumentId;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithEkspedertDato;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCode;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCodeAndDokumentId;
@@ -469,6 +472,62 @@ public class Rdist001ITest extends AbstractITest {
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus().isBadRequest();
+	}
+
+	/*
+	 * 'inkluderAvstemte' = false: skal kun returnere forsendelser uten avstemtDato
+	 * 'inkluderAvstemte' = true: skal returnere alle forsendelser
+	 * 'inkluderAvstemte' = null/mangler: skal returnere alle forsendelser
+	 */
+	@ParameterizedTest
+	@MethodSource
+	void skalReturnereForsendelserBasertPaaInkluderAvstemte(Boolean inkluderAvstemte, List<String> forventedeForsendelser) {
+
+		var distribusjon = createDistribusjonInfo();
+		var dokumentInfoUtenAvstemtDato = createDokumentInfoWithDokumentId("ikkeAvstemt");
+		var dokumentInfoMedAvstemtDato = createDokumentInfoWithDokumentId("avstemt");
+		dokumentInfoMedAvstemtDato.setAvstemtDato(LocalDateTime.now());
+
+		distribusjon.addDokumentInfo(dokumentInfoMedAvstemtDato);
+		distribusjon.addDokumentInfo(dokumentInfoUtenAvstemtDato);
+
+		dokumentDistribusjonRepository.save(distribusjon);
+
+		commitAndBeginNewTransaction();
+
+		String journalpostliste = Stream.of(dokumentInfoMedAvstemtDato.getArkivkode(), dokumentInfoUtenAvstemtDato.getArkivkode())
+				.map(String::valueOf)
+				.collect(Collectors.joining(","));
+
+		var response = webTestClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path(HENTFORSENDELSER_URI)
+						.queryParam("journalpostliste", journalpostliste)
+						.queryParamIfPresent("inkluderAvstemte", Optional.ofNullable(inkluderAvstemte))
+						.build())
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentForsendelserResponse.class)
+				.getResponseBody()
+				.map(HentForsendelserResponse::forsendelseListe)
+				.blockFirst();
+
+		assertThat(response)
+				.isNotNull()
+				.extracting(HentForsendelseResponse::getBestillingsId)
+				.containsExactlyInAnyOrderElementsOf(forventedeForsendelser);
+	}
+
+	static Stream<Arguments> skalReturnereForsendelserBasertPaaInkluderAvstemte() {
+		var alleForsendelser = List.of("avstemt", "ikkeAvstemt");
+		var ikkeAvstemteForsendelser = List.of("ikkeAvstemt");
+
+		return Stream.of(
+				Arguments.of(true, alleForsendelser),
+				Arguments.of(false, ikkeAvstemteForsendelser),
+				Arguments.of(null, alleForsendelser)
+		);
 	}
 
 	@Test

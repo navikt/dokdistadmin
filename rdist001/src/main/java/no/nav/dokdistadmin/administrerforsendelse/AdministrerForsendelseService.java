@@ -225,8 +225,12 @@ public class AdministrerForsendelseService {
 		return new Forsendelse(forsendelser.get(0).getDokumentInfoId());
 	}
 
-	public List<HentForsendelseResponse> hentForsendelser(List<String> journalpostliste, List<DistribusjonsTypeKode> distribusjonstyper, List<DokumentStatusCode> dokumentstatus, Optional<DistribusjonKanalCode> distribusjonskanal) {
-		return dokumentInfoRepository.fetchDokumentInfoList(journalpostliste, distribusjonstyper, dokumentstatus, distribusjonskanal)
+	public List<HentForsendelseResponse> hentForsendelser(List<String> journalpostliste,
+														  List<DistribusjonsTypeKode> distribusjonstyper,
+														  List<DokumentStatusCode> dokumentstatus,
+														  boolean inkluderAvstemte,
+														  Optional<DistribusjonKanalCode> distribusjonskanal) {
+		return dokumentInfoRepository.fetchDokumentInfoList(journalpostliste, distribusjonstyper, dokumentstatus, inkluderAvstemte, distribusjonskanal)
 				.map(HentForsendelseResponseMapper::map)
 				.toList();
 	}
