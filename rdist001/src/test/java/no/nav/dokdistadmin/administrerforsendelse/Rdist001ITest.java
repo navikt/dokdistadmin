@@ -25,7 +25,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
@@ -42,7 +41,7 @@ import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
-import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithAvstemtDato;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDokumentId;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithEkspedertDato;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCode;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCodeAndDokumentId;
@@ -476,28 +475,27 @@ public class Rdist001ITest extends AbstractITest {
 	}
 
 	/*
-	 * Kall mot hentForsendelser skal ikke returnere forsendelser med avstemtDato ulik null dersom 'inkluderAvstemte'
-	 * query parameter er false. Default er true.
+	 * 'inkluderAvstemte' = false: skal kun returnere forsendelser uten avstemtDato
+	 * 'inkluderAvstemte' = true: skal returnere alle forsendelser
+	 * 'inkluderAvstemte' = null/mangler: skal returnere alle forsendelser
 	 */
 	@ParameterizedTest
-	@ValueSource(booleans = {true, false})
-	@NullSource
-	void skalIkkeReturnereAvstemteForsendelserDersomInkluderAvstemteErFalse(Boolean inkluderAvstemteInput) {
-
-		var inkluderAvstemte = Optional.ofNullable(inkluderAvstemteInput);
+	@MethodSource
+	void skalReturnereForsendelserBasertPaaInkluderAvstemte(Boolean inkluderAvstemte, List<String> forventedeForsendelser) {
 
 		var distribusjon = createDistribusjonInfo();
-		var dokumentInfoUtemAvstemtDato = createDokumentInfo();
-		var dokumentInfoMedAvstemtDato = createDokumentInfoWithAvstemtDato(LocalDateTime.now());
+		var dokumentInfoUtenAvstemtDato = createDokumentInfoWithDokumentId("ikkeAvstemt");
+		var dokumentInfoMedAvstemtDato = createDokumentInfoWithDokumentId("avstemt");
+		dokumentInfoMedAvstemtDato.setAvstemtDato(LocalDateTime.now());
 
 		distribusjon.addDokumentInfo(dokumentInfoMedAvstemtDato);
-		distribusjon.addDokumentInfo(dokumentInfoUtemAvstemtDato);
+		distribusjon.addDokumentInfo(dokumentInfoUtenAvstemtDato);
 
 		dokumentDistribusjonRepository.save(distribusjon);
 
 		commitAndBeginNewTransaction();
 
-		String journalpostliste = Stream.of(dokumentInfoMedAvstemtDato.getArkivkode(), dokumentInfoUtemAvstemtDato.getArkivkode())
+		String journalpostliste = Stream.of(dokumentInfoMedAvstemtDato.getArkivkode(), dokumentInfoUtenAvstemtDato.getArkivkode())
 				.map(String::valueOf)
 				.collect(Collectors.joining(","));
 
@@ -505,7 +503,7 @@ public class Rdist001ITest extends AbstractITest {
 				.uri(uriBuilder -> uriBuilder
 						.path(HENTFORSENDELSER_URI)
 						.queryParam("journalpostliste", journalpostliste)
-						.queryParamIfPresent("inkluderAvstemte", inkluderAvstemte)
+						.queryParamIfPresent("inkluderAvstemte", Optional.ofNullable(inkluderAvstemte))
 						.build())
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
@@ -515,15 +513,21 @@ public class Rdist001ITest extends AbstractITest {
 				.map(HentForsendelserResponse::forsendelseListe)
 				.blockFirst();
 
-		var forventetDokumentInfoIdListe = StreamSupport.stream(dokumentInfoRepository.findAll().spliterator(), false)
-				.filter(dokumentInfo -> inkluderAvstemte.orElse(true) || (dokumentInfo.getAvstemtDato() == null))
-				.map(DokumentInfo::getDokumentInfoId)
-				.toList();
-
 		assertThat(response)
 				.isNotNull()
-				.extracting(HentForsendelseResponse::getForsendelseId)
-				.containsExactlyInAnyOrderElementsOf(forventetDokumentInfoIdListe);
+				.extracting(HentForsendelseResponse::getBestillingsId)
+				.containsExactlyInAnyOrderElementsOf(forventedeForsendelser);
+	}
+
+	static Stream<Arguments> skalReturnereForsendelserBasertPaaInkluderAvstemte() {
+		var alleForsendelser = List.of("avstemt", "ikkeAvstemt");
+		var ikkeAvstemteForsendelser = List.of("ikkeAvstemt");
+
+		return Stream.of(
+				Arguments.of(true, alleForsendelser),
+				Arguments.of(false, ikkeAvstemteForsendelser),
+				Arguments.of(null, alleForsendelser)
+		);
 	}
 
 	@Test
