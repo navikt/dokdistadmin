@@ -113,8 +113,8 @@ public class AdministrerForsendelseController {
 			@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<String> journalpostliste
 	) {
 		log.info("hentForsendelser har mottatt kall om å hente forsendelser med " +
-						"journalpostIds={}, distribusjonstyper={}, dokumentstatus={}, distribusjonskanal={}",
-				journalpostliste, distribusjonstyper, dokumentstatus, distribusjonkanal.orElse("<ikke satt>"));
+						"journalpostIds={}, distribusjonstyper={}, dokumentstatus={}, distribusjonskanal={}, inkluderAvstemte={}",
+				journalpostliste, distribusjonstyper, dokumentstatus, distribusjonkanal.orElse("<ikke satt>"), inkluderAvstemte);
 
 		List<HentForsendelseResponse> forsendelser = forsendelserService.hentForsendelser(
 				journalpostliste,
