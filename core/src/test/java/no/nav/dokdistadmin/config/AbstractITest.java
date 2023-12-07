@@ -21,6 +21,7 @@ import jakarta.persistence.EntityManager;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+
 @Transactional
 @SpringBootTest(
 		classes = {ApplicationTestConfig.class},

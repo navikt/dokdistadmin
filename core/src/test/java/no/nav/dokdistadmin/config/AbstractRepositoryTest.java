@@ -19,7 +19,6 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 
 @DataJpaTest
 @ContextConfiguration(classes = {RepositoryConfig.class})
-@Transactional
 @ActiveProfiles("itest")
 public abstract class AbstractRepositoryTest {
 
