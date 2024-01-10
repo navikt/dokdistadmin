@@ -20,7 +20,6 @@ spec:
     {{#each INGRESSES}}
        - {{this }}
       {{/each}}
-  leaderElection: true
   liveness:
     path: /actuator/health/liveness
     port: 8080
