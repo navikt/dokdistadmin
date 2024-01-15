@@ -64,7 +64,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-database-oracle</artifactId>
+			<artifactId>flyway-core</artifactId>
 		</dependency>
 
 		<!-- Metrikker -->
