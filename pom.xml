@@ -28,7 +28,7 @@
 		<token-support.version>3.1.8</token-support.version>
 
 		<!-- Test -->
-		<spring-cloud-contract-wiremock.version>4.0.4</spring-cloud-contract-wiremock.version>
+		<spring-cloud-contract-wiremock.version>4.1.1</spring-cloud-contract-wiremock.version>
 		<datasource-proxy-spring-boot-starter.version>1.9.0</datasource-proxy-spring-boot-starter.version>
 
 		<!-- Plugins -->
