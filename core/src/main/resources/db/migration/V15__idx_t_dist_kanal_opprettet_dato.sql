@@ -1,0 +1,1 @@
+create index idx_k_dist_kanal_opprettet_dato on distribusjon_info(k_dist_kanal, opprettet_dato) online;
