@@ -10,17 +10,16 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
-import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
-import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
-import static no.nav.dokdistadmin.domain.DokumentStatusCode.RETURPOSTBEHANDLET;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.repository.TestUtils.DISTRIBUSJON_ID;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_1;
 import static no.nav.dokdistadmin.repository.TestUtils.DOKUMENT_ID_2;
 import static no.nav.dokdistadmin.repository.TestUtils.createDistribusjonInfo;
-import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -62,6 +61,9 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldFindDistribusjonInfoByDokumentStatusAndDistribusjonKanalWithRightAge() {
+
+		var IKKE_EKSPEDERT = EnumSet.of(OPPRETTET, OVERSENDT, BEKREFTET, KLAR_FOR_DIST);
+
 		//Opprett en distribusjonInfo med distribution_datetime = now
 		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
 
@@ -81,14 +83,14 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 		LocalDateTime etterAntallDagerSiden = LocalDateTime.now().minusDays(OPPRETTET_ANTALL_DAGER_SIDEN);
 		LocalDateTime foerAntallTimerSiden = LocalDateTime.now().minusHours(1L);
 		List<DistribusjonInfo> result = dokumentDistribusjonRepository.findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
-				EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET), PRINT, etterAntallDagerSiden, foerAntallTimerSiden);
+				IKKE_EKSPEDERT, PRINT, etterAntallDagerSiden, foerAntallTimerSiden);
 
 		assertTrue(result.isEmpty());
 
 		//Hent alle distribusjonIder uten begrensning på opprettetDato
 		foerAntallTimerSiden = LocalDateTime.now().minusHours(0L);
 		result = dokumentDistribusjonRepository.findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
-				EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET), PRINT, etterAntallDagerSiden, foerAntallTimerSiden);
+				IKKE_EKSPEDERT, PRINT, etterAntallDagerSiden, foerAntallTimerSiden);
 
 		assertEquals(1, result.size());
 	}

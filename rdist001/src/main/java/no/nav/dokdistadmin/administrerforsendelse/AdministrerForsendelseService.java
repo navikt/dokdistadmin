@@ -31,6 +31,8 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,6 +65,7 @@ public class AdministrerForsendelseService {
 
 	private static final int OPPRETTET_ANTALL_DAGER_SIDEN = 60;
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_EKSPEDERT = EnumSet.of(EKSPEDERT, FEILET, RETURPOSTBEHANDLET);
+	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_IKKE_ER_EKSPEDERT = EnumSet.complementOf(STATUSER_DER_FORSENDELSE_ER_EKSPEDERT);
 	private static final EnumSet<DokumentStatusCode> STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT = EnumSet.of(OVERSENDT, BEKREFTET);
 	public static final EnumSet<DistribusjonKanalCode> DISTRIBUSJON_KANALER = EnumSet.allOf(DistribusjonKanalCode.class);
 
@@ -178,8 +181,14 @@ public class AdministrerForsendelseService {
 		var opprettetEtter = LocalDateTime.now().minusDays(OPPRETTET_ANTALL_DAGER_SIDEN);
 		var opprettetFoer = LocalDateTime.now().minusHours(antallTimer);
 
+		var start = Instant.now();
+
 		List<DistribusjonInfo> distribusjonInfoList = dokumentDistribusjonRepository.findDistribusjonInfoByDokumentStatusAndDistribusjonKanal(
-				STATUSER_DER_FORSENDELSE_ER_EKSPEDERT, distribusjonkanalCode, opprettetEtter, opprettetFoer);
+				STATUSER_DER_FORSENDELSE_IKKE_ER_EKSPEDERT, distribusjonkanalCode, opprettetEtter, opprettetFoer);
+
+		var varighet = Duration.between(start, Instant.now()).toSeconds();
+
+		log.info("hentUekspederteForsendelser hentet {} uekspederte forsendelser på {} sekunder", distribusjonInfoList.size(), varighet);
 
 		return hentUekspederteForsendelserMapper.map(distribusjonInfoList);
 	}

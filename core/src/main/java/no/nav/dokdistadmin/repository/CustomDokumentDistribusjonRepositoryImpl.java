@@ -1,11 +1,11 @@
 package no.nav.dokdistadmin.repository;
 
+import jakarta.persistence.EntityManager;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.springframework.stereotype.Repository;
 
-import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
@@ -29,7 +29,7 @@ public class CustomDokumentDistribusjonRepositoryImpl implements CustomDokumentD
 		return entityManager.createQuery("""
 						select dist
 							from DistribusjonInfo dist join fetch dist.dokumentInfos dok
-							where dok.dokumentStatus not in (:dokumentStatus)
+							where dok.dokumentStatus in (:dokumentStatus)
 							and dok.avstemtDato is null
 							and dok.avstemtReferanse is null
 							and dist.distribusjonKanal = :distribusjonKanal
