@@ -25,7 +25,7 @@
 		<java.version>21</java.version>
 
 		<logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
-		<token-support.version>4.1.4</token-support.version>
+		<token-support.version>4.1.5</token-support.version>
 
 		<!-- Test -->
 		<spring-cloud-contract-wiremock.version>4.1.2</spring-cloud-contract-wiremock.version>
