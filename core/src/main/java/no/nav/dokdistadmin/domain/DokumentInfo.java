@@ -103,7 +103,7 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name = "forsendelse_tittel", length = 1500)
 	private String forsendelseTittel;
 
-	@Column(name = "batch_id", length = 50)
+	@Column(name = "batch_id", length = 100)
 	private String batchId;
 
 	@Column(name = "virkningsdato")
