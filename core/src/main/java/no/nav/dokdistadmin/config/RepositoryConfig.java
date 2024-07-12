@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
 @Configuration
@@ -32,7 +33,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 })
 @EnableConfigurationProperties({DataSourceProperties.class, DokdistadminProperties.class})
 public class RepositoryConfig {
-
 
 	@Bean
 	@Primary
@@ -50,13 +50,25 @@ public class RepositoryConfig {
 		poolDataSource.setValidateConnectionOnBorrow(true);
 		poolDataSource.setSecondsToTrustIdleConnection((int) MINUTES.toSeconds(3));
 
+		String onshosts = dokdistadminProperties.getDatabase().getOnshosts();
+		if (isOracleFastConnectionFailoverSupported(dataSourceProperties.getUrl(), onshosts)) {
+			poolDataSource.setFastConnectionFailoverEnabled(true);
+			String onsConfiguration = "nodes=" + onshosts;
+			poolDataSource.setONSConfiguration(onsConfiguration);
+			log.info("RepositoryConfig - Skrur på FCF/FAN. onsConfiguration={}", onsConfiguration);
+		} else {
+			poolDataSource.setFastConnectionFailoverEnabled(false);
+			poolDataSource.setONSConfiguration("");
+			log.info("RepositoryConfig - FCF/FAN er skrudd av");
+		}
+
 		Properties properties = new Properties();
 		properties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");
 		properties.setProperty("oracle.jdbc.implicitStatementCacheSize", "100");
 		properties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
 
 		int poolsize = dokdistadminProperties.getDatabase().getPoolsize();
-		log.info("Setter dokdistadmin database poolsize=" + poolsize);
+		log.info("Setter dokdistadmin database poolsize={}", poolsize);
 		poolDataSource.setInitialPoolSize(poolsize);
 		poolDataSource.setMinPoolSize(poolsize);
 		poolDataSource.setMaxPoolSize(poolsize);
@@ -68,5 +80,9 @@ public class RepositoryConfig {
 	@Primary
 	NamedParameterJdbcTemplate namedParameterJdbcTemplate(final DataSource dataSource) {
 		return new NamedParameterJdbcTemplate(dataSource);
+	}
+
+	private boolean isOracleFastConnectionFailoverSupported(String jdbcurl, String onshosts) {
+		return jdbcurl.toLowerCase().contains("failover") && isNotBlank(onshosts);
 	}
 }

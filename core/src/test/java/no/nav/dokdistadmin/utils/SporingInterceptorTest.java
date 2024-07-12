@@ -17,7 +17,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest(classes = {ApplicationTestConfig.class})
+@SpringBootTest(classes = {SporingInterceptor.class})
 @ActiveProfiles({"itest"})
 class SporingInterceptorTest extends AbstractOauth2Test {
 

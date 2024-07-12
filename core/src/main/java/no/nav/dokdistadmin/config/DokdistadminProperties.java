@@ -45,5 +45,7 @@ public class DokdistadminProperties {
 
 		@NotEmpty
 		private String schema;
+
+		private String onshosts;
 	}
 }
