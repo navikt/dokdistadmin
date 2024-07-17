@@ -21,7 +21,7 @@ fi
 if test -f /var/run/secrets/nais.io/db_config/ons_host;
 then
     export DOKDISTADMIN_DATABASE_ONSHOSTS=$(cat /var/run/secrets/nais.io/db_config/ons_host)
-    echo "Setting DOKDISTADMIN_DATABASE_ONSHOSTS=$DATABASE_ONSHOSTS"
+    echo "Setting DOKDISTADMIN_DATABASE_ONSHOSTS=$DOKDISTADMIN_DATABASE_ONSHOSTS"
 fi
 
 echo "Exporting appdynamics environment variables"

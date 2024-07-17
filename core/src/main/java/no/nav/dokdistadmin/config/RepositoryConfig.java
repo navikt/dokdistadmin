@@ -45,7 +45,7 @@ public class RepositoryConfig {
 		poolDataSource.setPassword(dataSourceProperties.getPassword());
 		poolDataSource.registerConnectionInitializationCallback(connection ->
 				connection.setSchema(dokdistadminProperties.getDatabase().getSchema()));
-		poolDataSource.setMaxConnectionReuseTime(MINUTES.toSeconds(30));
+		poolDataSource.setMaxConnectionReuseTime(MINUTES.toSeconds(5));
 		// Behøver ikke sette setSQLForValidateConnection pga UCP gjør intern ping mot Oracle
 		poolDataSource.setValidateConnectionOnBorrow(true);
 		poolDataSource.setSecondsToTrustIdleConnection((int) MINUTES.toSeconds(3));
