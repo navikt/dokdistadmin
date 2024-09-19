@@ -126,7 +126,7 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name = "k_arkiv_system", length = 20)
 	private ArkivSystemCode arkivSystem;
 
-	@Column(name = "k_brev_prod_app", length = 20)
+	@Column(name = "k_brev_prod_app", length = 256)
 	private String brevProduksjonApplikasjon;
 
 	@Enumerated(EnumType.STRING)
