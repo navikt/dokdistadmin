@@ -1,13 +1,12 @@
 {
   "APP_NAME": "dokdistadmin-q5",
+  "ENVIRONMENT": "q5",
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
   "DOKDISTADMIN_DB_CREDS": "/oracle/data/dev/creds/dokdist_q5-user",
   "DOKDISTADMIN_DB_CONFIG": "/oracle/data/dev/config/dokdist_q5",
   "DOKDISTADMIN_DATABASE_SCHEMA": "dokumentdistribusjon",
   "DOKDISTADMIN_MODUS": "T",
-  "APPDYNAMICS": "/apikey/appdynamics/dev",
-  "APPD_NAME": "dokdistadmin_q5",
   "INGRESSES": [
     "https://dokdistadmin-q5.dev.intern.nav.no"
   ],

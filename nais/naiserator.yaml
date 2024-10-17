@@ -7,12 +7,12 @@ metadata:
     team: teamdokumenthandtering
 spec:
   env:
-    - name: APPD_NAME
-      value: {{ APPD_NAME }}
     - name: DOKDISTADMIN_DATABASE_SCHEMA
       value: {{ DOKDISTADMIN_DATABASE_SCHEMA }}
     - name: DOKDISTADMIN_MODUS
       value: {{ DOKDISTADMIN_MODUS }}
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: "deployment.environment.name={{ ENVIRONMENT }}"
   image: {{ image }}
   ingresses:
     {{#each INGRESSES}}
@@ -50,9 +50,13 @@ spec:
         mountPath: "/var/run/secrets/nais.io/db_creds"
       - kvPath: {{ DOKDISTADMIN_DB_CONFIG }}
         mountPath: "/var/run/secrets/nais.io/db_config"
-      - kvPath: {{ APPDYNAMICS }}
-        mountPath: /var/run/secrets/nais.io/appdynamics
   webproxy: true
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+      destinations:
+        - id: "elastic-apm"
   azure:
     application:
       enabled: true

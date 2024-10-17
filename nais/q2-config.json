@@ -1,13 +1,12 @@
 {
   "APP_NAME": "dokdistadmin",
+  "ENVIRONMENT": "q2",
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
   "DOKDISTADMIN_DB_CREDS": "/oracle/data/dev/creds/dokdistadmin_q2-user",
   "DOKDISTADMIN_DB_CONFIG": "/oracle/data/dev/config/dokdist_q2",
   "DOKDISTADMIN_DATABASE_SCHEMA": "dkomp",
   "DOKDISTADMIN_MODUS": "T",
-  "APPDYNAMICS": "/apikey/appdynamics/dev",
-  "APPD_NAME": "dokdistadmin",
   "INGRESSES": [
     "https://dokdistadmin.dev-fss-pub.nais.io",
     "https://dokdistadmin.dev.intern.nav.no"

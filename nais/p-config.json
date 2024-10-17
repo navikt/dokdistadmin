@@ -1,13 +1,12 @@
 {
   "APP_NAME": "dokdistadmin",
+  "ENVIRONMENT": "p",
   "MIN_REPLICAS": 4,
   "MAX_REPLICAS": 10,
   "DOKDISTADMIN_DB_CREDS": "/oracle/data/prod/creds/dokdistadmin-user",
   "DOKDISTADMIN_DB_CONFIG": "/oracle/data/prod/config/dokumentdistribusjon",
   "DOKDISTADMIN_DATABASE_SCHEMA": "dokumentdistribusjon",
   "DOKDISTADMIN_MODUS": "P",
-  "APPDYNAMICS": "/apikey/appdynamics/prod",
-  "APPD_NAME": "dokdistadmin",
   "INGRESSES": [
     "https://dokdistadmin.prod-fss-pub.nais.io",
     "https://dokdistadmin.intern.nav.no"
