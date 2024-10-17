@@ -6,8 +6,6 @@
   "DOKDISTADMIN_DB_CONFIG": "/oracle/data/dev/config/dokdist_q2",
   "DOKDISTADMIN_DATABASE_SCHEMA": "dkomp",
   "DOKDISTADMIN_MODUS": "T",
-  "APPDYNAMICS": "/apikey/appdynamics/dev",
-  "APPD_NAME": "dokdistadmin",
   "INGRESSES": [
     "https://dokdistadmin.dev-fss-pub.nais.io",
     "https://dokdistadmin.dev.intern.nav.no"

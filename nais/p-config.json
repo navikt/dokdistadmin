@@ -6,8 +6,6 @@
   "DOKDISTADMIN_DB_CONFIG": "/oracle/data/prod/config/dokumentdistribusjon",
   "DOKDISTADMIN_DATABASE_SCHEMA": "dokumentdistribusjon",
   "DOKDISTADMIN_MODUS": "P",
-  "APPDYNAMICS": "/apikey/appdynamics/prod",
-  "APPD_NAME": "dokdistadmin",
   "INGRESSES": [
     "https://dokdistadmin.prod-fss-pub.nais.io",
     "https://dokdistadmin.intern.nav.no"
