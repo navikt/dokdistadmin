@@ -1,5 +1,6 @@
 {
   "APP_NAME": "dokdistadmin",
+  "ENVIRONMENT": "q2",
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
   "DOKDISTADMIN_DB_CREDS": "/oracle/data/dev/creds/dokdistadmin_q2-user",

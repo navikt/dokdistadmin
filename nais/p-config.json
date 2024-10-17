@@ -1,5 +1,6 @@
 {
   "APP_NAME": "dokdistadmin",
+  "ENVIRONMENT": "p",
   "MIN_REPLICAS": 4,
   "MAX_REPLICAS": 10,
   "DOKDISTADMIN_DB_CREDS": "/oracle/data/prod/creds/dokdistadmin-user",
