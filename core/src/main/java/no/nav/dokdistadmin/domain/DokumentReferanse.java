@@ -1,11 +1,5 @@
 package no.nav.dokdistadmin.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serial;
 
 import static lombok.AccessLevel.NONE;
@@ -65,8 +65,4 @@ public class DokumentReferanse extends AbstractDomainObject {
 	@JoinColumn(name = "dokument_info_id", nullable = false)
 	private DokumentInfo dokumentInfo;
 
-	public DokumentReferanse(Long dokumentReferanseId, long version) {
-		this.dokumentReferanseId = dokumentReferanseId;
-		setVersion(version);
-	}
 }

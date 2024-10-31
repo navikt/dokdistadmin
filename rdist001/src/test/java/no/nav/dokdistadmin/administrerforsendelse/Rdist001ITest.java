@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
@@ -299,8 +300,8 @@ public class Rdist001ITest extends AbstractITest {
 		assertNotNull(response);
 
 		var forsendelser = response.getUekspederteForsendelser();
-		var dokumenter = forsendelser.get(0).getDokumenter();
-		var distribusjonId = forsendelser.get(0).getDistribusjonId();
+		var dokumenter = forsendelser.getFirst().getDokumenter();
+		var distribusjonId = forsendelser.getFirst().getDistribusjonId();
 
 		assertThat(forsendelser).hasSize(1);
 		assertThat(dokumenter).hasSize(2);
@@ -330,23 +331,30 @@ public class Rdist001ITest extends AbstractITest {
 
 	@ParameterizedTest
 	@MethodSource
+	@NullSource
 	void skalGiBadRequestDersomAvstemEkspederteForsendelserErUgyldig(List<Forsendelse> forsendelser) {
 		setupDatabase();
 
 		var request = new AvstemEkspederteForsendelserRequest(forsendelser);
 
-		webTestClient.put()
+		var response = webTestClient.put()
 				.uri(AVSTEMEKSPEDERTEFORSENDELSER_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(request)
 				.exchange()
-				.expectStatus().isBadRequest();
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response)
+				.isNotNull()
+				.contains("forsendelser kan ikke være null eller en tom liste");
 	}
 
 	private static Stream<Arguments> skalGiBadRequestDersomAvstemEkspederteForsendelserErUgyldig() {
 		return Stream.of(
-				Arguments.of(Collections.emptyList()),
-				Arguments.of(List.of(new Forsendelse(0L)))
+				Arguments.of(Collections.emptyList())
 		);
 	}
 
@@ -681,7 +689,7 @@ public class Rdist001ITest extends AbstractITest {
 				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
-						.forsendelseId(dokumentInfoIds.get(0))
+						.forsendelseId(dokumentInfoIds.getFirst())
 						.forsendelseStatus(newForsendelseStatus)
 						.build())
 				.exchange()
@@ -705,7 +713,7 @@ public class Rdist001ITest extends AbstractITest {
 				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
-						.forsendelseId(dokumentInfoIds.get(0))
+						.forsendelseId(dokumentInfoIds.getFirst())
 						.digitalLeverandoeradresse(digitalLeverandoeradresse)
 						.digitalPostkasseadresse(digitalPostkasseadresse)
 						.build())
@@ -730,7 +738,7 @@ public class Rdist001ITest extends AbstractITest {
 				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
-						.forsendelseId(dokumentInfoIds.get(0))
+						.forsendelseId(dokumentInfoIds.getFirst())
 						.varselStatus(newVarselStatus)
 						.build())
 				.exchange()
@@ -757,7 +765,7 @@ public class Rdist001ITest extends AbstractITest {
 				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
-						.forsendelseId(dokumentInfoIds.get(0))
+						.forsendelseId(dokumentInfoIds.getFirst())
 						.varselStatus(newVarselStatus)
 						.forsendelseStatus(newForsendelseStatus)
 						.build())

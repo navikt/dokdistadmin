@@ -51,7 +51,7 @@ public class Rdist001TestUtils {
 	public static final String MOTTAKER_NAVN = "Navn Navnesen";
 	public static final String DIGITAL_DISTRIBUTOR_ID = "996460320";
 	public static final String ARKIV_KODE = "389426100";
-	public static final String EPOSTADDRESS = "epostaddress0@nav.no";
+	public static final String EPOSTADDRESSE = "epostaddress0@nav.no";
 	public static final String TELEFONNUMMER = "91234567";
 	public static final String DOKDISTDPI = "dokdistdpi";
 	public static final String ADRESSELINJE_1 = "adresselinje1";
@@ -177,7 +177,7 @@ public class Rdist001TestUtils {
 	public static VarselInfo createEpostVarselInfo() {
 		return VarselInfo.builder()
 				.varselInfoId(VARSELID)
-				.epostAdresse(EPOSTADDRESS)
+				.epostAdresse(EPOSTADDRESSE)
 				.varslingKanal(EPOST)
 				.varslingstittel(VARSELTITTEL)
 				.varslingstekst(MELDING)

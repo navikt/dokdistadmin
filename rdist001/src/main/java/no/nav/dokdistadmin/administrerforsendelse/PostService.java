@@ -18,8 +18,8 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 public class PostService {
 
-	LandkodePostDestRepository landkodePostDestRepository;
-	DokumentInfoRepository dokumentInfoRepository;
+	final LandkodePostDestRepository landkodePostDestRepository;
+	final DokumentInfoRepository dokumentInfoRepository;
 
 	public PostService(LandkodePostDestRepository landkodePostDestRepository,
 					   DokumentInfoRepository dokumentInfoRepository) {
@@ -31,7 +31,7 @@ public class PostService {
 		LandkodePostDest landkodePostDest = landkodePostDestRepository.findLandkodePostDestByLandkode(landkode);
 
 		if (landkodePostDest == null || landkodePostDest.getPostDest() == null) {
-			throw new PostdestinasjonIkkeFunnetException("Postdestinasjon ikke funnet i dokdistDb");
+			throw new PostdestinasjonIkkeFunnetException("Postdestinasjon for landkode=%s ikke funnet i dokdistDb".formatted(landkode));
 		}
 
 		return new HentPostdestinasjonResponse(landkodePostDest.getPostDest());

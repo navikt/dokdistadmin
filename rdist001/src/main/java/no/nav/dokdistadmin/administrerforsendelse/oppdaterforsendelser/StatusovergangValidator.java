@@ -11,6 +11,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class StatusovergangValidator {
 
+	private StatusovergangValidator() {
+	}
+
 	public static boolean isLovligStatusovergang(String oldDokumentStatus, String nyForsendelseStatus) {
 		return isStatusOvergangOpprettetToKlarForDist(oldDokumentStatus, nyForsendelseStatus) ||
 				isStatusOvergangKlarForDistToOversendt(oldDokumentStatus, nyForsendelseStatus) ||
@@ -66,8 +69,5 @@ public class StatusovergangValidator {
 
 	private static boolean isStatusOvergangBekreftetToFeilet(String oldDokumentStatus, String nyForsendelseStatus) {
 		return BEKREFTET.name().equals(oldDokumentStatus) && DokumentStatusCode.FEILET.name().equals(nyForsendelseStatus);
-	}
-
-	private StatusovergangValidator() {
 	}
 }

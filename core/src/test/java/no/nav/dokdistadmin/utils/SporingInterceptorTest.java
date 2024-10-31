@@ -1,7 +1,6 @@
 package no.nav.dokdistadmin.utils;
 
 import no.nav.dokdistadmin.config.AbstractOauth2Test;
-import no.nav.dokdistadmin.config.ApplicationTestConfig;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;

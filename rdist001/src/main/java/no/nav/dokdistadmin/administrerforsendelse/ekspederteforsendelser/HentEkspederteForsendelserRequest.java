@@ -1,18 +1,11 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class HentEkspederteForsendelserRequest {
+public record HentEkspederteForsendelserRequest(
+		@PositiveOrZero(message = "maksForsendelser må være et positivt tall")
+		@NotNull(message = "maksForsendelser kan ikke være 'null'")
+		Integer maksForsendelser) {
 
-	@PositiveOrZero(message = "maksForsendelser må være et positivt tall")
-	@NotNull(message = "maksForsendelser kan ikke være 'null'")
-	private Integer maksForsendelser;
 }

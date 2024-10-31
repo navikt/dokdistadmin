@@ -1,35 +1,35 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 
-@Data
+@Value
 @Builder
 public class EkspedertForsendelse {
-	private final Long forsendelseId;
-	private final String journalpostId;
-	private final DistribusjonKanalCode distribusjonsKanal;
-	private final String ekspedertDato;
-	private final PostadresseTo postadresse;
-	private final Digitalpostkasse digitalpostkasse;
-	private final Varsel varsel;
+	Long forsendelseId;
+	String journalpostId;
+	DistribusjonKanalCode distribusjonsKanal;
+	String ekspedertDato;
+	PostadresseTo postadresse;
+	Digitalpostkasse digitalpostkasse;
+	Varsel varsel;
 
-	@Data
+	@Value
 	@Builder
 	public static class PostadresseTo {
-		private final String adresselinje1;
-		private final String adresselinje2;
-		private final String adresselinje3;
-		private final String postnummer;
-		private final String poststed;
-		private final String landkode;
+		String adresselinje1;
+		String adresselinje2;
+		String adresselinje3;
+		String postnummer;
+		String poststed;
+		String landkode;
 	}
 
-	@Data
+	@Value
 	@Builder
 	public static class Digitalpostkasse {
-		private final String digitalpostkasseadresse;
-		private final String digitalpostkasseleverandor;
+		String digitalpostkasseadresse;
+		String digitalpostkasseleverandor;
 	}
 }

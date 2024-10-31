@@ -131,8 +131,8 @@ public class OppdaterForsendelseService {
 		}
 	}
 
-	public void oppdaterKonversasjonId(DokumentInfo dokumentInfo, String konversasjonId) {
-		setKonversasjonId(dokumentInfo, konversasjonId);
+	private void oppdaterKonversasjonId(DokumentInfo dokumentInfo, String konversasjonId) {
+		dokumentInfo.setKonversasjonId(konversasjonId);
 		dokumentInfoRepository.updateDokumentKonversasjonsId(dokumentInfo.getDokumentInfoId(), konversasjonId, MDC.get(USER_ID));
 	}
 
@@ -148,10 +148,6 @@ public class OppdaterForsendelseService {
 		if (EKSPEDERT.equals(valueOf(nyForsendelseStatus))) {
 			dokumentInfo.setEkspedertDato(now());
 		}
-	}
-
-	private void setKonversasjonId(DokumentInfo dokumentInfo, String konversasjonId) {
-		dokumentInfo.setKonversasjonId(konversasjonId);
 	}
 
 	private void validateForsendelseStatus(String forsendelseStatus) {

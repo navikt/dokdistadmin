@@ -12,8 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +29,7 @@ public class HentEkspederteForsendelserMapper {
 
 	public static EkspedertForsendelse mapForsendelse(DokumentInfo dokumentInfo) {
 		return EkspedertForsendelse.builder()
-				.forsendelseId(Objects.requireNonNull(dokumentInfo.getDokumentInfoId(), "ForsendelseId kan ikke være null"))
+				.forsendelseId(dokumentInfo.getDokumentInfoId())
 				.journalpostId(dokumentInfo.getArkivkode())
 				.distribusjonsKanal(getDistribusjonKanal(dokumentInfo))
 				.ekspedertDato(convertDateTimeToString(dokumentInfo.getEkspedertDato()))

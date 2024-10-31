@@ -1,5 +1,7 @@
 package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.ArkivInformasjon;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.Dokument;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.Mottaker;
@@ -11,8 +13,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -39,9 +39,10 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"", " "})
 	@NullSource
-	void skalFeilvalidereUgyldigBestillingsId(String verdi) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setBestillingsId(verdi);
+	void skalFeilvalidereUgyldigBestillingsId(String bestillingsId) {
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.bestillingsId(bestillingsId)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -55,8 +56,9 @@ class OpprettForsendelseValidationTest {
 
 	@Test
 	void skalFeilvalidereUgyldigDistribusjonsKanal() {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setDistribusjonsKanal(null);
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.distribusjonsKanal(null)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -71,9 +73,10 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"", " "})
 	@NullSource
-	void skalFeilvalidereUgyldigBestillendeFagsystem(String verdi) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setBestillendeFagsystem(verdi);
+	void skalFeilvalidereUgyldigBestillendeFagsystem(String bestillendeFagsystem) {
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.bestillendeFagsystem(bestillendeFagsystem)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -89,8 +92,9 @@ class OpprettForsendelseValidationTest {
 	@ValueSource(strings = {"", " "})
 	@NullSource
 	void skalFeilvalidereUgyldigTema(String tema) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setTema(tema);
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.tema(tema)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -105,9 +109,10 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"", " "})
 	@NullSource
-	void skalFeilvalidereUgyldigForsendelseTittel(String verdi) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setForsendelseTittel(verdi);
+	void skalFeilvalidereUgyldigForsendelseTittel(String forsendelseTittel) {
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.forsendelseTittel(forsendelseTittel)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -122,9 +127,10 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"", " "})
 	@NullSource
-	void skalFeilvalidereUgyldigDokumentProdApp(String verdi) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setDokumentProdApp(verdi);
+	void skalFeilvalidereUgyldigDokumentProdApp(String dokumentProdApp) {
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.dokumentProdApp(dokumentProdApp)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -139,8 +145,9 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@MethodSource
 	void skalFeilvalidereUgyldigMottaker(Mottaker mottaker, String feilmelding) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setMottaker(mottaker);
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.mottaker(mottaker)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -165,8 +172,9 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@MethodSource
 	void skalFeilvalidereUgyldigDokumenter(List<Dokument> dokumenter, String feilmelding) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setDokumenter(dokumenter);
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.dokumenter(dokumenter)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -194,8 +202,9 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@MethodSource
 	void skalFeilvalidereUgyldigArkivInformasjon(ArkivInformasjon arkivInformasjon, String feilmelding) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setArkivInformasjon(arkivInformasjon);
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.arkivInformasjon(arkivInformasjon)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 
@@ -216,8 +225,9 @@ class OpprettForsendelseValidationTest {
 	@ParameterizedTest
 	@MethodSource
 	void skalFeilvalidereUgyldigPostadresse(Postadresse postadresse, String feilmelding) {
-		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest();
-		opprettForsendelseRequest.setPostadresse(postadresse);
+		OpprettForsendelseRequest opprettForsendelseRequest = createOpprettForsendelseRequest().toBuilder()
+				.postadresse(postadresse)
+				.build();
 
 		var violations = validator.validate(opprettForsendelseRequest);
 

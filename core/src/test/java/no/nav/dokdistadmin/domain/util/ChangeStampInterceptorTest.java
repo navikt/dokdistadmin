@@ -23,7 +23,7 @@ public class ChangeStampInterceptorTest {
 	@Mock
 	private Type changeStampType;
 
-	DistribusjonInfo entity = new DistribusjonInfo(1L, 1L);
+	final DistribusjonInfo entity = new DistribusjonInfo(1L, 1L);
 
 	private final ChangeStampInterceptor interceptor = new ChangeStampInterceptor();
 

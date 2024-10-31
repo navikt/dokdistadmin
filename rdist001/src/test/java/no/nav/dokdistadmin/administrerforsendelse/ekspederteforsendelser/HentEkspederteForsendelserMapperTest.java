@@ -57,7 +57,7 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getVarsel().getEpostvarsel()).hasSize(1);
 
 					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().iterator().next();
-					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESSE);
 					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
 					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
 					assertThat(epostVarsel.getTidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
@@ -90,7 +90,7 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getVarsel().getEpostvarsel()).hasSize(1);
 
 					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().iterator().next();
-					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESS);
+					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESSE);
 					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
 					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
 					assertThat(epostVarsel.getTidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);

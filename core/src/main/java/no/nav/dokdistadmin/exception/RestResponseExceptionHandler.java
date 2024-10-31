@@ -140,7 +140,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
 	private static ResponseEntity<Object> handleInvalidFormatException(HttpMessageNotReadableException e, InvalidFormatException invalidFormatException) {
 		String feilmelding;
-		var fieldName = invalidFormatException.getPath().get(0).getFieldName();
+		var fieldName = invalidFormatException.getPath().getFirst().getFieldName();
 		var value = invalidFormatException.getValue();
 		var targetType = invalidFormatException.getTargetType();
 

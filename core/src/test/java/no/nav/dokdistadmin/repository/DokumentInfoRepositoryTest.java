@@ -3,7 +3,6 @@ package no.nav.dokdistadmin.repository;
 import no.nav.dokdistadmin.config.AbstractRepositoryTest;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
-import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.assertj.core.api.Assertions;
@@ -129,7 +128,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 				PRINT);
 
 		assertEquals(1, result.size());
-		assertEquals(DOKUMENT_ID_1, result.get(0).getDokumentId());
+		assertEquals(DOKUMENT_ID_1, result.getFirst().getDokumentId());
 
 		assertNotNull(result);
 	}

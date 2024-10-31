@@ -136,7 +136,7 @@ public class AdministrerForsendelseService {
 	@Transactional
 	public int avstemEkspederteForsendelser(AvstemEkspederteForsendelserRequest avstemEkspederteForsendelserRequest) {
 		var userId = MDC.get(USER_ID);
-		var forsendelser = avstemEkspederteForsendelserRequest.getForsendelser().stream()
+		var forsendelser = avstemEkspederteForsendelserRequest.forsendelser().stream()
 				.map(Forsendelse::getForsendelseId)
 				.toList();
 
@@ -153,8 +153,8 @@ public class AdministrerForsendelseService {
 	@Transactional
 	public int avstemForsendelser(AvstemForsendelserRequest avstemForsendelserRequest) {
 		var userId = MDC.get(USER_ID);
-		var avstemtReferanse = avstemForsendelserRequest.getAvstemtReferanse();
-		var forsendelser = avstemForsendelserRequest.getForsendelser().stream()
+		var avstemtReferanse = avstemForsendelserRequest.avstemtReferanse();
+		var forsendelser = avstemForsendelserRequest.forsendelser().stream()
 				.map(Forsendelse::getForsendelseId)
 				.toList();
 
@@ -231,7 +231,7 @@ public class AdministrerForsendelseService {
 					verdi));
 		}
 
-		return new Forsendelse(forsendelser.get(0).getDokumentInfoId());
+		return new Forsendelse(forsendelser.getFirst().getDokumentInfoId());
 	}
 
 	public List<HentForsendelseResponse> hentForsendelser(List<String> journalpostliste,

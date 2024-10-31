@@ -1,9 +1,12 @@
 package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
@@ -11,86 +14,73 @@ import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
 import no.nav.dokdistadmin.domain.MottakerIdTypeCode;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Value
+@Builder(toBuilder = true)
 public class OpprettForsendelseRequest {
     @NotBlank(message = "bestillingsId må ha en verdi")
-    private String bestillingsId;
+    String bestillingsId;
 
     @NotNull(message = "distribusjonsKanal kan ikke være null")
-    private DistribusjonKanalCode distribusjonsKanal;
+    DistribusjonKanalCode distribusjonsKanal;
 
     @NotBlank(message = "bestillendeFagsystem må ha en verdi")
-    private String bestillendeFagsystem;
+    String bestillendeFagsystem;
 
     @NotBlank(message = "tema må ha en verdi")
-    private String tema;
+    String tema;
 
     @NotBlank(message = "forsendelseTittel må ha en verdi")
-    private String forsendelseTittel;
+    String forsendelseTittel;
 
     @NotBlank(message = "dokumentProdApp må ha en verdi")
-    private String dokumentProdApp;
+    String dokumentProdApp;
 
     @Valid
     @NotNull(message = "mottaker kan ikke være null")
-    private Mottaker mottaker;
+    Mottaker mottaker;
 
     @Valid
     @NotEmpty(message = "dokumenter kan ikke være null eller en tom liste")
-    private List<Dokument> dokumenter;
+    List<Dokument> dokumenter;
 
-    private String originalDistribusjonId;
-    private String batchId;
-    private DistribusjonsTypeKode distribusjonstype;
-    private DistribusjonstidspunktKode distribusjonstidspunkt;
-
-    @Valid
-    private ArkivInformasjon arkivInformasjon;
+    String originalDistribusjonId;
+    String batchId;
+    DistribusjonsTypeKode distribusjonstype;
+    DistribusjonstidspunktKode distribusjonstidspunkt;
 
     @Valid
-    private Postadresse postadresse;
+    ArkivInformasjon arkivInformasjon;
 
-    @Data
+    @Valid
+    Postadresse postadresse;
+
+    @Value
     @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
     public static class Mottaker {
         @NotBlank(message = "mottakerId må ha en verdi")
-        private String mottakerId;
+        String mottakerId;
 
         @NotBlank(message = "mottakerNavn må ha en verdi")
-        private String mottakerNavn;
+        String mottakerNavn;
 
         @NotNull(message = "mottakerType kan ikke være null")
-        private MottakerIdTypeCode mottakerType;
+        MottakerIdTypeCode mottakerType;
     }
 
-    @Data
+    @Value
     @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
     public static class ArkivInformasjon {
         @NotNull(message = "arkivSystem kan ikke være null")
-        private ArkivSystemCode arkivSystem;
+        ArkivSystemCode arkivSystem;
 
         @NotBlank(message = "arkivId må ha en verdi")
-        private String arkivId;
+        String arkivId;
     }
 
-    @Data
+    @Value
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Postadresse {
         String adresselinje1;
         String adresselinje2;
@@ -102,24 +92,22 @@ public class OpprettForsendelseRequest {
         String landkode;
     }
 
-    @Data
+    @Value
     @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
     public static class Dokument {
         @NotNull(message = "tilknyttetSom kan ikke være null")
-        private RefererTilCode tilknyttetSom;
+        RefererTilCode tilknyttetSom;
 
         @NotBlank(message = "dokumentObjektReferanse må ha en verdi")
-        private String dokumentObjektReferanse;
+        String dokumentObjektReferanse;
 
         @NotNull(message = "rekkefolge kan ikke være null")
         @PositiveOrZero(message = "rekkefolge må være 0 eller et positivt tall")
-        private Integer rekkefolge;
+        Integer rekkefolge;
 
-        private String arkivDokumentInfoId;
+        String arkivDokumentInfoId;
 
         @NotBlank(message = "dokumenttypeId må ha en verdi")
-        private String dokumenttypeId;
+        String dokumenttypeId;
     }
 }

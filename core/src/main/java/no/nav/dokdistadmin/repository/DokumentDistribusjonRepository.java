@@ -29,7 +29,7 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 			dist.changeStamp.endretAv = :endretAv,
 			dist.changeStamp.endretDato = current_timestamp
 			where dist.distribusjonInfoId in :distribusjonInfoId
-							""")
+			""")
 	void updateDistribusjonInfoVarselStatus(@Param("distribusjonInfoId") Long distribusjonInfoId,
 											@Param("varselStatus") VarselStatusCode varselStatus,
 											@Param("endretAv") String endretAv);

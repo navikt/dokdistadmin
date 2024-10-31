@@ -3,7 +3,6 @@ package no.nav.dokdistadmin.administrerforsendelse;
 import no.nav.dokdistadmin.administrerforsendelse.post.HentPostdestinasjonResponse;
 import no.nav.dokdistadmin.administrerforsendelse.post.OppdaterPostadresseRequest;
 import no.nav.dokdistadmin.config.AbstractITest;
-import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.LandkodePostDest;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.LandkodePostDestRepository;

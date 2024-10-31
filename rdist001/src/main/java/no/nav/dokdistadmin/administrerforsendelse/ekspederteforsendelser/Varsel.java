@@ -1,35 +1,31 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
-@Data
+@Value
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Varsel {
-	private Set<Epostvarsel> epostvarsel;
-	private Set<Smsvarsel> smsvarsel;
+	Set<Epostvarsel> epostvarsel;
+	Set<Smsvarsel> smsvarsel;
 
-	@Data
+	@Value
 	@Builder
 	public static class Epostvarsel {
-		private String adresse;
-		private String tittel;
-		private String tekst;
-		private LocalDateTime tidspunkt;
+		String adresse;
+		String tittel;
+		String tekst;
+		LocalDateTime tidspunkt;
 	}
 
-	@Data
+	@Value
 	@Builder
 	public static class Smsvarsel {
-		private String telefonnummer;
-		private String tekst;
-		private LocalDateTime tidspunkt;
+		String telefonnummer;
+		String tekst;
+		LocalDateTime tidspunkt;
 	}
 }

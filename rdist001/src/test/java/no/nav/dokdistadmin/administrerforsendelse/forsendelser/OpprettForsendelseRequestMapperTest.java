@@ -94,9 +94,9 @@ class OpprettForsendelseRequestMapperTest {
 	@MethodSource
 	void shouldMapArkivSystem(ArkivInformasjon arkivInformasjon, ArkivSystemCode resultat) {
 
-		var request = createOpprettForsendelseRequest();
-
-		request.setArkivInformasjon(arkivInformasjon);
+		var request = createOpprettForsendelseRequest().toBuilder()
+				.arkivInformasjon(arkivInformasjon)
+				.build();
 
 		var distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request);
 		var dokumentInfo = distribusjonInfo.getDokumentInfos().iterator().next();
