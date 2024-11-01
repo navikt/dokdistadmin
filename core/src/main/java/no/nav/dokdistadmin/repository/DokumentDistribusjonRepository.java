@@ -12,6 +12,8 @@ public interface DokumentDistribusjonRepository extends CrudRepository<Distribus
 
 	DistribusjonInfo getDistribusjonInfoByDistribusjonId(String distribusjonId);
 
+	DistribusjonInfo getReferenceById(Long distribusjonInfoId);
+
 	@Modifying
 	@Query("""
 			update DistribusjonInfo dist set dist.distribusjonStatus = :distribusjonStatus,

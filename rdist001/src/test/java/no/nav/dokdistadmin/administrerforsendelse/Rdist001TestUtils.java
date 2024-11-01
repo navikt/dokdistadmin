@@ -73,6 +73,7 @@ public class Rdist001TestUtils {
 	public static final String PART = "part";
 	public static final String RESENDING_DISTRIBUSJON_ID = "1";
 	public static final String FAGOMRADE_DAG = "DAG";
+	public static final String DOKDISTADMIN = "dokdistadmin";
 	public static final LocalDateTime OPPRETTET_DATO = now(systemDefaultZone()).minusHours(5).minusMinutes(23);
 	public static final LocalDateTime DISTRIBUSJON_DATO = now(systemDefaultZone()).minusHours(5);
 

@@ -19,18 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isDigitalAdresseSatt;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isDistribusjonStatusEqualToDokumentStatus;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isDokumentStatusEqualToForsendelseStatus;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligStatusovergang;
+import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligDokumentstatusovergang;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
 import static no.nav.dokdistadmin.domain.VarselStatusCode.FERDIGSTILT;
 import static no.nav.dokdistadmin.domain.VarselStatusCode.OPPRETTET;
-import static no.nav.dokdistadmin.utils.EnumUtils.stringToEnum;
+import static no.nav.dokdistadmin.utils.EnumUtils.validateEnum;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -53,13 +48,12 @@ public class OppdaterForsendelseService {
 
 		DokumentInfo dokumentInfo = dokumentInfoRepository.fetchDokumentInfo(oppdaterForsendelseRequest.getForsendelseId());
 
-		if (isNull(dokumentInfo)) {
+		if (dokumentInfo == null) {
 			throw new ForsendelseIkkeFunnetException(format("Forsendelse med forsendelseId=%s ikke funnet i dokdistDb",
 					oppdaterForsendelseRequest.getForsendelseId()));
 		}
 
-		if (isNotBlank(oppdaterForsendelseRequest.getForsendelseStatus())) {
-			validateForsendelseStatus(oppdaterForsendelseRequest.getForsendelseStatus());
+		if (validateForsendelseStatus(oppdaterForsendelseRequest.getForsendelseStatus())) {
 			oppdaterDokumentAndDistribusjonStatus(dokumentInfo, oppdaterForsendelseRequest.getForsendelseStatus());
 		}
 
@@ -67,7 +61,7 @@ public class OppdaterForsendelseService {
 			oppdaterKonversasjonId(dokumentInfo, oppdaterForsendelseRequest.getKonversasjonId());
 		}
 
-		if (nonNull(oppdaterForsendelseRequest.getVarselStatus())) {
+		if (oppdaterForsendelseRequest.getVarselStatus() != null) {
 			oppdaterVarselStatus(dokumentInfo, oppdaterForsendelseRequest.getVarselStatus());
 		}
 
@@ -84,17 +78,16 @@ public class OppdaterForsendelseService {
 					dokumentInfo.getDistribusjonInfo().getDistribusjonStatus(), dokumentStatus));
 		}
 
-		if (isDokumentStatusEqualToForsendelseStatus(dokumentStatus, nyForsendelseStatus)) {
+		if (dokumentStatus.equals(nyForsendelseStatus)) {
 			throw new DokumentStatusErAlleredeSattException(format("DokumentStatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus på forsendelse er allerede dokumentStatus=%s",
 					nyForsendelseStatus, dokumentStatus));
 		}
 
-		if (isLovligStatusovergang(dokumentStatus, nyForsendelseStatus)) {
+		if (isLovligDokumentstatusovergang(dokumentStatus, nyForsendelseStatus)) {
 			setForsendelseStatus(dokumentInfo, nyForsendelseStatus);
-			dokumentInfoRepository.updateDokumentStatus(dokumentInfo.getDokumentInfoId(), valueOf(nyForsendelseStatus), MDC.get(USER_ID));
+			dokumentInfo.setDokumentStatus(valueOf(nyForsendelseStatus));
 			DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();
-			dokumentDistribusjonRepository.updateDistribusjonStatus(distribusjonInfo.getDistribusjonInfoId(),
-					DistribusjonStatusCode.valueOf(nyForsendelseStatus), MDC.get(USER_ID));
+			distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.valueOf(nyForsendelseStatus));
 
 		} else {
 			throw new UlovligStatusOvergangException(format("Ulovlig statusovergang: kan ikke sette ny dokumentStatus=%s når dokumentStatus=%s. Lovlige statusoverganger er " +
@@ -150,10 +143,23 @@ public class OppdaterForsendelseService {
 		}
 	}
 
-	private void validateForsendelseStatus(String forsendelseStatus) {
+	private boolean validateForsendelseStatus(String forsendelseStatus) {
 		if (isNotBlank(forsendelseStatus)) {
-			stringToEnum(DokumentStatusCode.class, forsendelseStatus.trim());
-			stringToEnum(DistribusjonStatusCode.class, forsendelseStatus.trim());
+			validateEnum(DokumentStatusCode.class, forsendelseStatus.trim());
+			validateEnum(DistribusjonStatusCode.class, forsendelseStatus.trim());
+
+			return true;
 		}
+		return false;
 	}
+
+	private static boolean isDigitalAdresseSatt(OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+		return isNotBlank(oppdaterForsendelseRequest.getDigitalLeverandoeradresse()) ||
+			   isNotBlank(oppdaterForsendelseRequest.getDigitalPostkasseadresse());
+	}
+
+	private static boolean isDistribusjonStatusEqualToDokumentStatus(DokumentInfo dokumentInfo) {
+		return dokumentInfo.getDistribusjonInfo().getDistribusjonStatus().name().equals(dokumentInfo.getDokumentStatus().name());
+	}
+
 }

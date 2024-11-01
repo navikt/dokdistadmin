@@ -6,7 +6,7 @@ import static java.lang.String.format;
 
 public class EnumUtils {
 
-	public static <E extends Enum<E>> void stringToEnum(Class<E> enumClass, String enumName) {
+	public static <E extends Enum<E>> void validateEnum(Class<E> enumClass, String enumName) {
 		try {
 			Enum.valueOf(enumClass, enumName);
 		} catch (IllegalArgumentException e) {

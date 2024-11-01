@@ -98,18 +98,6 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 
 	@Modifying
 	@Query("""
-			update DokumentInfo dok set dok.dokumentStatus = :dokumentStatus,
-			dok.changeStamp.endretAv = :endretAv,
-			dok.changeStamp.endretDato = current_timestamp
-			where dok.dokumentInfoId = :dokumentInfoId
-			"""
-	)
-	void updateDokumentStatus(@Param("dokumentInfoId") Long dokumentInfoId,
-							  @Param("dokumentStatus") DokumentStatusCode dokumentStatus,
-							  @Param("endretAv") String endretAv);
-
-	@Modifying
-	@Query("""
 			update DokumentInfo dok set dok.konversasjonId = :konversasjonId,
 			dok.changeStamp.endretAv = :endretAv,
 			dok.changeStamp.endretDato = current_timestamp

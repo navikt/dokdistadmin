@@ -36,6 +36,7 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
@@ -46,9 +47,17 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	private static final String RDIST001_TEKNISK_FEILMELDING = "rdist001 feilet teknisk med feilmelding: {}";
 
 	@ExceptionHandler({
+			DokumentStatusErAlleredeSattException.class,
+	})
+	public ResponseEntity<Object> DokumentStatusErAlleredeSattExceptionHandler(Exception e) {
+		log.info("rdist001 avbryter behandlig av følgende grunn: {}", e.getMessage());
+
+		return getResponseEntity(OK, e.getMessage());
+	}
+
+	@ExceptionHandler({
 			ConstraintViolationException.class,
 			UlovligStatusOvergangException.class,
-			DokumentStatusErAlleredeSattException.class,
 			OppdaterVarselInfoException.class,
 			ValideringFeiletException.class
 	})
