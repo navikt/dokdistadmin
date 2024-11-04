@@ -2,31 +2,27 @@ package no.nav.dokdistadmin.administrerforsendelse;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
-import no.nav.dokdistadmin.domain.DistribusjonInfo;
 import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.domain.VarselStatusCode;
-import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.IkkeSammenfallendeStatusException;
+import no.nav.dokdistadmin.exception.functional.StatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
-import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
-import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligDokumentstatusovergang;
+import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligDokumentstatusOvergang;
+import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligVarselstatusOvergang;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
-import static no.nav.dokdistadmin.domain.VarselStatusCode.FERDIGSTILT;
-import static no.nav.dokdistadmin.domain.VarselStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.utils.EnumUtils.validateEnum;
-import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
@@ -35,12 +31,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class OppdaterForsendelseService {
 
 	private final DokumentInfoRepository dokumentInfoRepository;
-	private final DokumentDistribusjonRepository dokumentDistribusjonRepository;
 
-	public OppdaterForsendelseService(DokumentInfoRepository dokumentInfoRepository,
-									  DokumentDistribusjonRepository dokumentDistribusjonRepository) {
+	public OppdaterForsendelseService(DokumentInfoRepository dokumentInfoRepository) {
 		this.dokumentInfoRepository = dokumentInfoRepository;
-		this.dokumentDistribusjonRepository = dokumentDistribusjonRepository;
 	}
 
 	@Transactional
@@ -53,16 +46,16 @@ public class OppdaterForsendelseService {
 					oppdaterForsendelseRequest.getForsendelseId()));
 		}
 
-		if (validateForsendelseStatus(oppdaterForsendelseRequest.getForsendelseStatus())) {
-			oppdaterDokumentAndDistribusjonStatus(dokumentInfo, oppdaterForsendelseRequest.getForsendelseStatus());
+		if (isGyldigForsendelseStatus(oppdaterForsendelseRequest.getForsendelseStatus())) {
+			oppdaterDokumentstatusOgDistribusjonstatus(dokumentInfo, oppdaterForsendelseRequest.getForsendelseStatus());
 		}
 
 		if (isNotBlank(oppdaterForsendelseRequest.getKonversasjonId())) {
-			oppdaterKonversasjonId(dokumentInfo, oppdaterForsendelseRequest.getKonversasjonId());
+			dokumentInfo.setKonversasjonId(oppdaterForsendelseRequest.getKonversasjonId());
 		}
 
 		if (oppdaterForsendelseRequest.getVarselStatus() != null) {
-			oppdaterVarselStatus(dokumentInfo, oppdaterForsendelseRequest.getVarselStatus());
+			oppdaterVarselstatus(dokumentInfo, oppdaterForsendelseRequest.getVarselStatus());
 		}
 
 		if (SDP.equals(dokumentInfo.getDistribusjonInfo().getDistribusjonKanal())) {
@@ -70,96 +63,81 @@ public class OppdaterForsendelseService {
 		}
 	}
 
-	private void oppdaterDokumentAndDistribusjonStatus(DokumentInfo dokumentInfo, String nyForsendelseStatus) {
-		final String dokumentStatus = dokumentInfo.getDokumentStatus().name();
+	private void oppdaterDokumentstatusOgDistribusjonstatus(DokumentInfo dokumentInfo, String nyForsendelsestatus) {
+		final String dokumentstatus = dokumentInfo.getDokumentStatus().name();
+		final String distribusjonstatus = dokumentInfo.getDistribusjonInfo().getDistribusjonStatus().name();
 
-		if (!isDistribusjonStatusEqualToDokumentStatus(dokumentInfo)) {
+		if (!distribusjonstatus.equals(dokumentstatus)) {
 			throw new IkkeSammenfallendeStatusException(format("Ikke sammenfallende statuser på forsendelse: distribusjonStatus er ikke lik dokumentStatus. distribusjonStatus=%s, dokumentStatus=%s",
-					dokumentInfo.getDistribusjonInfo().getDistribusjonStatus(), dokumentStatus));
+					distribusjonstatus, dokumentstatus));
 		}
 
-		if (dokumentStatus.equals(nyForsendelseStatus)) {
-			throw new DokumentStatusErAlleredeSattException(format("DokumentStatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus på forsendelse er allerede dokumentStatus=%s",
-					nyForsendelseStatus, dokumentStatus));
+		if (dokumentstatus.equals(nyForsendelsestatus)) {
+			throw new StatusErAlleredeSattException(format("Dokumentstatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus for forsendelse=%s er allerede dokumentStatus=%s",
+					nyForsendelsestatus,
+					dokumentInfo.getDokumentInfoId(),
+					dokumentstatus));
 		}
 
-		if (isLovligDokumentstatusovergang(dokumentStatus, nyForsendelseStatus)) {
-			setForsendelseStatus(dokumentInfo, nyForsendelseStatus);
-			dokumentInfo.setDokumentStatus(valueOf(nyForsendelseStatus));
-			DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();
-			distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.valueOf(nyForsendelseStatus));
-
-		} else {
+		if (!isLovligDokumentstatusOvergang(dokumentstatus, nyForsendelsestatus)) {
 			throw new UlovligStatusOvergangException(format("Ulovlig statusovergang: kan ikke sette ny dokumentStatus=%s når dokumentStatus=%s. Lovlige statusoverganger er " +
 							"OPPRETTET -> KLAR_FOR_DIST, " +
 							"KLAR_FOR_DIST -> OVERSENDT/EKSPEDERT, " +
 							"OVERSENDT -> BEKREFTET/EKSPEDERT/FEILET, " +
 							"BEKREFTET -> EKSPEDERT/FEILET",
-					nyForsendelseStatus, dokumentStatus));
+					nyForsendelsestatus, dokumentstatus));
 		}
-	}
 
-	private void oppdaterVarselStatus(DokumentInfo dokumentInfo, VarselStatusCode nyVarselStatus) {
-		final VarselStatusCode opprinneligVarselStatus = dokumentInfo.getDistribusjonInfo().getVarselStatus();
-		if (!isLovligVarselStatusOvergang(opprinneligVarselStatus, nyVarselStatus)) {
-			throw new UlovligStatusOvergangException(format("Ulovlig varselstatusovergang: kan ikke sette ny varselStatus=%s for distribusjon når varselStatus=%s. Lovlige statusoverganger er " +
-							"OPPRETTET -> FEILET, " +
-							"OPPRETTET -> FERDIGSTILT",
-					nyVarselStatus, opprinneligVarselStatus));
-		}
-		if (opprinneligVarselStatus == null || (!opprinneligVarselStatus.equals(nyVarselStatus))) {
-			dokumentInfo.getDistribusjonInfo().setVarselStatus(nyVarselStatus);
-			DistribusjonInfo distribusjonInfo = dokumentInfo.getDistribusjonInfo();
-			dokumentDistribusjonRepository.updateDistribusjonInfoVarselStatus(distribusjonInfo.getDistribusjonInfoId(),
-					nyVarselStatus, MDC.get(USER_ID));
-		}
-	}
+		DokumentStatusCode nyDokumentStatus = valueOf(nyForsendelsestatus);
+		DistribusjonStatusCode nyDistribusjonStatus = DistribusjonStatusCode.valueOf(nyForsendelsestatus);
 
-	private void oppdaterDigitalDistribusjonAdresseFraDPI(DokumentInfo dokumentInfo, OppdaterForsendelseRequest oppdaterForsendelseRequest) {
-		if (isDigitalAdresseSatt(oppdaterForsendelseRequest)) {
-			dokumentInfo.setDigitalDistributorId(oppdaterForsendelseRequest.getDigitalLeverandoeradresse());
-			dokumentInfo.setDigitalPostkasseAdresse(oppdaterForsendelseRequest.getDigitalPostkasseadresse());
-			dokumentInfoRepository.updateDokumentDigitalDistribujonAdresse(oppdaterForsendelseRequest.getForsendelseId(),
-					oppdaterForsendelseRequest.getDigitalPostkasseadresse(), oppdaterForsendelseRequest.getDigitalLeverandoeradresse(), MDC.get(USER_ID));
-		}
-	}
+		dokumentInfo.setDokumentStatus(nyDokumentStatus);
+		dokumentInfo.getDistribusjonInfo().setDistribusjonStatus(nyDistribusjonStatus);
 
-	private void oppdaterKonversasjonId(DokumentInfo dokumentInfo, String konversasjonId) {
-		dokumentInfo.setKonversasjonId(konversasjonId);
-		dokumentInfoRepository.updateDokumentKonversasjonsId(dokumentInfo.getDokumentInfoId(), konversasjonId, MDC.get(USER_ID));
-	}
-
-	private boolean isLovligVarselStatusOvergang(VarselStatusCode opprinneligVarselStatus, VarselStatusCode nyVarselStatus) {
-		return opprinneligVarselStatus == null ||
-				(opprinneligVarselStatus.equals(OPPRETTET) && (nyVarselStatus.equals(VarselStatusCode.FEILET) ||
-						nyVarselStatus.equals(FERDIGSTILT)));
-	}
-
-	private void setForsendelseStatus(DokumentInfo dokumentInfo, String nyForsendelseStatus) {
-		dokumentInfo.setDokumentStatus(valueOf(nyForsendelseStatus));
-		dokumentInfo.getDistribusjonInfo().setDistribusjonStatus(DistribusjonStatusCode.valueOf(nyForsendelseStatus));
-		if (EKSPEDERT.equals(valueOf(nyForsendelseStatus))) {
+		if (EKSPEDERT.equals(nyDokumentStatus)) {
 			dokumentInfo.setEkspedertDato(now());
 		}
 	}
 
-	private boolean validateForsendelseStatus(String forsendelseStatus) {
-		if (isNotBlank(forsendelseStatus)) {
-			validateEnum(DokumentStatusCode.class, forsendelseStatus.trim());
-			validateEnum(DistribusjonStatusCode.class, forsendelseStatus.trim());
+	private void oppdaterVarselstatus(DokumentInfo dokumentInfo, VarselStatusCode nyVarselstatus) {
+		final VarselStatusCode opprinneligVarselStatus = dokumentInfo.getDistribusjonInfo().getVarselStatus();
 
-			return true;
+		if (opprinneligVarselStatus != null && opprinneligVarselStatus.equals(nyVarselstatus)) {
+			throw new StatusErAlleredeSattException(format("Varselstatus er allerede satt: fikk forespørsel om å sette ny varselstatus=%s. Varselstatus for distribusjonId=%s er allerede varselstatus=%s",
+					nyVarselstatus,
+					dokumentInfo.getDistribusjonInfo().getDistribusjonId(),
+					opprinneligVarselStatus));
 		}
-		return false;
+
+		if (!isLovligVarselstatusOvergang(opprinneligVarselStatus, nyVarselstatus)) {
+			throw new UlovligStatusOvergangException(format("Ulovlig varselstatusovergang: kan ikke sette ny varselStatus=%s for distribusjon når varselStatus=%s. Lovlige statusoverganger er " +
+							"OPPRETTET -> FEILET, " +
+							"OPPRETTET -> FERDIGSTILT",
+					nyVarselstatus, opprinneligVarselStatus));
+		}
+
+		dokumentInfo.getDistribusjonInfo().setVarselStatus(nyVarselstatus);
 	}
 
-	private static boolean isDigitalAdresseSatt(OppdaterForsendelseRequest oppdaterForsendelseRequest) {
-		return isNotBlank(oppdaterForsendelseRequest.getDigitalLeverandoeradresse()) ||
-			   isNotBlank(oppdaterForsendelseRequest.getDigitalPostkasseadresse());
+	private void oppdaterDigitalDistribusjonAdresseFraDPI(DokumentInfo dokumentInfo, OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+		if (isNotBlank(oppdaterForsendelseRequest.getDigitalLeverandoeradresse())) {
+			dokumentInfo.setDigitalDistributorId(oppdaterForsendelseRequest.getDigitalLeverandoeradresse());
+		}
+
+		if (isNotBlank(oppdaterForsendelseRequest.getDigitalPostkasseadresse())) {
+			dokumentInfo.setDigitalPostkasseAdresse(oppdaterForsendelseRequest.getDigitalPostkasseadresse());
+		}
 	}
 
-	private static boolean isDistribusjonStatusEqualToDokumentStatus(DokumentInfo dokumentInfo) {
-		return dokumentInfo.getDistribusjonInfo().getDistribusjonStatus().name().equals(dokumentInfo.getDokumentStatus().name());
+	private boolean isGyldigForsendelseStatus(String forsendelseStatus) {
+		if (isBlank(forsendelseStatus)) {
+			return false;
+		}
+
+		validateEnum(DokumentStatusCode.class, forsendelseStatus.trim());
+		validateEnum(DistribusjonStatusCode.class, forsendelseStatus.trim());
+
+		return true;
 	}
 
 }

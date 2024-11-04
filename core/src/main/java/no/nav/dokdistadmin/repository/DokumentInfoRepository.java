@@ -95,30 +95,4 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 			@Param("distribusjoninfo") DistribusjonInfo distribusjoninfo,
 			@Param("endretAv") String endretAv);
 
-
-	@Modifying
-	@Query("""
-			update DokumentInfo dok set dok.konversasjonId = :konversasjonId,
-			dok.changeStamp.endretAv = :endretAv,
-			dok.changeStamp.endretDato = current_timestamp
-			where dok.dokumentInfoId = :dokumentInfoId
-			"""
-	)
-	void updateDokumentKonversasjonsId(@Param("dokumentInfoId") Long dokumentInfoId,
-									   @Param("konversasjonId") String konversasjonId,
-									   @Param("endretAv") String endretAv);
-
-	@Modifying
-	@Query("""
-			update DokumentInfo dok set dok.digitalPostkasseAdresse = :digitalPostkasseAdresse,
-							dok.digitalDistributorId = :digitalDistributorId,
-							dok.changeStamp.endretAv = :endretAv,
-							dok.changeStamp.endretDato = current_timestamp
-							where dok.dokumentInfoId = :dokumentInfoId
-			""")
-	void updateDokumentDigitalDistribujonAdresse(@Param("dokumentInfoId") Long dokumentInfoId,
-												 @Param("digitalPostkasseAdresse") String digitalPostkasseAdresse,
-												 @Param("digitalDistributorId") String digitalDistributorId,
-												 @Param("endretAv") String endretAv);
-
 }

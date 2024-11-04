@@ -15,7 +15,7 @@ import java.util.stream.StreamSupport;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
-import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADDRESSE;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADRESSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FIRST_VARSEL_SENDT_DATO;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.SECOND_VARSEL_SENDT_DATO;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEFONNUMMER;
@@ -77,7 +77,7 @@ public class VarselinfoITest extends AbstractITest {
 			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
 			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESSE);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADRESSE);
 			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(FIRST_VARSEL_SENDT_DATO, within(1, SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
@@ -92,8 +92,8 @@ public class VarselinfoITest extends AbstractITest {
 		var request = createOppdaterVarselInfoRequest(
 				dokument.getDokumentInfoId(),
 				List.of(createNotifikasjon(MOBILTELEFON, TELEFONNUMMER, null, FIRST_VARSEL_SENDT_DATO),
-						createNotifikasjon(EPOST, EPOSTADDRESSE, VARSELTITTEL, FIRST_VARSEL_SENDT_DATO),
-						createNotifikasjon(EPOST, EPOSTADDRESSE, VARSELTITTEL, SECOND_VARSEL_SENDT_DATO)
+						createNotifikasjon(EPOST, EPOSTADRESSE, VARSELTITTEL, FIRST_VARSEL_SENDT_DATO),
+						createNotifikasjon(EPOST, EPOSTADRESSE, VARSELTITTEL, SECOND_VARSEL_SENDT_DATO)
 				));
 
 		webTestClient.put()
@@ -120,7 +120,7 @@ public class VarselinfoITest extends AbstractITest {
 			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
 			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESSE);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADRESSE);
 			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(FIRST_VARSEL_SENDT_DATO, within(1, SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
@@ -128,7 +128,7 @@ public class VarselinfoITest extends AbstractITest {
 			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
 			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESSE);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADRESSE);
 			assertThat(varsel.getVarslingstidspunkt()).isCloseTo(SECOND_VARSEL_SENDT_DATO, within(1, SECONDS));
 			assertNull(varsel.getMobiltelefonNummer());
 		});
@@ -140,7 +140,7 @@ public class VarselinfoITest extends AbstractITest {
 		setupDatabase();
 		var dokument = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1);
 
-		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId(), List.of(createNotifikasjon(EPOST, EPOSTADDRESSE, VARSELTITTEL, null)));
+		var request = createOppdaterVarselInfoRequest(dokument.getDokumentInfoId(), List.of(createNotifikasjon(EPOST, EPOSTADRESSE, VARSELTITTEL, null)));
 
 		webTestClient.put()
 				.uri(OPPDATERVARSELINFO_URI)
@@ -218,7 +218,7 @@ public class VarselinfoITest extends AbstractITest {
 
 		var tidspunktIFremtiden = LocalDateTime.now().plusSeconds(SLINGRINGSMONN_FOR_VARSLINGSTIDSPUNKT + 1);
 
-		var epostNotifikasjon = createNotifikasjon(EPOST, EPOSTADDRESSE, VARSELTITTEL, tidspunktIFremtiden);
+		var epostNotifikasjon = createNotifikasjon(EPOST, EPOSTADRESSE, VARSELTITTEL, tidspunktIFremtiden);
 		var smsNotifikasjon = createNotifikasjon(MOBILTELEFON, TELEFONNUMMER, VARSELTITTEL, tidspunktIFremtiden);
 
 		var request = createOppdaterVarselInfoRequest(123L, List.of(epostNotifikasjon, smsNotifikasjon));
@@ -273,7 +273,7 @@ public class VarselinfoITest extends AbstractITest {
 				Notifikasjon.builder()
 						.kanal(EPOST)
 						.tekst(VARSELTEKST)
-						.kontaktInfo(EPOSTADDRESSE)
+						.kontaktInfo(EPOSTADRESSE)
 						.tittel(VARSELTITTEL)
 						.varslingstidspunkt(FIRST_VARSEL_SENDT_DATO)
 						.build());

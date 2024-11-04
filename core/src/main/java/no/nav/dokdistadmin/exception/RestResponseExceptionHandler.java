@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
-import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.FlereForsendelserFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetInfomeldingException;
 import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoelgeException;
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
 import no.nav.dokdistadmin.exception.functional.PostdestinasjonIkkeFunnetException;
+import no.nav.dokdistadmin.exception.functional.StatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
@@ -47,10 +47,10 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	private static final String RDIST001_TEKNISK_FEILMELDING = "rdist001 feilet teknisk med feilmelding: {}";
 
 	@ExceptionHandler({
-			DokumentStatusErAlleredeSattException.class,
+			StatusErAlleredeSattException.class,
 	})
-	public ResponseEntity<Object> DokumentStatusErAlleredeSattExceptionHandler(Exception e) {
-		log.info("rdist001 avbryter behandlig av følgende grunn: {}", e.getMessage());
+	public ResponseEntity<Object> statusErAlleredeSattExceptionHandler(Exception e) {
+		log.info("rdist001 avbryter behandling av følgende grunn: {}", e.getMessage());
 
 		return getResponseEntity(OK, e.getMessage());
 	}

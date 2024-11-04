@@ -1,6 +1,5 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
-import no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.Varsel.Epostvarsel;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.Varsel.Smsvarsel;
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
@@ -19,6 +18,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ARKIV
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITALPOSTKASSE_ADRESSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITAL_DISTRIBUTOR_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENTINFO_ID;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADRESSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FIRST_VARSEL_SENDT_DATO;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.LANDKODE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.MELDING;
@@ -57,7 +57,7 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getVarsel().getEpostvarsel()).hasSize(1);
 
 					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().iterator().next();
-					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESSE);
+					assertThat(epostVarsel.getAdresse()).isEqualTo(EPOSTADRESSE);
 					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
 					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
 					assertThat(epostVarsel.getTidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);
@@ -90,7 +90,7 @@ public class HentEkspederteForsendelserMapperTest {
 					assertThat(forsendelse.getVarsel().getEpostvarsel()).hasSize(1);
 
 					Epostvarsel epostVarsel = forsendelse.getVarsel().getEpostvarsel().iterator().next();
-					assertThat(epostVarsel.getAdresse()).isEqualTo(Rdist001TestUtils.EPOSTADDRESSE);
+					assertThat(epostVarsel.getAdresse()).isEqualTo(EPOSTADRESSE);
 					assertThat(epostVarsel.getTittel()).isEqualTo(VARSELTITTEL);
 					assertThat(epostVarsel.getTekst()).isEqualTo(MELDING);
 					assertThat(epostVarsel.getTidspunkt()).isEqualTo(FIRST_VARSEL_SENDT_DATO);

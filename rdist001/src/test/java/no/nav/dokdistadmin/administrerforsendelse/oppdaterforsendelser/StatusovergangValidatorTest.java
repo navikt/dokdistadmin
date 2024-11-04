@@ -1,9 +1,12 @@
 package no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser;
 
+import no.nav.dokdistadmin.domain.VarselStatusCode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 
 class StatusovergangValidatorTest {
 
@@ -18,8 +21,8 @@ class StatusovergangValidatorTest {
 			"BEKREFTET, EKSPEDERT",
 			"BEKREFTET, FEILET"
 	})
-	void skalValidereLovligeStatusoverganger(String oldDokumentStatus, String nyForsendelseStatus) {
-		var result = StatusovergangValidator.isLovligDokumentstatusovergang(oldDokumentStatus, nyForsendelseStatus);
+	void skalValidereLovligeDokumentstatusOverganger(String oldDokumentStatus, String nyForsendelseStatus) {
+		var result = StatusovergangValidator.isLovligDokumentstatusOvergang(oldDokumentStatus, nyForsendelseStatus);
 		assertThat(result).isTrue();
 	}
 
@@ -63,8 +66,29 @@ class StatusovergangValidatorTest {
 			"RETURPOSTBEHANDLET, FEILET",
 			"RETURPOSTBEHANDLET, RETURPOSTBEHANDLET"
 	})
-	void skalValidereUlovligeStatusoverganger(String oldDokumentStatus, String nyForsendelseStatus) {
-		var result = StatusovergangValidator.isLovligDokumentstatusovergang(oldDokumentStatus, nyForsendelseStatus);
+	void skalFeilvalidereUlovligeDokumentstatusOverganger(String oldDokumentStatus, String nyForsendelseStatus) {
+		var result = StatusovergangValidator.isLovligDokumentstatusOvergang(oldDokumentStatus, nyForsendelseStatus);
+		assertThat(result).isFalse();
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = VarselStatusCode.class, names = {"FERDIGSTILT", "FEILET"})
+	void skalValidereLovligeVarselstatusOverganger(VarselStatusCode nyVarselStatus) {
+		var result = StatusovergangValidator.isLovligVarselstatusOvergang(VarselStatusCode.OPPRETTET, nyVarselStatus);
+		assertThat(result).isTrue();
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = VarselStatusCode.class)
+	void skalValidereVarselstatusOvergangDersomEksisterendeVarselstatusErNull(VarselStatusCode nyVarselStatus) {
+		var result = StatusovergangValidator.isLovligVarselstatusOvergang(null, nyVarselStatus);
+		assertThat(result).isTrue();
+	}
+
+	@ParameterizedTest
+	@EnumSource(value = VarselStatusCode.class, mode = EXCLUDE, names = {"FERDIGSTILT", "FEILET"})
+	void skalFeilvalidereUlovligeVarselstatusOverganger(VarselStatusCode nyVarselStatus) {
+		var result = StatusovergangValidator.isLovligVarselstatusOvergang(VarselStatusCode.OPPRETTET, nyVarselStatus);
 		assertThat(result).isFalse();
 	}
 }

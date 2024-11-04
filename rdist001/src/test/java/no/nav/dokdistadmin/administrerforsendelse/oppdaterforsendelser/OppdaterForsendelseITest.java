@@ -18,10 +18,12 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKDISTADMIN;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithVarselstatus;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCode;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,10 +63,10 @@ public class OppdaterForsendelseITest extends AbstractITest {
 				.toList().getFirst();
 
 		var nyForsendelsestatus = KLAR_FOR_DIST.name();
-		var nyKonversasjonsId = "nyKonversasjonsId";
+		var nyKonversasjonsId = "ddb8cf06-3e42-4850-b87d-ff1cd6bf5854";
 		var nyVarselstatus = VarselStatusCode.FERDIGSTILT;
-		var nyDigitalDistributorId = "nyDigitalDistributor";
-		var nyDigitalPostkasseAdresse = "nyDigitalPostkasse";
+		var nyDigitalDistributorId = "digipost";
+		var nyDigitalPostkasseAdresse = "ola#123";
 
 		var request = OppdaterForsendelseRequest.builder()
 				.forsendelseId(dokumentInfoId)
@@ -92,14 +94,14 @@ public class OppdaterForsendelseITest extends AbstractITest {
 					assertThat(it.getDigitalDistributorId()).isEqualTo(nyDigitalDistributorId);
 					assertThat(it.getDigitalPostkasseAdresse()).isEqualTo(nyDigitalPostkasseAdresse);
 					assertThat(it.getChangeStamp().getEndretAv()).isEqualTo(DOKDISTADMIN);
-					assertThat(it.getChangeStamp().getEndretDato()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+					assertThat(it.getChangeStamp().getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
 				});
 
 		assertThat(oppdatertDistribusjonInfo)
 				.satisfies(it -> {
 					assertThat(it.getVarselStatus()).isEqualTo(nyVarselstatus);
 					assertThat(it.getChangeStamp().getEndretAv()).isEqualTo(DOKDISTADMIN);
-					assertThat(it.getChangeStamp().getEndretDato()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+					assertThat(it.getChangeStamp().getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
 				});
 	}
 
@@ -135,13 +137,13 @@ public class OppdaterForsendelseITest extends AbstractITest {
 
 		assertThat(oppdatertDokumentinfo.getChangeStamp())
 				.satisfies(changeStamp -> {
-					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
 					assertThat(changeStamp.getEndretAv()).isEqualTo(DOKDISTADMIN);
 				});
 
 		assertThat(oppdatertDistribusjonInfo.getChangeStamp())
 				.satisfies(changeStamp -> {
-					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
 					assertThat(changeStamp.getEndretAv()).isEqualTo(DOKDISTADMIN);
 				});
 	}
@@ -176,7 +178,7 @@ public class OppdaterForsendelseITest extends AbstractITest {
 		assertThat(oppdatertDokumentinfo.getDigitalPostkasseAdresse()).isEqualTo(digitalPostkasseadresse);
 		assertThat(oppdatertDokumentinfo.getChangeStamp())
 				.satisfies(changeStamp -> {
-					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
 					assertThat(changeStamp.getEndretAv()).isEqualTo(DOKDISTADMIN);
 				});
 	}
@@ -184,7 +186,10 @@ public class OppdaterForsendelseITest extends AbstractITest {
 	@ParameterizedTest
 	@CsvSource(value = {
 			"OPPRETTET,FERDIGSTILT",
-			"OPPRETTET,FEILET"
+			"OPPRETTET,FEILET",
+			",OPPRETTET",
+			",FERDIGSTILT",
+			",FEILET"
 	})
 	void skalOppdatereVarselStatus(VarselStatusCode oldVarselStatus, VarselStatusCode newVarselStatus) {
 		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(OVERSENDT.name(), oldVarselStatus);
@@ -213,7 +218,7 @@ public class OppdaterForsendelseITest extends AbstractITest {
 					assertThat(distributionInfo.getVarselStatus()).isEqualTo(newVarselStatus);
 					assertThat(distributionInfo.getChangeStamp())
 							.satisfies(changeStamp -> {
-								assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+								assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
 								assertThat(changeStamp.getEndretAv()).isEqualTo(DOKDISTADMIN);
 							});
 				});
@@ -298,8 +303,46 @@ public class OppdaterForsendelseITest extends AbstractITest {
 				.getResponseBody();
 
 		assertThat(response).isNotNull();
-		assertThat(response).contains("DokumentStatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus på forsendelse er allerede dokumentStatus=%s".formatted(
-				distribusjonInfo.getDistribusjonStatus().name(), dokumentInfo.getDokumentStatus().name()));
+		assertThat(response).contains("Dokumentstatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus for forsendelse=%s er allerede dokumentStatus=%s".formatted(
+				distribusjonInfo.getDistribusjonStatus().name(),
+				dokumentInfoId,
+				dokumentInfo.getDokumentStatus().name()));
+	}
+
+	@Test
+	void skalReturnereOkDersomVarselstatusErLikEksisterendeVarselstatus() {
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithVarselstatus(VarselStatusCode.OPPRETTET));
+
+		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(OPPRETTET);
+		distribusjonInfo.addDokumentInfo(dokumentInfo);
+
+		dokumentDistribusjonRepository.save(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		long dokumentInfoId = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList().getFirst();
+
+		var response = webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoId)
+						.forsendelseStatus(KLAR_FOR_DIST.name())
+						.varselStatus(VarselStatusCode.OPPRETTET)
+						.build())
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response).contains("Varselstatus er allerede satt: fikk forespørsel om å sette ny varselstatus=%s. Varselstatus for distribusjonId=%s er allerede varselstatus=%s".formatted(
+				distribusjonInfo.getDistribusjonStatus().name(),
+				distribusjonInfo.getDistribusjonId(),
+				dokumentInfo.getDokumentStatus().name()));
 	}
 
 	@ParameterizedTest

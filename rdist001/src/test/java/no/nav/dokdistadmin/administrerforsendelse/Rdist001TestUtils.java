@@ -51,7 +51,7 @@ public class Rdist001TestUtils {
 	public static final String MOTTAKER_NAVN = "Navn Navnesen";
 	public static final String DIGITAL_DISTRIBUTOR_ID = "996460320";
 	public static final String ARKIV_KODE = "389426100";
-	public static final String EPOSTADDRESSE = "epostaddress0@nav.no";
+	public static final String EPOSTADRESSE = "epostaddress0@nav.no";
 	public static final String TELEFONNUMMER = "91234567";
 	public static final String DOKDISTDPI = "dokdistdpi";
 	public static final String ADRESSELINJE_1 = "adresselinje1";
@@ -86,6 +86,13 @@ public class Rdist001TestUtils {
 	public static DistribusjonInfo createDistribusjonInfoWithDistribusjonKanal(DistribusjonKanalCode distribusjonKanalCode) {
 		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();
 		distribusjonInfo.setDistribusjonKanal(distribusjonKanalCode);
+
+		return distribusjonInfo;
+	}
+
+	public static DistribusjonInfo createDistribusjonInfoWithVarselstatus(VarselStatusCode varselStatusCode) {
+		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();
+		distribusjonInfo.setVarselStatus(varselStatusCode);
 
 		return distribusjonInfo;
 	}
@@ -178,7 +185,7 @@ public class Rdist001TestUtils {
 	public static VarselInfo createEpostVarselInfo() {
 		return VarselInfo.builder()
 				.varselInfoId(VARSELID)
-				.epostAdresse(EPOSTADDRESSE)
+				.epostAdresse(EPOSTADRESSE)
 				.varslingKanal(EPOST)
 				.varslingstittel(VARSELTITTEL)
 				.varslingstekst(MELDING)
