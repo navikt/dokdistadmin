@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class RestControllerConfig implements WebMvcConfigurer {
 
-	SporingInterceptor sporingInterceptor;
+	final SporingInterceptor sporingInterceptor;
 
 	public RestControllerConfig(SporingInterceptor sporingInterceptor) {
 		this.sporingInterceptor = sporingInterceptor;

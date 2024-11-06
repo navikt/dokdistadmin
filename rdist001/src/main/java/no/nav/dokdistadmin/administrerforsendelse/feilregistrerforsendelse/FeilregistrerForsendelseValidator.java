@@ -9,7 +9,6 @@ import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.FeilregistrerForsendelseService.FEILREGISTRER_FORSENDELSE_FEILMELDING;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class FeilregistrerForsendelseValidator {

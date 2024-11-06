@@ -1,20 +1,19 @@
 package no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import no.nav.dokdistadmin.domain.VarselStatusCode;
 
-import jakarta.validation.constraints.NotNull;
 
-
-@Data
+@Value
 @Builder
 public class OppdaterForsendelseRequest {
 	@NotNull(message = "forsendelseId må ha en verdi")
-	private Long forsendelseId;
-	private String forsendelseStatus;
-	private String konversasjonId;
-	private VarselStatusCode varselStatus;
-	private String digitalLeverandoeradresse;
-	private String digitalPostkasseadresse;
+	Long forsendelseId;
+	String forsendelseStatus;
+	String konversasjonId;
+	VarselStatusCode varselStatus;
+	String digitalLeverandoeradresse;
+	String digitalPostkasseadresse;
 }

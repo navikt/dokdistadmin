@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
-import no.nav.dokdistadmin.exception.functional.DokumentStatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.FlereForsendelserFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetInfomeldingException;
 import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoelgeException;
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
 import no.nav.dokdistadmin.exception.functional.PostdestinasjonIkkeFunnetException;
+import no.nav.dokdistadmin.exception.functional.StatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
@@ -36,6 +36,7 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
@@ -46,9 +47,17 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	private static final String RDIST001_TEKNISK_FEILMELDING = "rdist001 feilet teknisk med feilmelding: {}";
 
 	@ExceptionHandler({
+			StatusErAlleredeSattException.class,
+	})
+	public ResponseEntity<Object> statusErAlleredeSattExceptionHandler(Exception e) {
+		log.info("rdist001 avbryter behandling av følgende grunn: {}", e.getMessage());
+
+		return getResponseEntity(OK, e.getMessage());
+	}
+
+	@ExceptionHandler({
 			ConstraintViolationException.class,
 			UlovligStatusOvergangException.class,
-			DokumentStatusErAlleredeSattException.class,
 			OppdaterVarselInfoException.class,
 			ValideringFeiletException.class
 	})
@@ -140,7 +149,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
 	private static ResponseEntity<Object> handleInvalidFormatException(HttpMessageNotReadableException e, InvalidFormatException invalidFormatException) {
 		String feilmelding;
-		var fieldName = invalidFormatException.getPath().get(0).getFieldName();
+		var fieldName = invalidFormatException.getPath().getFirst().getFieldName();
 		var value = invalidFormatException.getValue();
 		var targetType = invalidFormatException.getTargetType();
 

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADDRESS;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADRESSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.TELEFONNUMMER;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTEKST;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.VARSELTITTEL;
@@ -36,7 +36,7 @@ class OppdaterVarselInfoRequestMapperTest {
 		assertThat(varselInfoList).anySatisfy(varsel -> {
 			assertThat(varsel.getVarslingKanal()).isEqualTo(EPOST);
 			assertThat(varsel.getVarslingstekst()).isEqualTo(VARSELTEKST);
-			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADDRESS);
+			assertThat(varsel.getEpostAdresse()).isEqualTo(EPOSTADRESSE);
 			assertNull(varsel.getMobiltelefonNummer());
 			assertThat(varsel.getDokumentInfo()).isEqualTo(dokumentInfo);
 			assertThat(varsel.getVarslingstittel()).isEqualTo(VARSELTITTEL);
@@ -57,7 +57,7 @@ class OppdaterVarselInfoRequestMapperTest {
 								Notifikasjon.builder()
 										.kanal(EPOST)
 										.tekst(VARSELTEKST)
-										.kontaktInfo(EPOSTADDRESS)
+										.kontaktInfo(EPOSTADRESSE)
 										.tittel(VARSELTITTEL)
 										.varslingstidspunkt(null)
 										.build()))

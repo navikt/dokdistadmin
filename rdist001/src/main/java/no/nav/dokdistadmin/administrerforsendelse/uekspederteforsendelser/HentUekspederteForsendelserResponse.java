@@ -1,38 +1,38 @@
 package no.nav.dokdistadmin.administrerforsendelse.uekspederteforsendelser;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
 import java.util.List;
 
-@Data
+@Value
 @Builder
 public class HentUekspederteForsendelserResponse {
 
-	private List<UekspedertForsendelse> uekspederteForsendelser;
+	List<UekspedertForsendelse> uekspederteForsendelser;
 
-	@Data
+	@Value
 	@Builder
 	public static class UekspedertForsendelse {
-		private String distribusjonId;
-		private List<DokumentInfo> dokumenter;
-		private String distribusjonKanal;
-		private String distribusjonStatus;
-		private String opprettetDato;
-		private String distribusjonDato;
+		String distribusjonId;
+		List<DokumentInfo> dokumenter;
+		String distribusjonKanal;
+		String distribusjonStatus;
+		String opprettetDato;
+		String distribusjonDato;
 	}
 
-	@Data
+	@Value
 	@Builder
 	public static class DokumentInfo {
-		private final String forsendelseId;
-		private final String dokumentId;
-		private final String dokumentStatus;
-		private final String konversasjonId;
-		private final String bestillendeFagsystem;
-		private final String fagomradeCode;
-		private final String journalpostId;
-		private final String brevProduksjonApplikasjon;
+		String forsendelseId;
+		String dokumentId;
+		String dokumentStatus;
+		String konversasjonId;
+		String bestillendeFagsystem;
+		String fagomradeCode;
+		String journalpostId;
+		String brevProduksjonApplikasjon;
 	}
 
 }

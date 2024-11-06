@@ -1,13 +1,12 @@
 package no.nav.dokdistadmin.config;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import no.nav.dokdistadmin.domain.ModusCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
-
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 
 @Data
 @Validated
@@ -38,7 +37,7 @@ public class DokdistadminProperties {
 		 * Dokdistadmin statisk pool (denne appen) er max 840 koblinger.
 		 * 	Dokdistadmin pods: 10 (naiserator.yaml)
 		 * 	Dokdistadmin koblinger / pods = 840 / 10 = ~84. La oss si 80. (p-config.json)
-		 * @see no.nav.dokdistadmin.config.RepositoryConfig
+		 * @see RepositoryConfig
 		 */
 		@Positive
 		private int poolsize = 80;

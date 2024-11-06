@@ -1,28 +1,13 @@
 package no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import no.nav.dokdistadmin.administrerforsendelse.Forsendelse;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import no.nav.dokdistadmin.administrerforsendelse.Forsendelse;
+
 import java.util.List;
 
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class AvstemForsendelserRequest {
-
-    @NotEmpty(message = "avstemtReferanse kan ikke være null eller en tom streng")
-    private String avstemtReferanse;
-
-    @NotNull
-    @Valid
-    private List<Forsendelse> forsendelser;
-
+public record AvstemForsendelserRequest(
+        @NotEmpty(message = "avstemtReferanse kan ikke være null eller en tom streng") String avstemtReferanse,
+        @NotNull @Valid List<Forsendelse> forsendelser) {
 }

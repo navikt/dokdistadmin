@@ -1,23 +1,23 @@
 package no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
 import java.util.List;
 
-@Data
+@Value
 @Builder
 public class HentEformidlingforsendelserResponse {
 
-	private final List<Forsendelse> forsendelser;
+	List<Forsendelse> forsendelser;
 
-	@Data
+	@Value
 	@Builder
 	public static class Forsendelse {
-		private final Long forsendelseId;
-		private final String forsendelseStatus;
-		private final String distribusjonKanal;
-		private final String konversasjonId;
-		private final String opprettetDato;
+		Long forsendelseId;
+		String forsendelseStatus;
+		String distribusjonKanal;
+		String konversasjonId;
+		String opprettetDato;
 	}
 }

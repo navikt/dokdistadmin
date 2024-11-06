@@ -1,7 +1,7 @@
 package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
-import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.administrerforsendelse.Forsendelse;
+import no.nav.dokdistadmin.config.AbstractITest;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.utils.TestDatabaseCleanup;
 import org.junit.jupiter.api.AfterEach;
@@ -100,9 +100,10 @@ public class ForsendelseITest extends AbstractITest {
 
 	@Test
 	void skalReturnereBadRequestGittUgyldigInput() {
-		var request = createOpprettForsendelseRequest();
-		request.setBestillingsId("");
-		request.setBestillendeFagsystem("");
+		var request = createOpprettForsendelseRequest().toBuilder()
+				.bestillingsId("")
+				.bestillendeFagsystem("")
+				.build();
 
 		var response = webTestClient.post()
 				.uri(ADMINISTRER_FORSENDELSE_URI)

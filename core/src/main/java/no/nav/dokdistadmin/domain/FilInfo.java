@@ -1,11 +1,5 @@
 package no.nav.dokdistadmin.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,9 +10,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serial;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -82,24 +81,10 @@ public class FilInfo extends AbstractDomainObject {
 		setVersion(version);
 	}
 
-	public void addDistribusjonInfo(DistribusjonInfo distribusjonInfo) {
-		if (distribusjonInfo != null) {
-			distribusjonInfos.add(distribusjonInfo);
-		}
-	}
-
-	public Set<DistribusjonInfo> getDistribusjonInfos() {
-		return Collections.unmodifiableSet(distribusjonInfos);
-	}
-
 	public void addDokumentInfo(DokumentInfo dokumentInfo) {
 		if (dokumentInfo != null) {
 			dokumentInfos.add(dokumentInfo);
 		}
-	}
-
-	public Set<DokumentInfo> getDokumentInfos() {
-		return Collections.unmodifiableSet(dokumentInfos);
 	}
 
 }

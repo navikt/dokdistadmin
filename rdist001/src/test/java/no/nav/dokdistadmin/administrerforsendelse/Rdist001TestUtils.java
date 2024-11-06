@@ -51,7 +51,7 @@ public class Rdist001TestUtils {
 	public static final String MOTTAKER_NAVN = "Navn Navnesen";
 	public static final String DIGITAL_DISTRIBUTOR_ID = "996460320";
 	public static final String ARKIV_KODE = "389426100";
-	public static final String EPOSTADDRESS = "epostaddress0@nav.no";
+	public static final String EPOSTADRESSE = "epostaddress0@nav.no";
 	public static final String TELEFONNUMMER = "91234567";
 	public static final String DOKDISTDPI = "dokdistdpi";
 	public static final String ADRESSELINJE_1 = "adresselinje1";
@@ -73,6 +73,7 @@ public class Rdist001TestUtils {
 	public static final String PART = "part";
 	public static final String RESENDING_DISTRIBUSJON_ID = "1";
 	public static final String FAGOMRADE_DAG = "DAG";
+	public static final String DOKDISTADMIN = "dokdistadmin";
 	public static final LocalDateTime OPPRETTET_DATO = now(systemDefaultZone()).minusHours(5).minusMinutes(23);
 	public static final LocalDateTime DISTRIBUSJON_DATO = now(systemDefaultZone()).minusHours(5);
 
@@ -85,6 +86,13 @@ public class Rdist001TestUtils {
 	public static DistribusjonInfo createDistribusjonInfoWithDistribusjonKanal(DistribusjonKanalCode distribusjonKanalCode) {
 		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();
 		distribusjonInfo.setDistribusjonKanal(distribusjonKanalCode);
+
+		return distribusjonInfo;
+	}
+
+	public static DistribusjonInfo createDistribusjonInfoWithVarselstatus(VarselStatusCode varselStatusCode) {
+		DistribusjonInfo distribusjonInfo = createDistribusjonInfo();
+		distribusjonInfo.setVarselStatus(varselStatusCode);
 
 		return distribusjonInfo;
 	}
@@ -177,7 +185,7 @@ public class Rdist001TestUtils {
 	public static VarselInfo createEpostVarselInfo() {
 		return VarselInfo.builder()
 				.varselInfoId(VARSELID)
-				.epostAdresse(EPOSTADDRESS)
+				.epostAdresse(EPOSTADRESSE)
 				.varslingKanal(EPOST)
 				.varslingstittel(VARSELTITTEL)
 				.varslingstekst(MELDING)

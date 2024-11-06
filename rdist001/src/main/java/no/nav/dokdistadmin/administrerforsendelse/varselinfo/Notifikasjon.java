@@ -5,26 +5,25 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import no.nav.dokdistadmin.domain.VarslingKanalCode;
 
 import java.time.LocalDateTime;
 
-@Data
+@Value
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Notifikasjon {
 
 	@NotNull(message = "kanal kan ikke være null")
-	private VarslingKanalCode kanal;
+	VarslingKanalCode kanal;
 
 	@NotBlank(message = "tekst må inneholde minst ett tegn")
-	private String tekst;
+	String tekst;
 
 	@NotBlank(message = "kontaktInfo må innholde en epostadresse eller et telefonnummer")
-	private String kontaktInfo;
+	String kontaktInfo;
 
-	private String tittel;
-
-	private LocalDateTime varslingstidspunkt;
+	String tittel;
+	LocalDateTime varslingstidspunkt;
 }
