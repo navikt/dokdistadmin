@@ -102,6 +102,13 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name = "forsendelse_tittel", length = 1500)
 	private String forsendelseTittel;
 
+	@Column(name = "forsendelse_metadata", length = 4000)
+	private String forsendelseMetadata;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "k_forsendelse_metadata_type", length = 128)
+	private ForsendelseMetadataTypeCode forsendelseMetadataType;
+
 	@Column(name = "batch_id", length = 100)
 	private String batchId;
 

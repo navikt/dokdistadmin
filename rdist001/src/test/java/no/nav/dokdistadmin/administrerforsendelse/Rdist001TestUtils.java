@@ -28,6 +28,7 @@ import static no.nav.dokdistadmin.domain.DistribusjonstidspunktKode.KJERNETID;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.FeilTypeCode.MELDINGSFEIL;
+import static no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode.DPO_ARKIVMELDING;
 import static no.nav.dokdistadmin.domain.ModusCode.P;
 import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
@@ -64,6 +65,7 @@ public class Rdist001TestUtils {
 	public static final String MELDING = "Du har fått brev fra NAV";
 	public static final String OPPRETTET_AV = "tdisk07";
 	public static final String FORSENDELSE_TITTEL = "Forsendelse fra NAV";
+	public static final String FORSENDELSE_METADATA = "Metadata på XML-format";
 	public static final String DOKUMENT_PRODUKSJON_APP = "Dokument Prod App";
 	public static final String DOKUMENT_OBJEKT_REFERANSE = "4b79638e-e786-4065-8486-faf8bf4027c9";
 	public static final String ARKIV_DOKUMENT_INFO_ID = "1234";
@@ -161,6 +163,8 @@ public class Rdist001TestUtils {
 				.dokumentId(DISTRIBUSJON_ID)
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM)
 				.dokumentStatus(OPPRETTET)
+				.forsendelseMetadata(FORSENDELSE_METADATA)
+				.forsendelseMetadataType(DPO_ARKIVMELDING)
 				.mottakerId(MOTTAKER_ID)
 				.mottakerNavn(MOTTAKER_NAVN)
 				.mottakerIdType(PERSON)
