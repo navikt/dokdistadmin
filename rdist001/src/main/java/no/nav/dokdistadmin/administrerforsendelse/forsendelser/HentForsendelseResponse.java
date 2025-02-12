@@ -5,6 +5,7 @@ import lombok.Value;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
+import no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode;
 import no.nav.dokdistadmin.domain.ModusCode;
 
 import java.util.List;
@@ -20,6 +21,8 @@ public class HentForsendelseResponse {
 	String bestillendeFagsystem;
 	ModusCode modus;
 	String forsendelseStatus;
+	String forsendelseMetadata;
+	String forsendelseMetadataType;
 	String distribusjonKanal;
 	String tema;
 	String forsendelseTittel;
@@ -32,7 +35,6 @@ public class HentForsendelseResponse {
 	DistribusjonsTypeKode distribusjonstype;
 	DistribusjonstidspunktKode distribusjonstidspunkt;
 	String varselStatus;
-
 
 	@Value
 	@Builder
