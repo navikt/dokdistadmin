@@ -102,7 +102,7 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name = "forsendelse_tittel", length = 1500)
 	private String forsendelseTittel;
 
-	@Column(name = "forsendelse_metadata", length = 4000)
+	@Column(name = "forsendelse_metadata")
 	private String forsendelseMetadata;
 
 	@Enumerated(EnumType.STRING)
