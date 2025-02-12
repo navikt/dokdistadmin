@@ -8,6 +8,10 @@ import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
@@ -48,6 +52,24 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		var result = dokumentInfoRepository.save(dokumentInfo);
 
 		assertNotNull(result.getDokumentInfoId());
+	}
+
+	@Test
+	void shouldSaveAndFindDokumentInfoWithForsendelseMetadata() throws URISyntaxException, IOException {
+		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		var arkivmeldingXml = Files.readString(Paths.get(getClass().getClassLoader().getResource("forsendelsemetadata/arkivmelding.xml").toURI()));
+		dokumentInfo.setForsendelseMetadata(arkivmeldingXml);
+
+		dokumentInfo.setDistribusjonInfo(distribusjon);
+		dokumentInfoRepository.save(dokumentInfo);
+
+		var result = dokumentInfoRepository.findDokumentInfoByDokumentId(dokumentInfo.getDokumentId());
+
+		assertThat(result).isNotNull()
+				.extracting(DokumentInfo::getForsendelseMetadata)
+				.isEqualTo(arkivmeldingXml);
 	}
 
 	@Test

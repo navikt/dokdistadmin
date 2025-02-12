@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -102,6 +103,7 @@ public class DokumentInfo extends AbstractDomainObject {
 	@Column(name = "forsendelse_tittel", length = 1500)
 	private String forsendelseTittel;
 
+	@Lob
 	@Column(name = "forsendelse_metadata")
 	private String forsendelseMetadata;
 
