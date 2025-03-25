@@ -101,7 +101,6 @@ public class Rdist001TestUtils {
 
 	public static DistribusjonInfo createDistribusjonInfo() {
 		DistribusjonInfo distribusjonInfo = DistribusjonInfo.builder()
-				.distribusjonInfoId(DISTRIBUSJONINFO_ID)
 				.originalDistribusjonId(DISTRIBUSJON_ID)
 				.distribusjonId(DISTRIBUSJON_ID)
 				.distribusjonKanal(SDP)
@@ -159,7 +158,6 @@ public class Rdist001TestUtils {
 
 	public static DokumentInfo createDokumentInfo() {
 		DokumentInfo dokumentInfo = DokumentInfo.builder()
-				.dokumentInfoId(DOKUMENTINFO_ID)
 				.dokumentId(DISTRIBUSJON_ID)
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM)
 				.dokumentStatus(OPPRETTET)
@@ -188,7 +186,6 @@ public class Rdist001TestUtils {
 
 	public static VarselInfo createEpostVarselInfo() {
 		return VarselInfo.builder()
-				.varselInfoId(VARSELID)
 				.epostAdresse(EPOSTADRESSE)
 				.varslingKanal(EPOST)
 				.varslingstittel(VARSELTITTEL)
@@ -199,7 +196,6 @@ public class Rdist001TestUtils {
 
 	public static VarselInfo createSMSVarselInfo() {
 		return VarselInfo.builder()
-				.varselInfoId(VARSELID)
 				.mobiltelefonNummer(TELEFONNUMMER)
 				.varslingKanal(MOBILTELEFON)
 				.varslingstekst(MELDING)
@@ -230,7 +226,6 @@ public class Rdist001TestUtils {
 
 	public static DokumentReferanse createDokumentReferanseWithRefererTilAndRekkefoelge(RefererTilCode refererTilCode, Integer rekkefoelge) {
 		return DokumentReferanse.builder()
-				.dokumentReferanseId(DOKUMENT_REFERANSE_ID)
 				.dokumentUri(DOKUMENT_OBJEKT_REFERANSE)
 				.dokumenttypeId(DOKUMENT_TYPE_ID)
 				.refererTil(refererTilCode)

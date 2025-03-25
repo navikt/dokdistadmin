@@ -17,7 +17,6 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ADRES
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ARKIV_KODE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITALPOSTKASSE_ADRESSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DIGITAL_DISTRIBUTOR_ID;
-import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENTINFO_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.EPOSTADRESSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FIRST_VARSEL_SENDT_DATO;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.LANDKODE;
@@ -51,7 +50,7 @@ public class HentEkspederteForsendelserMapperTest {
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
 				.allSatisfy(forsendelse -> {
-					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_DITTNAV.getDokumentInfoId());
 					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(DITTNAV);
 					assertThat(forsendelse.getVarsel().getEpostvarsel()).hasSize(1);
@@ -82,7 +81,7 @@ public class HentEkspederteForsendelserMapperTest {
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
 				.allSatisfy(forsendelse -> {
-					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_SDP.getDokumentInfoId());
 					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(SDP);
 					assertThat(forsendelse.getDigitalpostkasse().getDigitalpostkasseadresse()).isEqualTo(DIGITALPOSTKASSE_ADRESSE);
@@ -116,7 +115,7 @@ public class HentEkspederteForsendelserMapperTest {
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
 				.allSatisfy(forsendelse -> {
-					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_PRINT.getDokumentInfoId());
 					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(PRINT);
 					assertThat(forsendelse.getPostadresse().getAdresselinje1()).isEqualTo(ADRESSELINJE_1);
@@ -140,7 +139,7 @@ public class HentEkspederteForsendelserMapperTest {
 		assertThat(ekspederteForsendelserResponse.forsendelser())
 				.hasSize(1)
 				.allSatisfy(forsendelse -> {
-					assertThat(forsendelse.getForsendelseId()).isEqualTo(DOKUMENTINFO_ID);
+					assertThat(forsendelse.getForsendelseId()).isEqualTo(dokumentInfo.getDokumentInfoId());
 					assertThat(forsendelse.getJournalpostId()).isEqualTo(ARKIV_KODE);
 					assertThat(forsendelse.getDistribusjonsKanal()).isEqualTo(PRINT);
 
