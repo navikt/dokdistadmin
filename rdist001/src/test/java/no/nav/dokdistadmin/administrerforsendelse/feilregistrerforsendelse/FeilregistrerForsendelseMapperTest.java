@@ -4,6 +4,7 @@ package no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.Feilkvittering;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 
@@ -23,7 +24,7 @@ class FeilregistrerForsendelseMapperTest {
 				.feilTypeCode(MELDINGSFEIL)
 				.build();
 
-		DokumentInfo dokumentInfo = new DokumentInfo();
+		DokumentInfo dokumentInfo = Mockito.mock(DokumentInfo.class);
 
 		Feilkvittering feilkvittering = FeilregistrerForsendelseMapper.toFeilkvittering(feilregistrerForsendelse, dokumentInfo);
 

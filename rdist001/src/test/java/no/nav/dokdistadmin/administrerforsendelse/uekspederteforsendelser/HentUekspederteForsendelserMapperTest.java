@@ -6,12 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENTINFO_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,6 +81,7 @@ class HentUekspederteForsendelserMapperTest {
 	@Test
 	void shouldMapDokumentInfo() {
 		var dokumentInfo = createDokumentInfo();
+		ReflectionTestUtils.setField(dokumentInfo, "dokumentInfoId", DOKUMENTINFO_ID);
 
 		var result = mapper.mapDokumentInfo(dokumentInfo);
 

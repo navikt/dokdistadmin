@@ -32,6 +32,7 @@ import java.util.Set;
 import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REFRESH;
+import static jakarta.persistence.CascadeType.REMOVE;
 import static lombok.AccessLevel.NONE;
 
 @Getter
@@ -145,7 +146,7 @@ public class DokumentInfo extends AbstractDomainObject {
 	@JoinColumn(name = "distribusjon_info_id", nullable = false)
 	private DistribusjonInfo distribusjonInfo;
 
-	@OneToOne(cascade = {PERSIST, MERGE, REFRESH})
+	@OneToOne(cascade = {PERSIST, MERGE, REFRESH, REMOVE})
 	@JoinColumn(name = "postadresse_id")
 	private Postadresse postadresse;
 

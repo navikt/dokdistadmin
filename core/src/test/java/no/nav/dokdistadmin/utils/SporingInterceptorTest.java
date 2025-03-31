@@ -7,8 +7,8 @@ import no.nav.security.token.support.core.jwt.JwtToken;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,7 @@ class SporingInterceptorTest extends AbstractOauth2Test {
 	@Autowired
 	private SporingInterceptor sporingInterceptor;
 
-	@MockBean
+	@MockitoBean
 	private TokenValidationContextHolder tokenValidationContextHolder;
 
 	@Test

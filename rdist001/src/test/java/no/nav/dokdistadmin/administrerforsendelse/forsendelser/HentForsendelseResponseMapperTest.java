@@ -2,9 +2,11 @@ package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
 import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoelgeException;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.ARKIV_DOKUMENT_INFO_ID;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENTINFO_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENT_OBJEKT_REFERANSE;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENT_REFERANSE_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKUMENT_TYPE_ID;
@@ -21,6 +23,8 @@ class HentForsendelseResponseMapperTest {
 	@Test
 	void skalMappeTilHentForsendelseResponse() {
 		var dokumentInfo = createDokumentInfo();
+		ReflectionTestUtils.setField(dokumentInfo, "dokumentInfoId", DOKUMENTINFO_ID);
+
 		var distribusjonInfo = createDistribusjonInfo();
 		dokumentInfo.addDokumentReferanse(createDokumentReferanseWithRefererTilAndRekkefoelge(HOVEDDOKUMENT, 1));
 		dokumentInfo.addDokumentReferanse(createDokumentReferanseWithRefererTilAndRekkefoelge(VEDLEGG, 2));
@@ -80,9 +84,19 @@ class HentForsendelseResponseMapperTest {
 		var dokumentInfo = createDokumentInfo();
 		var distribusjonInfo = createDistribusjonInfo();
 
-		dokumentInfo.addDokumentReferanse(createDokumentReferanseWithRefererTilAndRekkefoelge(HOVEDDOKUMENT, -1));
-		dokumentInfo.addDokumentReferanse(createDokumentReferanseWithRefererTilAndRekkefoelge(VEDLEGG, 0));
-		dokumentInfo.addDokumentReferanse(createDokumentReferanseWithRefererTilAndRekkefoelge(VEDLEGG, null));
+		ReflectionTestUtils.setField(dokumentInfo, "dokumentInfoId", DOKUMENTINFO_ID);
+
+		var dokumentReferanseHoveddokument = createDokumentReferanseWithRefererTilAndRekkefoelge(HOVEDDOKUMENT, -1);
+		var dokumentReferanseVedlegg1 = createDokumentReferanseWithRefererTilAndRekkefoelge(VEDLEGG, 0);
+		var dokumentReferanseVedlegg2 = createDokumentReferanseWithRefererTilAndRekkefoelge(VEDLEGG, null);
+
+		ReflectionTestUtils.setField(dokumentReferanseHoveddokument, "dokumentReferanseId", DOKUMENT_REFERANSE_ID);
+		ReflectionTestUtils.setField(dokumentReferanseVedlegg1, "dokumentReferanseId", DOKUMENT_REFERANSE_ID);
+		ReflectionTestUtils.setField(dokumentReferanseVedlegg2, "dokumentReferanseId", DOKUMENT_REFERANSE_ID);
+
+		dokumentInfo.addDokumentReferanse(dokumentReferanseHoveddokument);
+		dokumentInfo.addDokumentReferanse(dokumentReferanseVedlegg1);
+		dokumentInfo.addDokumentReferanse(dokumentReferanseVedlegg2);
 		dokumentInfo.setDistribusjonInfo(distribusjonInfo);
 
 		var exception = assertThrows(KanIkkeBestemmeDokumentrekkefoelgeException.class,
