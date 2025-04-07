@@ -24,7 +24,7 @@
 	<properties>
 		<java.version>21</java.version>
 
-		<logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
+		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
 		<token-support.version>5.0.24</token-support.version>
 
 		<!-- Test -->
