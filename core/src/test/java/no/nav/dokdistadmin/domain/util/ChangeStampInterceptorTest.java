@@ -36,7 +36,7 @@ public class ChangeStampInterceptorTest {
 	@Test
 	public void shouldCreateChangeStampOnSave() {
 		Object[] state = new Object[1];
-		interceptor.onSave(entity, (Object) null, state, new String[]{}, new Type[]{changeStampType});
+		interceptor.onPersist(entity, null, state, new String[]{}, new Type[]{changeStampType});
 
 		ChangeStamp changeStamp = (ChangeStamp) state[0];
 		assertEquals(USER, changeStamp.getOpprettetAv());

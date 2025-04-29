@@ -85,7 +85,7 @@ public class OppdaterForsendelseITest extends AbstractITest {
 				.expectStatus().isOk();
 
 		var oppdatertDokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
-		var oppdatertDistribusjonInfo = dokumentDistribusjonRepository.getReferenceById(distribusjonInfo.getDistribusjonInfoId());
+		var oppdatertDistribusjonInfo = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
 		assertThat(oppdatertDokumentInfo)
 				.satisfies(it -> {
@@ -211,7 +211,7 @@ public class OppdaterForsendelseITest extends AbstractITest {
 
 		commitAndBeginNewTransaction();
 
-		var updatedDistributionInfo = dokumentDistribusjonRepository.getReferenceById(distribusjonInfo.getDistribusjonInfoId());
+		var updatedDistributionInfo = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
 		assertThat(updatedDistributionInfo)
 				.satisfies(distributionInfo -> {

@@ -17,7 +17,7 @@ public class ChangeStampInterceptor implements Interceptor {
 	}
 
 	@Override
-	public boolean onSave(Object entity, Object id, Object[] state, String[] propertyNames, Type[] types) throws CallbackException {
+	public boolean onPersist(Object entity, Object id, Object[] state, String[] propertyNames, Type[] types) throws CallbackException {
 		return createChangeStamp(entity, state, types);
 	}
 
