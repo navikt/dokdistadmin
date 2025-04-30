@@ -6,7 +6,4 @@ import org.springframework.data.repository.CrudRepository;
 public interface DokumentDistribusjonRepository extends CrudRepository<DistribusjonInfo, Long>, CustomDokumentDistribusjonRepository {
 
 	DistribusjonInfo getDistribusjonInfoByDistribusjonId(String distribusjonId);
-
-	DistribusjonInfo getReferenceById(Long distribusjonInfoId);
-
 }

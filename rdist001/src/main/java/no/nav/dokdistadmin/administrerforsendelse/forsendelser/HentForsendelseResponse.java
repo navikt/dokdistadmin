@@ -5,7 +5,6 @@ import lombok.Value;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
-import no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode;
 import no.nav.dokdistadmin.domain.ModusCode;
 
 import java.util.List;
