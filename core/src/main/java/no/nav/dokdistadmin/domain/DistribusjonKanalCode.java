@@ -12,7 +12,8 @@ public enum DistribusjonKanalCode {
 	PRINT_DITTNAV,
 	DITTNAV,
 	TRYGDERETTEN,
-	DPVT;
+	DPVT,
+	DPO;
 
 	public static DistribusjonKanalCode fromString(String distribusjonkanal) {
 		try {
