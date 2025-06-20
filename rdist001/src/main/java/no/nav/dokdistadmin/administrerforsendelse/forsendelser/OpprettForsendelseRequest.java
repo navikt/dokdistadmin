@@ -11,6 +11,7 @@ import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
+import no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode;
 import no.nav.dokdistadmin.domain.MottakerIdTypeCode;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 
@@ -49,6 +50,8 @@ public class OpprettForsendelseRequest {
     String batchId;
     DistribusjonsTypeKode distribusjonstype;
     DistribusjonstidspunktKode distribusjonstidspunkt;
+    String forsendelseMetadata;
+    ForsendelseMetadataTypeCode forsendelseMetadataType;
 
     @Valid
     ArkivInformasjon arkivInformasjon;
