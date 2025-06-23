@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Value;
+import no.nav.dokdistadmin.administrerforsendelse.opprettforsendelse.ValiderForsendelseMetadata;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Value
 @Builder(toBuilder = true)
+@ValiderForsendelseMetadata
 public class OpprettForsendelseRequest {
     @NotBlank(message = "bestillingsId må ha en verdi")
     String bestillingsId;
