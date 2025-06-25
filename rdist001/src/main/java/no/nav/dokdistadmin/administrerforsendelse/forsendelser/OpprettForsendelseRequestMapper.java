@@ -14,6 +14,7 @@ import no.nav.dokdistadmin.domain.Postadresse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import static java.lang.String.format;
 import static no.nav.dokdistadmin.domain.ArkivSystemCode.INGEN;
 import static no.nav.dokdistadmin.domain.ModusCode.T;
 
@@ -41,6 +42,7 @@ public class OpprettForsendelseRequestMapper {
 	}
 
 	private static DokumentInfo mapToDokumentInfo(OpprettForsendelseRequest request) {
+		validerForsendelseMetadata(request);
 		DokumentInfo dokumentInfo = DokumentInfo.builder()
 				.dokumentId(request.getBestillingsId())
 				.dokumentStatus(DokumentStatusCode.OPPRETTET)
@@ -55,6 +57,8 @@ public class OpprettForsendelseRequestMapper {
 				.forsendelseTittel(request.getForsendelseTittel())
 				.batchId(request.getBatchId())
 				.postadresse(mapPostadresse(request.getPostadresse()))
+				.forsendelseMetadata(request.getForsendelseMetadata())
+				.forsendelseMetadataType(request.getForsendelseMetadataType())
 				.build();
 
 		request.getDokumenter().forEach(dokument ->
@@ -95,6 +99,13 @@ public class OpprettForsendelseRequestMapper {
 			return INGEN;
 		}
 		return arkivInformasjon.getArkivSystem() == null ? INGEN : arkivInformasjon.getArkivSystem();
+	}
+
+	private static void validerForsendelseMetadata(OpprettForsendelseRequest request) {
+		if ((request.getForsendelseMetadata() == null) != (request.getForsendelseMetadataType() == null)) {
+			throw new IllegalArgumentException(format("Forsendelsesmetadata og -type må enten begge være satt, eller begge være null. " +
+							"forsendelseMetadata=%s, forsendelseMetadataType=%s", request.getForsendelseMetadata(), request.getForsendelseMetadataType()));
+		}
 	}
 
 }

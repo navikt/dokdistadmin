@@ -6,9 +6,12 @@ import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendels
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.Dokument;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.Mottaker;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.Postadresse;
+import no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -19,6 +22,7 @@ import java.util.stream.Stream;
 
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createOpprettForsendelseRequest;
 import static no.nav.dokdistadmin.domain.ArkivSystemCode.JOARK;
+import static no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode.DPO_ARKIVMELDING;
 import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -141,6 +145,50 @@ class OpprettForsendelseValidationTest {
 					assertThat(it.getPropertyPath().toString()).isEqualTo("dokumentProdApp");
 				});
 	}
+
+	@ParameterizedTest
+	@CsvSource(value =
+			{
+					"null, null",
+					"forsendelseMetadata, DPO_ARKIVMELDING"
+			},
+			nullValues = "null"
+	)
+	void shouldMapForsendelseMetadataAndTypeWhenBothSetOrNull(String forsendelseMetadata, ForsendelseMetadataTypeCode type) {
+		var request = createOpprettForsendelseRequest()
+				.toBuilder()
+				.forsendelseMetadata(forsendelseMetadata)
+				.forsendelseMetadataType(type)
+				.build();
+
+		var violations = validator.validate(request);
+
+		assertThat(violations).isEmpty();
+	}
+
+	@ParameterizedTest
+	@CsvSource(value =
+			{
+					"forsendelseMetadata, null",
+					"null, DPO_ARKIVMELDING"
+			},
+			nullValues = "null"
+	)
+	void shouldThrowExceptionWhenOnlyForsendelseMetadataOrTypeIsSet(String forsendelseMetadata,
+																		 ForsendelseMetadataTypeCode forsendelseMetadataType) {
+		var request = createOpprettForsendelseRequest()
+				.toBuilder()
+				.forsendelseMetadata(forsendelseMetadata)
+				.forsendelseMetadataType(forsendelseMetadataType)
+				.build();
+
+		var violations = validator.validate(request);
+
+		Assertions.assertThat(violations).hasSize(1)
+				.allSatisfy(it ->
+						assertThat(it.getMessage()).contains("Forsendelsesmetadata og ForsendelsesmetadataType må enten begge være satt, eller begge være null."));
+	}
+
 
 	@ParameterizedTest
 	@MethodSource

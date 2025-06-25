@@ -2,10 +2,13 @@ package no.nav.dokdistadmin.administrerforsendelse.forsendelser;
 
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest.ArkivInformasjon;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
+import no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode;
 import no.nav.dokdistadmin.domain.ModusCode;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -36,6 +39,7 @@ import static no.nav.dokdistadmin.domain.ArkivSystemCode.JOARK;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonsTypeKode.VEDTAK;
 import static no.nav.dokdistadmin.domain.DistribusjonstidspunktKode.KJERNETID;
+import static no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode.DPO_ARKIVMELDING;
 import static no.nav.dokdistadmin.domain.ModusCode.T;
 import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
@@ -129,6 +133,51 @@ class OpprettForsendelseRequestMapperTest {
 		var result = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request);
 
 		assertThat(result.getModus()).isEqualTo(T);
+	}
+
+	@ParameterizedTest
+	@CsvSource(value =
+			{
+					"null, null",
+					"forsendelseMetadata, DPO_ARKIVMELDING"
+			},
+			nullValues = "null"
+	)
+	void shouldMapForsendelseMetadataAndType(String forsendelseMetadata, ForsendelseMetadataTypeCode type) {
+		var request = createOpprettForsendelseRequest()
+				.toBuilder()
+				.forsendelseMetadata(forsendelseMetadata)
+				.forsendelseMetadataType(type)
+				.build();
+
+		var distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request);
+		distribusjonInfo.getDokumentInfos().forEach(dokumentInfo -> {
+			assertThat(dokumentInfo.getForsendelseMetadata()).isEqualTo(forsendelseMetadata);
+			assertThat(dokumentInfo.getForsendelseMetadataType()).isEqualTo(type);
+		});
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	void shouldThrowExceptionWhenOnlyOneOfForsendelseMetadataOrTypeIsSet(String forsendelseMetadata,
+																		 ForsendelseMetadataTypeCode forsendelseMetadataType) {
+		var request = createOpprettForsendelseRequest()
+				.toBuilder()
+				.forsendelseMetadata(forsendelseMetadata)
+				.forsendelseMetadataType(forsendelseMetadataType)
+				.build();
+
+		var distribusjonInfo = Assertions.assertThrows(IllegalArgumentException.class,
+				() -> OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request));
+
+		assertThat(distribusjonInfo.getMessage()).contains("Forsendelsesmetadata og -type må enten begge være satt, eller begge være null.");
+	}
+
+	private static Stream<Arguments> shouldThrowExceptionWhenOnlyOneOfForsendelseMetadataOrTypeIsSet() {
+		return Stream.of(
+				Arguments.of(null, DPO_ARKIVMELDING),
+				Arguments.of("forsendelseMetadata", null)
+		);
 	}
 
 }

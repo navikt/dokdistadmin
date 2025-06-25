@@ -7,10 +7,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Value;
+import no.nav.dokdistadmin.administrerforsendelse.opprettforsendelse.ValiderForsendelseMetadata;
 import no.nav.dokdistadmin.domain.ArkivSystemCode;
 import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonsTypeKode;
 import no.nav.dokdistadmin.domain.DistribusjonstidspunktKode;
+import no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode;
 import no.nav.dokdistadmin.domain.MottakerIdTypeCode;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 
@@ -18,6 +20,7 @@ import java.util.List;
 
 @Value
 @Builder(toBuilder = true)
+@ValiderForsendelseMetadata
 public class OpprettForsendelseRequest {
     @NotBlank(message = "bestillingsId må ha en verdi")
     String bestillingsId;
@@ -49,6 +52,8 @@ public class OpprettForsendelseRequest {
     String batchId;
     DistribusjonsTypeKode distribusjonstype;
     DistribusjonstidspunktKode distribusjonstidspunkt;
+    String forsendelseMetadata;
+    ForsendelseMetadataTypeCode forsendelseMetadataType;
 
     @Valid
     ArkivInformasjon arkivInformasjon;
