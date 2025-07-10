@@ -12,16 +12,23 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import wiremock.org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.BESTILLINGS_ID;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithDokumentId;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentReferanseWithRefererTilAndRekkefoelge;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createOpprettForsendelseRequest;
+import static no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode.DPO_ARKIVMELDING;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 public class ForsendelseITest extends AbstractITest {
 
@@ -69,6 +76,35 @@ public class ForsendelseITest extends AbstractITest {
 		assertThat(opprettetForsendelse)
 				.extracting(DokumentInfo::getDokumentId)
 				.isEqualTo(request.getBestillingsId());
+	}
+
+	@Test
+	void skalOppretteForsendelseMedForsendelseMetadataOgType() throws IOException {
+		var jsonRequest = getFileFromResources("__files/forsendelsemetadata/opprett_forsendelse.json");
+
+		var response = webTestClient.post()
+				.uri(ADMINISTRER_FORSENDELSE_URI)
+				.headers(headers -> {
+					headers.setBearerAuth(jwt());
+					headers.setContentType(APPLICATION_JSON);
+				})
+				.bodyValue(jsonRequest)
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(Forsendelse.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getForsendelseId()).isNotNull();
+
+		var opprettetForsendelse = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(response.getForsendelseId());
+
+		var forventetXml = getFileFromResources("__files/forsendelsemetadata/forsendelsemetadata.xml");
+		assertThat(opprettetForsendelse)
+				.extracting(DokumentInfo::getForsendelseMetadata)
+				.isEqualTo(forventetXml);
+		assertThat(opprettetForsendelse.getForsendelseMetadataType()).isEqualTo(DPO_ARKIVMELDING);
 	}
 
 	@Test
@@ -192,5 +228,9 @@ public class ForsendelseITest extends AbstractITest {
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus().isNoContent();
+	}
+
+	private String getFileFromResources(String filename) throws IOException {
+		return IOUtils.toString(requireNonNull(this.getClass().getResourceAsStream("/" + filename)), UTF_8);
 	}
 }

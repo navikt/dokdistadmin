@@ -52,7 +52,7 @@ public class OpprettForsendelseRequest {
     String batchId;
     DistribusjonsTypeKode distribusjonstype;
     DistribusjonstidspunktKode distribusjonstidspunkt;
-    String forsendelseMetadata;
+    byte[] forsendelseMetadata;
     ForsendelseMetadataTypeCode forsendelseMetadataType;
 
     @Valid

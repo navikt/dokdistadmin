@@ -1,6 +1,5 @@
 package no.nav.dokdistadmin.administrerforsendelse;
 
-
 import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
 import no.nav.dokdistadmin.domain.ChangeStamp;
@@ -16,6 +15,7 @@ import no.nav.dokdistadmin.domain.RefererTilCode;
 import no.nav.dokdistadmin.domain.VarselInfo;
 import no.nav.dokdistadmin.domain.VarselStatusCode;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +65,7 @@ public class Rdist001TestUtils {
 	public static final String MELDING = "Du har fått brev fra NAV";
 	public static final String OPPRETTET_AV = "tdisk07";
 	public static final String FORSENDELSE_TITTEL = "Forsendelse fra NAV";
-	public static final String FORSENDELSE_METADATA = "Metadata på XML-format";
+	public static final byte[] FORSENDELSE_METADATA = lesInnFil("__files/forsendelsemetadata/forsendelsemetadata.xml");
 	public static final String DOKUMENT_PRODUKSJON_APP = "Dokument Prod App";
 	public static final String DOKUMENT_OBJEKT_REFERANSE = "4b79638e-e786-4065-8486-faf8bf4027c9";
 	public static final String ARKIV_DOKUMENT_INFO_ID = "1234";
@@ -161,7 +161,7 @@ public class Rdist001TestUtils {
 				.dokumentId(DISTRIBUSJON_ID)
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM)
 				.dokumentStatus(OPPRETTET)
-				.forsendelseMetadata(FORSENDELSE_METADATA)
+				.forsendelseMetadata(new String(FORSENDELSE_METADATA))
 				.forsendelseMetadataType(DPO_ARKIVMELDING)
 				.mottakerId(MOTTAKER_ID)
 				.mottakerNavn(MOTTAKER_NAVN)
@@ -241,6 +241,8 @@ public class Rdist001TestUtils {
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM)
 				.tema(FAGOMRADE_DAG)
 				.forsendelseTittel(FORSENDELSE_TITTEL)
+				.forsendelseMetadata(FORSENDELSE_METADATA)
+				.forsendelseMetadataType(DPO_ARKIVMELDING)
 				.dokumentProdApp(DOKUMENT_PRODUKSJON_APP)
 				.originalDistribusjonId(ORIGINAL_DISTRIBUSJON_ID)
 				.mottaker(OpprettForsendelseRequest.Mottaker.builder()
@@ -276,5 +278,15 @@ public class Rdist001TestUtils {
 				.tidspunkt(LocalDateTime.now())
 				.detaljer(DETALJER)
 				.build();
+	}
+
+	private static byte[] lesInnFil(String filsti) {
+		try {
+			return Rdist001TestUtils.class.getClassLoader()
+					.getResourceAsStream(filsti)
+					.readAllBytes();
+		} catch (IOException | NullPointerException e) {
+			throw new RuntimeException("Kunne ikke lese inn fil fra filsti=%s".formatted(filsti), e);
+		}
 	}
 }
