@@ -161,7 +161,7 @@ public class Rdist001TestUtils {
 				.dokumentId(DISTRIBUSJON_ID)
 				.bestillendeFagsystem(BESTILLENDE_FAGSYSTEM)
 				.dokumentStatus(OPPRETTET)
-				.forsendelseMetadata(FORSENDELSE_METADATA)
+				.forsendelseMetadata(new String(FORSENDELSE_METADATA))
 				.forsendelseMetadataType(DPO_ARKIVMELDING)
 				.mottakerId(MOTTAKER_ID)
 				.mottakerNavn(MOTTAKER_NAVN)

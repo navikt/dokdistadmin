@@ -102,7 +102,7 @@ public class ForsendelseITest extends AbstractITest {
 
 		var forventetXml = getFileFromResources("__files/forsendelsemetadata/forsendelsemetadata.xml");
 		assertThat(opprettetForsendelse)
-				.extracting(dokInfo -> new String(dokInfo.getForsendelseMetadata()))
+				.extracting(DokumentInfo::getForsendelseMetadata)
 				.isEqualTo(forventetXml);
 		assertThat(opprettetForsendelse.getForsendelseMetadataType()).isEqualTo(DPO_ARKIVMELDING);
 	}

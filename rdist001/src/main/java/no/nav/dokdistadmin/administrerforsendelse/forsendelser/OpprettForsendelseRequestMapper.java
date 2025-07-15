@@ -57,7 +57,7 @@ public class OpprettForsendelseRequestMapper {
 				.forsendelseTittel(request.getForsendelseTittel())
 				.batchId(request.getBatchId())
 				.postadresse(mapPostadresse(request.getPostadresse()))
-				.forsendelseMetadata(request.getForsendelseMetadata() == null ? null : request.getForsendelseMetadata())
+				.forsendelseMetadata(request.getForsendelseMetadata() == null ? null : new String(request.getForsendelseMetadata()))
 				.forsendelseMetadataType(request.getForsendelseMetadataType())
 				.build();
 
