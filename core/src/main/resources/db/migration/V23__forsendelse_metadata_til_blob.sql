@@ -1,4 +1,0 @@
-
-ALTER TABLE DOKUMENT_INFO DROP COLUMN forsendelse_metadata;
-
-ALTER TABLE DOKUMENT_INFO ADD forsendelse_metadata BLOB;
