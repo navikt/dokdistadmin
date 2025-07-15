@@ -60,7 +60,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		var arkivmeldingXml = Files.readString(Paths.get(getClass().getClassLoader().getResource("forsendelsemetadata/arkivmelding.xml").toURI()));
-		dokumentInfo.setForsendelseMetadata(arkivmeldingXml);
+		dokumentInfo.setForsendelseMetadata(arkivmeldingXml.getBytes());
 
 		dokumentInfo.setDistribusjonInfo(distribusjon);
 		dokumentInfoRepository.save(dokumentInfo);
@@ -68,7 +68,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentId(dokumentInfo.getDokumentId());
 
 		assertThat(result).isNotNull()
-				.extracting(DokumentInfo::getForsendelseMetadata)
+				.extracting(dokInfo -> new String(dokInfo.getForsendelseMetadata()))
 				.isEqualTo(arkivmeldingXml);
 	}
 

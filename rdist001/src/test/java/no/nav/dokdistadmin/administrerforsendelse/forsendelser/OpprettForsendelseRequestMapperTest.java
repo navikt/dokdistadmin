@@ -148,7 +148,7 @@ class OpprettForsendelseRequestMapperTest {
 		var distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request);
 
 		distribusjonInfo.getDokumentInfos().forEach(dokumentInfo -> {
-			assertThat(dokumentInfo.getForsendelseMetadata()).isEqualTo(forsendelseMetadata == null ? null : new String(forsendelseMetadata));
+			assertThat(dokumentInfo.getForsendelseMetadata()).isEqualTo(forsendelseMetadata == null ? null : forsendelseMetadata);
 			assertThat(dokumentInfo.getForsendelseMetadataType()).isEqualTo(type);
 		});
 	}

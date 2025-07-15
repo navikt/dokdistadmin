@@ -32,7 +32,7 @@ public class HentForsendelseResponseMapper {
 				.distribusjonstype(distribusjonInfo.getDistribusjonstype())
 				.distribusjonstidspunkt(distribusjonInfo.getDistribusjonstidspunkt())
 				.forsendelseStatus(dokumentInfo.getDokumentStatus() == null ? null : dokumentInfo.getDokumentStatus().name())
- 				.forsendelseMetadata(dokumentInfo.getForsendelseMetadata() == null ? null : dokumentInfo.getForsendelseMetadata().getBytes())
+ 				.forsendelseMetadata(dokumentInfo.getForsendelseMetadata() == null ? null : dokumentInfo.getForsendelseMetadata())
 				.forsendelseMetadataType(dokumentInfo.getForsendelseMetadataType() == null ?  null : dokumentInfo.getForsendelseMetadataType().name())
 				.distribusjonKanal(distribusjonInfo.getDistribusjonKanal() == null ? null : distribusjonInfo.getDistribusjonKanal().name())
 				.tema(dokumentInfo.getFagomrade())

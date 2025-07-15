@@ -45,7 +45,7 @@ class HentForsendelseResponseMapperTest {
 		assertThat(hentForsendelseResponse.getDistribusjonKanal()).isEqualTo(forventetDistribusjonInfo.getDistribusjonKanal().name());
 		assertThat(hentForsendelseResponse.getTema()).isEqualTo(dokumentInfo.getFagomrade());
 		assertThat(hentForsendelseResponse.getForsendelseTittel()).isEqualTo(dokumentInfo.getForsendelseTittel());
-		assertThat(hentForsendelseResponse.getForsendelseMetadata()).isEqualTo(dokumentInfo.getForsendelseMetadata().getBytes());
+		assertThat(hentForsendelseResponse.getForsendelseMetadata()).isEqualTo(dokumentInfo.getForsendelseMetadata());
 		assertThat(hentForsendelseResponse.getForsendelseMetadataType()).isEqualTo(dokumentInfo.getForsendelseMetadataType().name());
 		assertThat(hentForsendelseResponse.getBatchId()).isEqualTo(dokumentInfo.getBatchId());
 		assertThat(hentForsendelseResponse.getDokumentProdApp()).isEqualTo(dokumentInfo.getBrevProduksjonApplikasjon());

@@ -106,7 +106,7 @@ public class DokumentInfo extends AbstractDomainObject {
 
 	@Lob
 	@Column(name = "forsendelse_metadata")
-	private String forsendelseMetadata;
+	private byte[] forsendelseMetadata;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "k_forsendelse_metadata_type", length = 128)
