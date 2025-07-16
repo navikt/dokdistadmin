@@ -14,6 +14,7 @@ import no.nav.dokdistadmin.exception.functional.StatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
+import oracle.jdbc.OracleDatabaseException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -56,13 +57,22 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	}
 
 	@ExceptionHandler({
-			ConstraintViolationException.class,
 			UlovligStatusOvergangException.class,
 			OppdaterVarselInfoException.class,
 			ValideringFeiletException.class
 	})
 	public ResponseEntity<Object> inputValidationExceptionHandler(Exception e) {
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
+
+		return getResponseEntity(BAD_REQUEST, e.getMessage());
+	}
+
+	@ExceptionHandler({
+			ConstraintViolationException.class,
+			OracleDatabaseException.class
+	})
+	public ResponseEntity<Object> datasourceExceptionHandler(Exception e) {
+		log.error(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
 
 		return getResponseEntity(BAD_REQUEST, e.getMessage());
 	}
