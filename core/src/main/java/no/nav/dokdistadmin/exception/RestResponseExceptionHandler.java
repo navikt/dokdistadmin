@@ -15,7 +15,9 @@ import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
 import oracle.jdbc.OracleDatabaseException;
+import org.hibernate.exception.SQLGrammarException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.sql.SQLSyntaxErrorException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -69,7 +72,10 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
 	@ExceptionHandler({
 			ConstraintViolationException.class,
-			OracleDatabaseException.class
+			OracleDatabaseException.class,
+			InvalidDataAccessResourceUsageException.class,
+			SQLGrammarException.class,
+			SQLSyntaxErrorException.class
 	})
 	public ResponseEntity<Object> datasourceExceptionHandler(Exception e) {
 		log.error(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
