@@ -45,6 +45,7 @@ import static no.nav.dokdistadmin.domain.MottakerIdTypeCode.PERSON;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
 import static no.nav.dokdistadmin.domain.RefererTilCode.VEDLEGG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OpprettForsendelseRequestMapperTest {
 
@@ -136,14 +137,8 @@ class OpprettForsendelseRequestMapperTest {
 	}
 
 	@ParameterizedTest
-	@CsvSource(value =
-			{
-					"null, null",
-					"forsendelseMetadata, DPO_ARKIVMELDING"
-			},
-			nullValues = "null"
-	)
-	void shouldMapForsendelseMetadataAndType(String forsendelseMetadata, ForsendelseMetadataTypeCode type) {
+	@MethodSource
+	void shouldMapForsendelseMetadataAndType(byte[] forsendelseMetadata, ForsendelseMetadataTypeCode type) {
 		var request = createOpprettForsendelseRequest()
 				.toBuilder()
 				.forsendelseMetadata(forsendelseMetadata)
@@ -151,23 +146,30 @@ class OpprettForsendelseRequestMapperTest {
 				.build();
 
 		var distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request);
+
 		distribusjonInfo.getDokumentInfos().forEach(dokumentInfo -> {
-			assertThat(dokumentInfo.getForsendelseMetadata()).isEqualTo(forsendelseMetadata);
+			assertThat(dokumentInfo.getForsendelseMetadata()).isEqualTo(forsendelseMetadata == null ? null : new String(forsendelseMetadata));
 			assertThat(dokumentInfo.getForsendelseMetadataType()).isEqualTo(type);
 		});
 	}
 
+	private static Stream<Arguments> shouldMapForsendelseMetadataAndType() {
+		return Stream.of(
+				Arguments.of(null, null),
+				Arguments.of("forsendelseMetadata".getBytes(), DPO_ARKIVMELDING)
+		);
+	}
+
 	@ParameterizedTest
 	@MethodSource
-	void shouldThrowExceptionWhenOnlyOneOfForsendelseMetadataOrTypeIsSet(String forsendelseMetadata,
-																		 ForsendelseMetadataTypeCode forsendelseMetadataType) {
+	void shouldThrowExceptionWhenOnlyOneOfForsendelseMetadataOrTypeIsSet(byte[] forsendelseMetadata, ForsendelseMetadataTypeCode forsendelseMetadataType) {
 		var request = createOpprettForsendelseRequest()
 				.toBuilder()
 				.forsendelseMetadata(forsendelseMetadata)
 				.forsendelseMetadataType(forsendelseMetadataType)
 				.build();
 
-		var distribusjonInfo = Assertions.assertThrows(IllegalArgumentException.class,
+		var distribusjonInfo = assertThrows(IllegalArgumentException.class,
 				() -> OpprettForsendelseRequestMapper.mapToDistribusjonInfo(request));
 
 		assertThat(distribusjonInfo.getMessage()).contains("Forsendelsesmetadata og -type må enten begge være satt, eller begge være null.");
@@ -176,7 +178,7 @@ class OpprettForsendelseRequestMapperTest {
 	private static Stream<Arguments> shouldThrowExceptionWhenOnlyOneOfForsendelseMetadataOrTypeIsSet() {
 		return Stream.of(
 				Arguments.of(null, DPO_ARKIVMELDING),
-				Arguments.of("forsendelseMetadata", null)
+				Arguments.of("forsendelseMetadata".getBytes(), null)
 		);
 	}
 

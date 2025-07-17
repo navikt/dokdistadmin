@@ -20,7 +20,7 @@ public class HentForsendelseResponse {
 	String bestillendeFagsystem;
 	ModusCode modus;
 	String forsendelseStatus;
-	String forsendelseMetadata;
+	byte[] forsendelseMetadata;
 	String forsendelseMetadataType;
 	String distribusjonKanal;
 	String tema;

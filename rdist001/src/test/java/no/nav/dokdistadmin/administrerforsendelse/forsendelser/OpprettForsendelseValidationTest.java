@@ -147,14 +147,8 @@ class OpprettForsendelseValidationTest {
 	}
 
 	@ParameterizedTest
-	@CsvSource(value =
-			{
-					"null, null",
-					"forsendelseMetadata, DPO_ARKIVMELDING"
-			},
-			nullValues = "null"
-	)
-	void shouldMapForsendelseMetadataAndTypeWhenBothSetOrNull(String forsendelseMetadata, ForsendelseMetadataTypeCode type) {
+	@MethodSource
+	void shouldMapForsendelseMetadataAndTypeWhenBothSetOrNull(byte[] forsendelseMetadata, ForsendelseMetadataTypeCode type) {
 		var request = createOpprettForsendelseRequest()
 				.toBuilder()
 				.forsendelseMetadata(forsendelseMetadata)
@@ -166,16 +160,16 @@ class OpprettForsendelseValidationTest {
 		assertThat(violations).isEmpty();
 	}
 
+	private static Stream<Arguments> shouldMapForsendelseMetadataAndTypeWhenBothSetOrNull() {
+		return Stream.of(
+				Arguments.of(null, null),
+				Arguments.of("forsendelseMetadata".getBytes(), DPO_ARKIVMELDING)
+		);
+	}
+
 	@ParameterizedTest
-	@CsvSource(value =
-			{
-					"forsendelseMetadata, null",
-					"null, DPO_ARKIVMELDING"
-			},
-			nullValues = "null"
-	)
-	void shouldThrowExceptionWhenOnlyForsendelseMetadataOrTypeIsSet(String forsendelseMetadata,
-																		 ForsendelseMetadataTypeCode forsendelseMetadataType) {
+	@MethodSource
+	void shouldThrowExceptionWhenOnlyForsendelseMetadataOrTypeIsSet(byte[] forsendelseMetadata, ForsendelseMetadataTypeCode forsendelseMetadataType) {
 		var request = createOpprettForsendelseRequest()
 				.toBuilder()
 				.forsendelseMetadata(forsendelseMetadata)
@@ -184,11 +178,17 @@ class OpprettForsendelseValidationTest {
 
 		var violations = validator.validate(request);
 
-		Assertions.assertThat(violations).hasSize(1)
+		assertThat(violations).hasSize(1)
 				.allSatisfy(it ->
 						assertThat(it.getMessage()).contains("Forsendelsesmetadata og ForsendelsesmetadataType må enten begge være satt, eller begge være null."));
 	}
 
+	private static Stream<Arguments> shouldThrowExceptionWhenOnlyForsendelseMetadataOrTypeIsSet() {
+		return Stream.of(
+				Arguments.of("forsendelseMetadata".getBytes(), null),
+				Arguments.of(null, DPO_ARKIVMELDING)
+		);
+	}
 
 	@ParameterizedTest
 	@MethodSource
