@@ -60,25 +60,13 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	}
 
 	@ExceptionHandler({
+			ConstraintViolationException.class,
 			UlovligStatusOvergangException.class,
 			OppdaterVarselInfoException.class,
 			ValideringFeiletException.class
 	})
 	public ResponseEntity<Object> inputValidationExceptionHandler(Exception e) {
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
-
-		return getResponseEntity(BAD_REQUEST, e.getMessage());
-	}
-
-	@ExceptionHandler({
-			ConstraintViolationException.class,
-			OracleDatabaseException.class,
-			InvalidDataAccessResourceUsageException.class,
-			SQLGrammarException.class,
-			SQLSyntaxErrorException.class
-	})
-	public ResponseEntity<Object> datasourceExceptionHandler(Exception e) {
-		log.error(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);
 
 		return getResponseEntity(BAD_REQUEST, e.getMessage());
 	}
@@ -130,7 +118,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, feilmelding, ex);
 
 		return getResponseEntity(BAD_REQUEST, feilmelding);
-	}
+	}VRESA
 
 	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
@@ -158,7 +146,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	public ResponseEntity<Object> handleAll(Exception e) {
 		String feilmelding = format("rdist001 feilet med feilmelding=%s", e.getMessage());
 
-		log.warn(feilmelding, e);
+		log.error(feilmelding, e);
 
 		return getResponseEntity(INTERNAL_SERVER_ERROR, feilmelding);
 	}
