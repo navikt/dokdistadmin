@@ -142,7 +142,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	public ResponseEntity<Object> handleAll(Exception e) {
 		String feilmelding = format("rdist001 feilet med feilmelding=%s", e.getMessage());
 
-		log.warn(feilmelding, e);
+		log.error(feilmelding, e);
 
 		return getResponseEntity(INTERNAL_SERVER_ERROR, feilmelding);
 	}
