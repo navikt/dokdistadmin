@@ -3,8 +3,7 @@
   "ENVIRONMENT": "q2",
   "MIN_REPLICAS": 1,
   "MAX_REPLICAS": 2,
-  "DOKDISTADMIN_DB_CREDS": "/oracle/data/dev/creds/dokdistadmin_q2-user",
-  "DOKDISTADMIN_DB_CONFIG": "/oracle/data/dev/config/dokdist_q2",
+  "DOKDISTADMIN_SECRET": "dokdistadmin",
   "DOKDISTADMIN_DATABASE_SCHEMA": "dkomp",
   "DOKDISTADMIN_MODUS": "T",
   "INGRESSES": [
