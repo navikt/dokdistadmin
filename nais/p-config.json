@@ -3,8 +3,7 @@
   "ENVIRONMENT": "p",
   "MIN_REPLICAS": 4,
   "MAX_REPLICAS": 10,
-  "DOKDISTADMIN_DB_CREDS": "/oracle/data/prod/creds/dokdistadmin-user",
-  "DOKDISTADMIN_DB_CONFIG": "/oracle/data/prod/config/dokumentdistribusjon",
+  "DOKDISTADMIN_SECRET": "dokdistadmin",
   "DOKDISTADMIN_DATABASE_SCHEMA": "dokumentdistribusjon",
   "DOKDISTADMIN_MODUS": "P",
   "INGRESSES": [
