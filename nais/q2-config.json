@@ -32,6 +32,11 @@
       "cluster": "dev-fss"
     },
     {
+      "app": "dokdistdittnav",
+      "namespace": "teamdokumenthandtering",
+      "cluster": "dev-fss"
+    },
+    {
       "app": "dokdistdpv",
       "namespace": "teamdokumenthandtering",
       "cluster": "dev-fss"
