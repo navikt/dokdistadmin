@@ -175,9 +175,7 @@ public class AdministrerForsendelseService {
 				.values();
 	}
 
-	public HentUekspederteForsendelserResponse hentUekspederteForsendelser(String distribusjonkanal, Long antallTimer) {
-		DistribusjonKanalCode distribusjonkanalCode = DistribusjonKanalCode.fromString(distribusjonkanal);
-
+	public HentUekspederteForsendelserResponse hentUekspederteForsendelser(DistribusjonKanalCode distribusjonkanalCode, Long antallTimer) {
 		var opprettetEtter = LocalDateTime.now().minusDays(OPPRETTET_ANTALL_DAGER_SIDEN);
 		var opprettetFoer = LocalDateTime.now().minusHours(antallTimer);
 
@@ -201,10 +199,9 @@ public class AdministrerForsendelseService {
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
 
-	public Forsendelse finnForsendelse(String oppslagsnoekkel, String verdi) {
-		Oppslagsnoekkel noekkel = Oppslagsnoekkel.fromString(oppslagsnoekkel);
+	public Forsendelse finnForsendelse(Oppslagsnoekkel oppslagsnoekkel, String verdi) {
 
-		List<DokumentInfoIdHolder> forsendelser = switch (noekkel) {
+		List<DokumentInfoIdHolder> forsendelser = switch (oppslagsnoekkel) {
 			case KONVERSASJONSID -> dokumentInfoRepository.findIdsByKonversasjonId(verdi);
 			case BESTILLINGSID -> dokumentInfoRepository.findIdsByDokumentId(verdi);
 			case JOURNALPOSTID -> {
@@ -214,20 +211,20 @@ public class AdministrerForsendelseService {
 		};
 
 		if (forsendelser.isEmpty()) {
-			if (JOURNALPOSTID.equals(noekkel)) {
+			if (JOURNALPOSTID == oppslagsnoekkel) {
 				throw new ForsendelseIkkeFunnetInfomeldingException(format("finnForsendelse fant ikke forsendelse med %s=%s. Dette er forventet for distribusjoner opprettet av bdist001",
-						noekkel.value,
+						oppslagsnoekkel.value,
 						verdi));
 			} else {
 				throw new ForsendelseIkkeFunnetException(format("finnForsendelse fant ikke forsendelse med %s=%s",
-						noekkel.value,
+						oppslagsnoekkel.value,
 						verdi));
 			}
 		}
 
 		if (forsendelser.size() > 1) {
 			throw new FlereForsendelserFunnetException(format("finnForsendelse fant flere enn en forsendelse med %s=%s",
-					noekkel.value,
+					oppslagsnoekkel.value,
 					verdi));
 		}
 
