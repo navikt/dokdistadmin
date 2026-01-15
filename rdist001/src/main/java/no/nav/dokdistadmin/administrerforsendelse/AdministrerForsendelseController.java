@@ -234,7 +234,7 @@ public class AdministrerForsendelseController {
 	@GetMapping("/hentpostdestinasjon/{landkode}")
 	public ResponseEntity<HentPostdestinasjonResponse> hentPostdestinasjon(
 		@PathVariable @NotBlank(message = "Sti-parameter landkode må ha en verdi")
-		@Pattern(regexp = "^[a-zA-Z]{2,3}$", message = "landkode må bestå av to eller tre bokstaver") String landkode) {
+		@Pattern(regexp = "^[a-zA-Z?]{2,3}$", message = "landkode må bestå av to eller tre bokstaver") String landkode) {
 
 		log.info("hentPostdestinasjon har mottatt kall om å hente postdestinasjon for landkode={}", landkode);
 
