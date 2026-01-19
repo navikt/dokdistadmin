@@ -231,7 +231,7 @@ public class AdministrerForsendelseService {
 		return new Forsendelse(forsendelser.getFirst().getDokumentInfoId());
 	}
 
-	public List<HentForsendelseResponse> hentForsendelser(List<String> journalpostliste,
+	public List<HentForsendelseResponse> hentForsendelser(List<Long> journalpostliste,
 														  List<DistribusjonsTypeKode> distribusjonstyper,
 														  List<DokumentStatusCode> dokumentstatus,
 														  boolean inkluderAvstemte,

@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static no.nav.dokdistadmin.administrerforsendelse.AdministrertForsendelseUtil.mapListToEnumValues;
+import static no.nav.dokdistadmin.administrerforsendelse.AdministrertForsendelseUtil.safelyMapToEnum;
 
 @Slf4j
 @Validated
@@ -111,22 +112,26 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<HentForsendelserResponse> hentForsendelser(
 		@RequestParam(name = "distribusjonstyper", required = false, defaultValue = "") List<String> distribusjonstyper,
 		@RequestParam(name = "dokumentstatus", required = false, defaultValue = "") List<String> dokumentstatus,
-		@RequestParam(name = "distribusjonkanal", required = false) Optional<DistribusjonKanalCode> distribusjonkanal,
+		@RequestParam(name = "distribusjonkanal", required = false) Optional<String> distribusjonkanal,
 		@RequestParam(name = "inkluderAvstemte", required = false, defaultValue = "true") boolean inkluderAvstemte,
-		@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<String> journalpostliste
+		@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<Long> journalpostliste
 	) {
+		var optionalDistribusjonKanalCode = distribusjonkanal
+			.map(kanal -> safelyMapToEnum("distribusjonkanal", DistribusjonKanalCode::valueOf, kanal));
+		List<DistribusjonsTypeKode> distribusjonstyperList = mapListToEnumValues("distribusjonstyper", DistribusjonsTypeKode::valueOf, distribusjonstyper);
+		List<DokumentStatusCode> dokumentstatusList = mapListToEnumValues("dokumentstatus", DokumentStatusCode::valueOf, dokumentstatus);
 		log.info("hentForsendelser har mottatt kall om å hente forsendelser med " +
 				"journalpostIds={}, distribusjonstyper={}, dokumentstatus={}, distribusjonskanal={}, inkluderAvstemte={}",
-			journalpostliste, distribusjonstyper,
-			dokumentstatus, distribusjonkanal.map(Enum::name).orElse("<ikke satt>"),
+			journalpostliste, distribusjonstyperList,
+			dokumentstatusList, optionalDistribusjonKanalCode.map(Enum::name).orElse("<ikke satt>"),
 			inkluderAvstemte);
 
 		List<HentForsendelseResponse> forsendelser = forsendelserService.hentForsendelser(
 			journalpostliste,
-			mapListToEnumValues("distribusjonstyper", DistribusjonsTypeKode::valueOf, distribusjonstyper),
-			mapListToEnumValues("dokumentstatus", DokumentStatusCode::valueOf, dokumentstatus),
+			distribusjonstyperList,
+			dokumentstatusList,
 			inkluderAvstemte,
-			distribusjonkanal
+			optionalDistribusjonKanalCode
 		);
 
 		log.info("hentForsendelser har hentet forsendelser med journalpostIds aka. arkivIds={}",
