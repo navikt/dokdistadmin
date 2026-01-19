@@ -71,7 +71,7 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 	}
 
 	@Override
-	public Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds,
+	public Stream<DokumentInfo> fetchDokumentInfoList(List<Long> journalpostIds,
 													  List<DistribusjonsTypeKode> distribusjonstyper,
 													  List<DokumentStatusCode> dokumentstatus,
 													  boolean inkluderAvstemte,

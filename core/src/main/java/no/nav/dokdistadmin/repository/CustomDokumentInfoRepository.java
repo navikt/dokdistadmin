@@ -18,7 +18,7 @@ public interface CustomDokumentInfoRepository {
 
 	DokumentInfo fetchDokumentInfo(Long dokumentInfoId);
 
-	Stream<DokumentInfo> fetchDokumentInfoList(List<String> journalpostIds,
+	Stream<DokumentInfo> fetchDokumentInfoList(List<Long> journalpostIds,
 											   List<DistribusjonsTypeKode> distribusjonstyper,
 											   List<DokumentStatusCode> dokumentstatus,
 											   boolean inkluderAvstemte,
