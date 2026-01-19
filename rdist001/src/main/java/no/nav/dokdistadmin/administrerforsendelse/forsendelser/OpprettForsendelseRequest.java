@@ -24,7 +24,6 @@ import java.util.List;
 @ValiderForsendelseMetadata
 public class OpprettForsendelseRequest {
     @NotBlank(message = "bestillingsId må ha en verdi")
-    @Pattern(regexp = "[A-Za-z0-9_ .-]*", message = "bestillingsId inneholder ulovlige tegn")
     String bestillingsId;
 
     @NotNull(message = "distribusjonsKanal kan ikke være null")

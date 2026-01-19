@@ -95,8 +95,7 @@ public class AdministrerForsendelseController {
 	@GetMapping("/finnforsendelse/{oppslagsnoekkel}/{verdi}")
 	public ResponseEntity<Forsendelse> finnForsendelse(
 		@PathVariable @NotBlank(message = "Sti-parameter oppslagsnoekkel må ha en verdi") String oppslagsnoekkel,
-		@PathVariable @NotBlank(message = "Sti-parameter verdi må ha en verdi")
-		@Pattern(regexp = "[A-Za-z0-9_.-]+", message = "Sti-parameter verdi inneholder ulovlige tegn") String verdi) {
+		@PathVariable @NotBlank(message = "Sti-parameter verdi må ha en verdi") String verdi) {
 
 		Oppslagsnoekkel oppslagsnoekkelCode = Oppslagsnoekkel.fromString(oppslagsnoekkel);
 		log.info("finnforsendelse har mottatt kall om å finne forsendelse med {}={}", oppslagsnoekkelCode, verdi);
