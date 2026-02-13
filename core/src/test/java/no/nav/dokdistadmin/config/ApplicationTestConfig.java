@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Import({
-		CoreConfig.class
+		CoreConfig.class,
+		JmsTestConfig.class
 })
 @Profile("itest")
 @EnableAutoConfiguration

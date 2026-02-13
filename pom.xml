@@ -26,6 +26,8 @@
 
 		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
 		<token-support.version>5.0.35</token-support.version>
+		<dok-legacy-tjenestespesifikasjoner.version>44-7d14e70</dok-legacy-tjenestespesifikasjoner.version>
+		<mq-jms-spring-boot-starter.version>3.5.9</mq-jms-spring-boot-starter.version>
 
 		<!-- Test -->
 		<spring-cloud-contract-wiremock.version>4.3.0</spring-cloud-contract-wiremock.version>
@@ -56,6 +58,16 @@
 				<groupId>net.logstash.logback</groupId>
 				<artifactId>logstash-logback-encoder</artifactId>
 				<version>${logstash-logback-encoder.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>no.nav.meldinger.virksomhet</groupId>
+				<artifactId>dok-melding-virksomhet-dokdistfordeling</artifactId>
+				<version>${dok-legacy-tjenestespesifikasjoner.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.ibm.mq</groupId>
+				<artifactId>mq-jms-spring-boot-starter</artifactId>
+				<version>${mq-jms-spring-boot-starter.version}</version>
 			</dependency>
 
 			<!-- Test -->
