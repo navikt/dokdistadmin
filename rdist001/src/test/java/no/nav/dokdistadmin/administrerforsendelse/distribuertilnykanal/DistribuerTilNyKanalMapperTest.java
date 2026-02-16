@@ -72,12 +72,12 @@ class DistribuerTilNyKanalMapperTest {
                 .containsExactly(
                         tuple(RefererTilCode.valueOf(originalHoveddokument.getTilknyttetSom()),
                                 originalHoveddokument.getDokumentObjektReferanse(),
-                                0,
+                                1,
                                 originalHoveddokument.getArkivDokumentInfoId(),
                                 RESENDING_DOKUMENTTYPE_ID),
                         tuple(RefererTilCode.valueOf(originalVedlegg.getTilknyttetSom()),
                                 originalVedlegg.getDokumentObjektReferanse(),
-                                1,
+                                2,
                                 originalVedlegg.getArkivDokumentInfoId(),
                                 RESENDING_DOKUMENTTYPE_ID)
                 );

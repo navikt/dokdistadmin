@@ -8,6 +8,7 @@ import no.nav.dokdistadmin.domain.MottakerIdTypeCode;
 import no.nav.dokdistadmin.domain.RefererTilCode;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 public class DistribuerTilNyKanalMapper {
@@ -19,8 +20,10 @@ public class DistribuerTilNyKanalMapper {
 
     public static OpprettForsendelseRequest mapTilOpprettForsendelseRequest(HentForsendelseResponse originalForsendelse, DistribusjonKanalCode nyKanal) {
 
-        var dokumenter = IntStream.range(0, originalForsendelse.getDokumenter().size())
-                .mapToObj(i -> mapDokument(originalForsendelse.getDokumenter().get(i), i))
+        AtomicInteger rekkefolgeCounter = new AtomicInteger(1);
+
+        var dokumenter = originalForsendelse.getDokumenter().stream()
+                .map(dokument -> mapDokument(dokument, rekkefolgeCounter.getAndIncrement()))
                 .toList();
 
         var builder = OpprettForsendelseRequest.builder()
@@ -79,11 +82,11 @@ public class DistribuerTilNyKanalMapper {
                 .build();
     }
 
-    private static OpprettForsendelseRequest.Dokument mapDokument(HentForsendelseResponse.Dokument dokument, int index) {
+    private static OpprettForsendelseRequest.Dokument mapDokument(HentForsendelseResponse.Dokument dokument, int rekkefolge) {
         return OpprettForsendelseRequest.Dokument.builder()
                 .tilknyttetSom(RefererTilCode.valueOf(dokument.getTilknyttetSom()))
                 .dokumentObjektReferanse(dokument.getDokumentObjektReferanse())
-                .rekkefolge(index)
+                .rekkefolge(rekkefolge)
                 .arkivDokumentInfoId(dokument.getArkivDokumentInfoId())
                 .dokumenttypeId(RESENDING_DOKUMENTTYPE_ID)
                 .build();

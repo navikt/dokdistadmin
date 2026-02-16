@@ -112,8 +112,8 @@ public class DistribuerTilNyKanalITest extends AbstractITest {
 						DokumentReferanse::getRekkefolge
 				)
 				.containsExactlyInAnyOrder(
-						tuple(HOVEDDOKUMENT, 0),
-						tuple(VEDLEGG, 1)
+						tuple(HOVEDDOKUMENT, 1),
+						tuple(VEDLEGG, 2)
 				);
 
 		assertThat(feilkvitteringRepository.findAll())

@@ -18,7 +18,6 @@ public class JmsProperties {
 	private final Queues queues = new Queues();
 
 	@Data
-	@Validated
 	public static class Broker {
 		@NotEmpty
 		private String hostname;
@@ -31,7 +30,6 @@ public class JmsProperties {
 	}
 
 	@Data
-	@Validated
 	public static class Queues {
 		@NotEmpty
 		private String qdist009Print;
