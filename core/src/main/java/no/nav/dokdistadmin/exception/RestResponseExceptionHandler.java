@@ -11,6 +11,7 @@ import no.nav.dokdistadmin.exception.functional.KanIkkeBestemmeDokumentrekkefoel
 import no.nav.dokdistadmin.exception.functional.OppdaterVarselInfoException;
 import no.nav.dokdistadmin.exception.functional.PostdestinasjonIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.StatusErAlleredeSattException;
+import no.nav.dokdistadmin.exception.functional.UgyldigInputException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
 import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.exception.technical.DokdistadminTechnicalException;
@@ -59,7 +60,8 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 			ConstraintViolationException.class,
 			UlovligStatusOvergangException.class,
 			OppdaterVarselInfoException.class,
-			ValideringFeiletException.class
+			ValideringFeiletException.class,
+			UgyldigInputException.class
 	})
 	public ResponseEntity<Object> inputValidationExceptionHandler(Exception e) {
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);

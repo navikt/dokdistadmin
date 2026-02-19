@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.dokdistadmin.administrerforsendelse.distribuertilnykanal.DistribuerTilNyKanalRequest;
+import no.nav.dokdistadmin.administrerforsendelse.distribuertilnykanal.DistribuerTilNyKanalService;
 import no.nav.dokdistadmin.administrerforsendelse.eformidlingforsendelser.HentEformidlingforsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemForsendelserRequest;
@@ -56,17 +58,20 @@ public class AdministrerForsendelseController {
 	private final OppdaterForsendelseService oppdaterForsendelseService;
 	private final PostService postService;
 	private final FeilregistrerForsendelseService feilregistrerForsendelseService;
+	private final DistribuerTilNyKanalService distribuerTilNyKanalService;
 
 	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
 											VarselInfoService varselInfoService,
 											OppdaterForsendelseService oppdaterForsendelseService,
 											PostService postService,
-											FeilregistrerForsendelseService feilregistrerForsendelseService) {
+											FeilregistrerForsendelseService feilregistrerForsendelseService,
+											DistribuerTilNyKanalService distribuerTilNyKanalService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
 		this.oppdaterForsendelseService = oppdaterForsendelseService;
 		this.postService = postService;
 		this.feilregistrerForsendelseService = feilregistrerForsendelseService;
+		this.distribuerTilNyKanalService = distribuerTilNyKanalService;
 	}
 
 	@PostMapping
@@ -161,6 +166,18 @@ public class AdministrerForsendelseController {
 		feilregistrerForsendelseService.feilregistrerForsendelse(feilregistrerForsendelseRequest);
 		log.info("feilregistrerForsendelse har feilregistrert forsendelse med forsendelseId={}",
 			feilregistrerForsendelseRequest.getForsendelseId());
+
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/distribuertilnykanal")
+	public ResponseEntity<Void> distribuerTilNyKanal(@RequestBody @Valid @NotNull DistribuerTilNyKanalRequest distribuerTilNyKanalRequest) {
+		log.info("distribuerTilNyKanal har mottatt kall om å distribuere forsendelse med forsendelseId={} til ny kanal={}",
+			distribuerTilNyKanalRequest.getForsendelseId(), distribuerTilNyKanalRequest.getKanal());
+
+		long nyForsendelseId = distribuerTilNyKanalService.distribuerTilNyKanal(distribuerTilNyKanalRequest);
+		log.info("distribuerTilNyKanal har fullført distribusjon av forsendelse med forsendelseId={} til ny kanal={}, nyForsendelseId={}",
+			distribuerTilNyKanalRequest.getForsendelseId(), distribuerTilNyKanalRequest.getKanal(), nyForsendelseId);
 
 		return ResponseEntity.ok().build();
 	}
