@@ -9,8 +9,9 @@ import no.nav.dokdistadmin.repository.VarselInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -27,6 +28,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		classes = {ApplicationTestConfig.class},
 		webEnvironment = RANDOM_PORT)
 @AutoConfigureTestDatabase
+@AutoConfigureWebTestClient
 @ActiveProfiles({"itest"})
 public abstract class AbstractITest extends AbstractOauth2Test {
 

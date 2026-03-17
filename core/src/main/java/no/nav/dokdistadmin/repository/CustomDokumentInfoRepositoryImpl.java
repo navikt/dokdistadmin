@@ -34,7 +34,7 @@ public class CustomDokumentInfoRepositoryImpl implements CustomDokumentInfoRepos
 								and dok.arkivSystem = 'JOARK'
 								and dok.arkivkode is not null
 								and dok.ekspedertDato is not null
-								and dok.ekspedertDato >= TO_DATE('2022-10-01', 'yyyy-mm-dd')
+								and dok.ekspedertDato >= {d '2022-10-01'}
 								and di.distribusjonKanal in(:distribusjonKanal)
 								order by dok.ekspedertDato""", Long.class)
 				.setParameter("distribusjonKanal", distribusjonKanal)

@@ -38,7 +38,7 @@ public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Lon
 				where dok.dokumentStatus in (:dokumentStatusList)
 				and dok.distribusjonInfo = dis
 				and dis.distribusjonKanal = :distribusjonKanal
-				and dok.changeStamp.opprettetDato >= TO_DATE('2022-01-01', 'yyyy-mm-dd')
+				and dok.changeStamp.opprettetDato >= {d '2022-01-01'}
 			""")
 	List<DokumentInfo> findDokumentInfoByDokumentStatusAndDistribusjonKanal(
 			@Param("dokumentStatusList") EnumSet<DokumentStatusCode> dokumentStatusList,
