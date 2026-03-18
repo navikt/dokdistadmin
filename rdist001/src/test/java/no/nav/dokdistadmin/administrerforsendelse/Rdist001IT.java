@@ -33,7 +33,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static java.lang.String.format;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
@@ -62,7 +61,7 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-public class Rdist001ITest extends AbstractITest {
+public class Rdist001IT extends AbstractITest {
 
 	private static final String HENTEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentekspederteforsendelser";
 	private static final String AVSTEMEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemekspederteforsendelser";
@@ -74,12 +73,12 @@ public class Rdist001ITest extends AbstractITest {
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
 
 	private DistribusjonInfo setupDatabase() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithEkspedertDato(LocalDateTime.now().minusSeconds(1)));
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithEkspedertDato(LocalDateTime.now().minusSeconds(2)));
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithEkspedertDato(LocalDateTime.now().minusSeconds(3)));
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -120,9 +119,9 @@ public class Rdist001ITest extends AbstractITest {
 
 	@Test
 	void skalGiNoContentDersomIngenTreffVedHentingAvEkspederteForsendelser() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 		distribusjonInfo.addDokumentInfo(createDokumentInfo());
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 		commitAndBeginNewTransaction();
 
 		webTestClient.method(GET)
@@ -202,9 +201,9 @@ public class Rdist001ITest extends AbstractITest {
 		var distribusjonkanal = PRINT;
 		var antallTimer = 0L;
 
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(distribusjonkanal));
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfoWithDistribusjonKanal(distribusjonkanal));
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithStatusCode(dokumentStatusCode));
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -231,9 +230,9 @@ public class Rdist001ITest extends AbstractITest {
 		var distribusjonkanal = PRINT;
 		var antallTimer = 0L;
 
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(distribusjonkanal));
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfoWithDistribusjonKanal(distribusjonkanal));
 		distribusjonInfo.addDokumentInfo(createDokumentInfoWithStatusCode(dokumentStatusCode));
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -249,14 +248,14 @@ public class Rdist001ITest extends AbstractITest {
 	void skalHenteUekspederteForsendelserEldreEnnAntallTimer() {
 		var antallTimer = 4L;
 
-		var distribusjonSomSkalHentes = dokumentDistribusjonRepository.save(createDistribusjonInfo());
-		var distribusjonSomErForNy = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonSomSkalHentes = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
+		var distribusjonSomErForNy = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(OPPRETTET));
 		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(OVERSENDT));
 		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(EKSPEDERT));
 		distribusjonSomErForNy.addDokumentInfo(createDokumentInfoWithStatusCode(OPPRETTET));
-		dokumentDistribusjonRepository.saveAll(List.of(distribusjonSomSkalHentes, distribusjonSomErForNy));
+		dokumentDistribusjonRepository.persistAll(List.of(distribusjonSomSkalHentes, distribusjonSomErForNy));
 
 		var id = distribusjonSomSkalHentes.getDistribusjonInfoId();
 
@@ -340,9 +339,8 @@ public class Rdist001ITest extends AbstractITest {
 
 	@Test
 	void skalAvstemmeForsendelser() {
-		setupDatabase();
-
-		var dokumentInfoId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
+		DistribusjonInfo distribusjonInfo = setupDatabase();
+		var dokumentInfoId = distribusjonInfo.getDokumentInfos().iterator().next().getDokumentInfoId();
 
 		var request = new AvstemForsendelserRequest(AVSTEMTREFERANSE, List.of(new Forsendelse(dokumentInfoId)));
 
@@ -385,7 +383,7 @@ public class Rdist001ITest extends AbstractITest {
 	public void skalHenteForsendelserMedIdDistribusjonstype(String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam,
 															DistribusjonKanalCode distribusjonskanal, DistribusjonsTypeKode[] distribusjonstyper,
 															HttpStatus expectedStatus, int dokumentInfosMatched) {
-		Stream.of(distribusjonstyper).forEach(distribusjonstype -> {
+		String journalpostIdsParam = Stream.of(distribusjonstyper).flatMap(distribusjonstype -> {
 			var distribusjonSomSkalHentes = createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal);
 			distribusjonSomSkalHentes.setDistribusjonstype(distribusjonstype);
 
@@ -399,15 +397,11 @@ public class Rdist001ITest extends AbstractITest {
 			distribusjonSomSkalHentes.addDokumentInfo(ekspedertDokument);
 			distribusjonSomSkalHentes.addDokumentInfo(bekreftetDokument);
 
-			dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
-		});
+			dokumentDistribusjonRepository.persist(distribusjonSomSkalHentes);
+			return distribusjonSomSkalHentes.getDokumentInfos().stream();
+		}).map(DokumentInfo::getArkivkode).collect(Collectors.joining(","));
 
 		commitAndBeginNewTransaction();
-
-		String journalpostIdsParam = StreamSupport.stream(dokumentInfoRepository.findAll().spliterator(), false)
-				.map(DokumentInfo::getArkivkode)
-				.map(String::valueOf)
-				.collect(Collectors.joining(","));
 
 		var request = webTestClient.get()
 				.uri(HENTFORSENDELSER_URI +
@@ -479,7 +473,7 @@ public class Rdist001ITest extends AbstractITest {
 		distribusjon.addDokumentInfo(dokumentInfoMedAvstemtDato);
 		distribusjon.addDokumentInfo(dokumentInfoUtenAvstemtDato);
 
-		dokumentDistribusjonRepository.save(distribusjon);
+		dokumentDistribusjonRepository.persist(distribusjon);
 
 		commitAndBeginNewTransaction();
 
@@ -532,7 +526,7 @@ public class Rdist001ITest extends AbstractITest {
 		distribusjonSomSkalHentes.addDokumentInfo(ekspedertDokument);
 		distribusjonSomSkalHentes.addDokumentInfo(bekreftetDokument);
 
-		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+		dokumentDistribusjonRepository.persist(distribusjonSomSkalHentes);
 
 		commitAndBeginNewTransaction();
 
@@ -564,7 +558,7 @@ public class Rdist001ITest extends AbstractITest {
 		var distribusjonSomSkalHentes = createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal);
 
 		distribusjonSomSkalHentes.addDokumentInfo(createDokumentInfoWithStatusCode(BEKREFTET));
-		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+		dokumentDistribusjonRepository.persist(distribusjonSomSkalHentes);
 
 		commitAndBeginNewTransaction();
 
@@ -589,7 +583,7 @@ public class Rdist001ITest extends AbstractITest {
 		var distribusjonSomSkalHentes = createDistribusjonInfoWithDistribusjonKanal(TRYGDERETTEN);
 		var dokument = createDokumentInfoWithStatusCode(BEKREFTET);
 		distribusjonSomSkalHentes.addDokumentInfo(dokument);
-		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+		dokumentDistribusjonRepository.persist(distribusjonSomSkalHentes);
 
 		commitAndBeginNewTransaction();
 
@@ -619,7 +613,7 @@ public class Rdist001ITest extends AbstractITest {
 		var distribusjonSomSkalHentes = createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal);
 		var dokument = createDokumentInfoWithStatusCode(BEKREFTET);
 		distribusjonSomSkalHentes.addDokumentInfo(dokument);
-		dokumentDistribusjonRepository.save(distribusjonSomSkalHentes);
+		dokumentDistribusjonRepository.persist(distribusjonSomSkalHentes);
 
 		commitAndBeginNewTransaction();
 

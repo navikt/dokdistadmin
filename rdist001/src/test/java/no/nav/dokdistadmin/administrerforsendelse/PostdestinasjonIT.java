@@ -26,7 +26,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PostITest extends AbstractITest {
+public class PostdestinasjonIT extends AbstractITest {
 
 	private static final String HENTPOSTDESTINASJON_URI = "/rest/v1/administrerforsendelse/hentpostdestinasjon";
 	private static final String OPPDATERPOSTADRESSE_URI = "/rest/v1/administrerforsendelse/oppdaterpostadresse";
@@ -45,7 +45,7 @@ public class PostITest extends AbstractITest {
 	void setup() {
 		var landkodePostDest = new LandkodePostDest(LANDKODE_NORGE, POSTDESTINASJON);
 
-		landkodePostDestRepository.save(landkodePostDest);
+		landkodePostDestRepository.persist(landkodePostDest);
 
 		commitAndBeginNewTransaction();
 	}
@@ -85,7 +85,7 @@ public class PostITest extends AbstractITest {
 
 	@Test
 	void skalOppdaterePostadresse() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		no.nav.dokdistadmin.domain.Postadresse postadresse = no.nav.dokdistadmin.domain.Postadresse.builder()
 				.adresselinje1("adr1")
@@ -98,11 +98,11 @@ public class PostITest extends AbstractITest {
 		var dokumentInfo = createDokumentInfoWithEkspedertDato(LocalDateTime.now().minusSeconds(1));
 		dokumentInfo.setPostadresse(postadresse);
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
-		var forsendelseId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
+		var forsendelseId = distribusjonInfo.getDokumentInfos().iterator().next().getDokumentInfoId();
 		OppdaterPostadresseRequest request = createOppdaterPostadresseRequest(forsendelseId, LANDKODE_NORGE);
 
 		webTestClient.put()

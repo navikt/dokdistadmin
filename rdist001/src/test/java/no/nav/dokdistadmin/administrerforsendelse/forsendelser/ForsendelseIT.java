@@ -29,7 +29,7 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-public class ForsendelseITest extends AbstractITest {
+public class ForsendelseIT extends AbstractITest {
 
 	private static final String ADMINISTRER_FORSENDELSE_URI = "/rest/v1/administrerforsendelse";
 
@@ -112,7 +112,7 @@ public class ForsendelseITest extends AbstractITest {
 
 		var distribusjon = createDistribusjonInfo();
 		distribusjon.addDokumentInfo(createDokumentInfoWithDokumentId(request.getBestillingsId()));
-		dokumentDistribusjonRepository.save(distribusjon);
+		dokumentDistribusjonRepository.persist(distribusjon);
 
 		commitAndBeginNewTransaction();
 
@@ -157,7 +157,7 @@ public class ForsendelseITest extends AbstractITest {
 	void skalHenteForsendelse() {
 		var distribusjon = createDistribusjonInfo();
 		distribusjon.addDokumentInfo(createDokumentInfoWithDokumentId(BESTILLINGS_ID));
-		dokumentDistribusjonRepository.save(distribusjon);
+		dokumentDistribusjonRepository.persist(distribusjon);
 
 		commitAndBeginNewTransaction();
 
@@ -216,7 +216,7 @@ public class ForsendelseITest extends AbstractITest {
 		var dokumentreferanse = createDokumentReferanseWithRefererTilAndRekkefoelge(HOVEDDOKUMENT, -1);
 		dokument.addDokumentReferanse(dokumentreferanse);
 		distribusjon.addDokumentInfo(dokument);
-		dokumentDistribusjonRepository.save(distribusjon);
+		dokumentDistribusjonRepository.persist(distribusjon);
 
 		commitAndBeginNewTransaction();
 

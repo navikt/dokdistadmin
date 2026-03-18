@@ -51,7 +51,7 @@ public class VarselInfoService {
 
 		DokumentInfo dokumentInfo = dokumentInfoRepository.getReferenceById(dokumentInfoId);
 		List<VarselInfo> varselInfoList = mapOppdaterVarselInfoRequest(oppdaterVarselInfoRequest, dokumentInfo);
-		var oppdaterteVarselInfo = varselInfoRepository.saveAll(varselInfoList);
+		var oppdaterteVarselInfo = varselInfoRepository.persistAll(varselInfoList);
 
 		return StreamSupport.stream(oppdaterteVarselInfo.spliterator(), false).count();
 	}

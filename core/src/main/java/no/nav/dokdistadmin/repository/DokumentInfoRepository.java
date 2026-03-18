@@ -7,16 +7,13 @@ import no.nav.dokdistadmin.domain.DokumentStatusCode;
 import no.nav.dokdistadmin.repository.projections.DokumentInfoIdHolder;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.EnumSet;
 import java.util.List;
 
-public interface DokumentInfoRepository extends CrudRepository<DokumentInfo, Long>, CustomDokumentInfoRepository {
+public interface DokumentInfoRepository extends BaseJpaRepository<DokumentInfo, Long>, HibernateRepository<DokumentInfo>, CustomDokumentInfoRepository {
 	boolean existsByDokumentId(String dokumentId);
-
-	DokumentInfo getReferenceById(Long dokumentInfoId);
 
 	DokumentInfo findDokumentInfoByDokumentId(String dokumentId);
 

@@ -6,6 +6,7 @@ import no.nav.dokdistadmin.repository.FeilkvitteringRepository;
 import no.nav.dokdistadmin.repository.FilinfoRepository;
 import no.nav.dokdistadmin.repository.LandkodePostDestRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,12 +66,10 @@ public abstract class AbstractITest extends AbstractOauth2Test {
 	}
 
 	protected void emptyDatabases() {
-		varselInfoRepository.deleteAll();
-		landkodePostDestRepository.deleteAll();
-		feilkvitteringRepository.deleteAll();
-		filinfoRepository.deleteAll();
-		dokumentInfoRepository.deleteAll();
-		dokumentDistribusjonRepository.deleteAll();
+		entityManager.getEntityManagerFactory()
+				.unwrap(SessionFactoryImplementor.class)
+				.getSchemaManager()
+				.truncateMappedObjects();
 	}
 
 	protected void commitAndBeginNewTransaction() {

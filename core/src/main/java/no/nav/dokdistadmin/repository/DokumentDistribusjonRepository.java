@@ -1,9 +1,8 @@
 package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.domain.DistribusjonInfo;
-import org.springframework.data.repository.CrudRepository;
 
-public interface DokumentDistribusjonRepository extends CrudRepository<DistribusjonInfo, Long>, CustomDokumentDistribusjonRepository {
+public interface DokumentDistribusjonRepository extends BaseJpaRepository<DistribusjonInfo, Long>, HibernateRepository<DistribusjonInfo>, CustomDokumentDistribusjonRepository {
 
 	DistribusjonInfo getDistribusjonInfoByDistribusjonId(String distribusjonId);
 }

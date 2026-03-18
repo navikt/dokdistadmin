@@ -15,7 +15,7 @@ class FeilkvitteringRepositoryTest extends AbstractRepositoryTest {
 	void shouldSaveFeilkvittering() {
 		var feilkvittering = createFeilkvittering();
 
-		feilkvitteringRepository.save(feilkvittering);
+		feilkvitteringRepository.persist(feilkvittering);
 
 		assertNotNull(feilkvittering.getFeilkvitteringId());
 	}

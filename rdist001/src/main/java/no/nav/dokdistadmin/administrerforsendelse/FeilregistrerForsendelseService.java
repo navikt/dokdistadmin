@@ -57,7 +57,7 @@ public class FeilregistrerForsendelseService {
 		oppdaterDokumentInfo(dokumentInfo, feilkvittering);
 		oppdaterDistribusjonInfo(distribusjonInfo, feilregistrerForsendelseRequest.getResendingDistribusjonId());
 
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 	}
 
 	private void oppdaterDokumentInfo(DokumentInfo dokumentInfo, Feilkvittering feilkvittering) {

@@ -54,6 +54,6 @@ public class PostService {
 			PostadresseMapper.oppdaterPostadresse(request, dokumentInfo.getPostadresse());
 		}
 
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 	}
 }

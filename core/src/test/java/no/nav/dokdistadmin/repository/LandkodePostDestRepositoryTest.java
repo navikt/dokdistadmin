@@ -15,7 +15,7 @@ class LandkodePostDestRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindLandkodePostDestByLandkode() {
-		landkodePostDestRepository.save(createLandkodePostdestinasjonInnland());
+		landkodePostDestRepository.persist(createLandkodePostdestinasjonInnland());
 
 		var result = landkodePostDestRepository.findLandkodePostDestByLandkode(LANDKODE_NO);
 

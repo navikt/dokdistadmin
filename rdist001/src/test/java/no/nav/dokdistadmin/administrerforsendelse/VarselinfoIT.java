@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
@@ -33,17 +32,16 @@ import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class VarselinfoITest extends AbstractITest {
+public class VarselinfoIT extends AbstractITest {
 
 	private static final String OPPDATERVARSELINFO_URI = "/rest/v1/administrerforsendelse/oppdatervarselinfo";
 
 	private void setupDatabase() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(DITTNAV));
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfoWithDistribusjonKanal(DITTNAV));
 		distribusjonInfo.addDokumentInfo(createDokumentInfo());
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
-
 	}
 
 	@Test
@@ -59,8 +57,6 @@ public class VarselinfoITest extends AbstractITest {
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk();
-
-		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false)).hasSize(2);
 
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
 
@@ -103,9 +99,8 @@ public class VarselinfoITest extends AbstractITest {
 				.exchange()
 				.expectStatus().isOk();
 
-		assertThat(StreamSupport.stream(varselInfoRepository.findAll().spliterator(), false).count()).isEqualTo(3);
-
 		var varsler = dokumentInfoRepository.findDokumentInfoByDokumentId(DOKUMENT_ID_1).getVarselInfos();
+		assertThat(varsler).hasSize(3);
 
 		assertThat(varsler).anySatisfy(varsel -> {
 			assertThat(varsel.getVarslingKanal()).isEqualTo(MOBILTELEFON);

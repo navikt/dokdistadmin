@@ -31,17 +31,17 @@ import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.springframework.http.HttpMethod.PUT;
 
-public class OppdaterForsendelseITest extends AbstractITest {
+public class OppdaterForsendelseIT extends AbstractITest {
 
 	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
 
 	private DistribusjonInfo setupDatabaseWithStatus(String dokumentStatus, VarselStatusCode varselStatus) {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(valueOf(dokumentStatus));
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
 		distribusjonInfo.setVarselStatus(varselStatus);
 		distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.valueOf(dokumentStatus));
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -50,11 +50,11 @@ public class OppdaterForsendelseITest extends AbstractITest {
 
 	@Test
 	void skalOppdatereForsendelse() {
-		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
 
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -243,12 +243,12 @@ public class OppdaterForsendelseITest extends AbstractITest {
 
 	@Test
 	void skalReturnereInternalServerErrorDersomDokumentstatusOgDistribusjonstatusErUlike() {
-		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(EKSPEDERT);
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
 
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -276,12 +276,12 @@ public class OppdaterForsendelseITest extends AbstractITest {
 
 	@Test
 	void skalReturnereOkDersomForsendelsestatusErLikEksisterendeDokumentstatus() {
-		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
 
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -311,12 +311,12 @@ public class OppdaterForsendelseITest extends AbstractITest {
 
 	@Test
 	void skalReturnereOkDersomVarselstatusErLikEksisterendeVarselstatus() {
-		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithVarselstatus(VarselStatusCode.OPPRETTET));
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfoWithVarselstatus(VarselStatusCode.OPPRETTET));
 
 		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(OPPRETTET);
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
 
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 
@@ -424,11 +424,11 @@ public class OppdaterForsendelseITest extends AbstractITest {
 	@ParameterizedTest
 	@EnumSource(value = DistribusjonKanalCode.class, names = {"SDP"}, mode = EXCLUDE)
 	void skalIkkeOppdatereDigitalDistribusjonsadresseDersomDistribusjonskanalIkkeErSDP(DistribusjonKanalCode distribusjonskanal) {
-		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal));
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfoWithDistribusjonKanal(distribusjonskanal));
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 

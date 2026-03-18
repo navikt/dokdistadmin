@@ -1,9 +1,8 @@
 package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.domain.LandkodePostDest;
-import org.springframework.data.repository.CrudRepository;
 
-public interface LandkodePostDestRepository extends CrudRepository<LandkodePostDest, String> {
+public interface LandkodePostDestRepository extends BaseJpaRepository<LandkodePostDest, String>, HibernateRepository<LandkodePostDest> {
 
 	LandkodePostDest findLandkodePostDestByLandkode(String landkode);
 }

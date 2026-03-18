@@ -1,11 +1,13 @@
 package no.nav.dokdistadmin.config;
 
+import jakarta.persistence.EntityManager;
 import no.nav.dokdistadmin.repository.DokumentDistribusjonRepository;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import no.nav.dokdistadmin.repository.FeilkvitteringRepository;
 import no.nav.dokdistadmin.repository.FilinfoRepository;
 import no.nav.dokdistadmin.repository.LandkodePostDestRepository;
 import no.nav.dokdistadmin.repository.VarselInfoRepository;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 @ContextConfiguration(classes = {RepositoryConfig.class})
 @ActiveProfiles("itest")
 public abstract class AbstractRepositoryTest {
+
+	@Autowired
+	protected EntityManager entityManager;
 
 	@Autowired
 	protected DokumentDistribusjonRepository dokumentDistribusjonRepository;
@@ -48,12 +53,10 @@ public abstract class AbstractRepositoryTest {
 	}
 
 	public void emptyDatabases() {
-		varselInfoRepository.deleteAll();
-		landkodePostDestRepository.deleteAll();
-		feilkvitteringRepository.deleteAll();
-		filinfoRepository.deleteAll();
-		dokumentInfoRepository.deleteAll();
-		dokumentDistribusjonRepository.deleteAll();
+		entityManager.getEntityManagerFactory()
+				.unwrap(SessionFactoryImplementor.class)
+				.getSchemaManager()
+				.truncateMappedObjects();
 	}
 
 	public void commitAndBeginNewTransaction() {

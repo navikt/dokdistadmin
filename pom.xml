@@ -89,6 +89,13 @@
 				<version>${datasource-proxy-spring-boot-starter.version}</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>no.nav.dokdistadmin</groupId>
+				<artifactId>core</artifactId>
+				<version>${project.version}</version>
+				<type>test-jar</type>
+				<scope>test</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

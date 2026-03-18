@@ -5,7 +5,6 @@ import no.nav.dokdistadmin.domain.VarselInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.StreamSupport;
 
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.EPOST;
 import static no.nav.dokdistadmin.domain.VarslingKanalCode.MOBILTELEFON;
@@ -20,9 +19,9 @@ class VarselInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldSaveVarselInfo() {
-		var varsler = varselInfoRepository.saveAll(List.of(createSMSVarselInfo(), createEpostVarselInfo()));
+		var varsler = varselInfoRepository.persistAll(List.of(createSMSVarselInfo(), createEpostVarselInfo()));
 
-		assertEquals(2, StreamSupport.stream(varsler.spliterator(), false).count());
+		assertEquals(2, varsler.size());
 	}
 
 	private static VarselInfo createSMSVarselInfo() {

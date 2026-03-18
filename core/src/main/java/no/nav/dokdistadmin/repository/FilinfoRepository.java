@@ -1,8 +1,7 @@
 package no.nav.dokdistadmin.repository;
 
 import no.nav.dokdistadmin.domain.FilInfo;
-import org.springframework.data.repository.CrudRepository;
 
-public interface FilinfoRepository extends CrudRepository<FilInfo, Long> {
+public interface FilinfoRepository extends BaseJpaRepository<FilInfo, Long>, HibernateRepository<FilInfo> {
 	FilInfo findFilInfoByFilnavn(String filnavn);
 }

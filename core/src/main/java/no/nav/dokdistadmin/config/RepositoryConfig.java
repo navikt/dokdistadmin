@@ -1,6 +1,7 @@
 package no.nav.dokdistadmin.config;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.dokdistadmin.repository.BaseJpaRepositoryImpl;
 import oracle.jdbc.pool.OracleDataSource;
 import oracle.net.ns.SQLnetDef;
 import oracle.ucp.jdbc.PoolDataSource;
@@ -28,9 +29,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @EntityScan(basePackages = {
 		"no.nav.dokdistadmin.domain"
 })
-@EnableJpaRepositories(basePackages = {
-		"no.nav.dokdistadmin.repository"
-})
+@EnableJpaRepositories(basePackages = "no.nav.dokdistadmin.repository",
+		repositoryBaseClass = BaseJpaRepositoryImpl.class)
 @EnableConfigurationProperties({DataSourceProperties.class, DokdistadminProperties.class})
 public class RepositoryConfig {
 
