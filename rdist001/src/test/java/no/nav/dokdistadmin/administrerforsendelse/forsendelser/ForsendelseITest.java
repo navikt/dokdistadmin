@@ -12,9 +12,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import wiremock.org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
+import java.io.InputStream;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -231,6 +230,8 @@ public class ForsendelseITest extends AbstractITest {
 	}
 
 	private String getFileFromResources(String filename) throws IOException {
-		return IOUtils.toString(requireNonNull(this.getClass().getResourceAsStream("/" + filename)), UTF_8);
+		try (InputStream is = requireNonNull(this.getClass().getResourceAsStream("/" + filename))) {
+			return new String(is.readAllBytes(), UTF_8);
+		}
 	}
 }

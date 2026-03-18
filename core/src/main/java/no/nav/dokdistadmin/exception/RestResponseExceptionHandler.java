@@ -1,6 +1,6 @@
 package no.nav.dokdistadmin.exception;
 
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.exception.functional.DistribusjonIkkeFunnetException;
@@ -151,18 +151,18 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
 	private static ResponseEntity<Object> handleInvalidFormatException(HttpMessageNotReadableException e, InvalidFormatException invalidFormatException) {
 		String feilmelding;
-		var fieldName = invalidFormatException.getPath().getFirst().getFieldName();
+		var propertyName = invalidFormatException.getPath().getFirst().getPropertyName();
 		var value = invalidFormatException.getValue();
 		var targetType = invalidFormatException.getTargetType();
 
 		if (targetType.isEnum()) {
-			feilmelding = format("Feltet %s=%s må være en av %s", fieldName, value, Arrays.toString(targetType.getEnumConstants()));
+			feilmelding = format("Feltet %s=%s må være en av %s", propertyName, value, Arrays.toString(targetType.getEnumConstants()));
 		} else if (targetType.equals(LocalDateTime.class)) {
-			feilmelding = format("Feltet %s=%s må være et gyldig tidspunkt", fieldName, value);
+			feilmelding = format("Feltet %s=%s må være et gyldig tidspunkt", propertyName, value);
 		} else if (targetType.equals(Long.class)) {
-			feilmelding = format("Feltet %s=%s må være et tall", fieldName, value);
+			feilmelding = format("Feltet %s=%s må være et tall", propertyName, value);
 		} else {
-			feilmelding = format("'%s' er ikke en gyldig verdi for feltet %s", value, fieldName);
+			feilmelding = format("'%s' er ikke en gyldig verdi for feltet %s", value, propertyName);
 		}
 
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, feilmelding, e);

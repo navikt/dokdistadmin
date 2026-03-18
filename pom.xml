@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.11</version>
+		<version>4.0.3</version>
 	</parent>
 
 	<groupId>no.nav.dokdistadmin</groupId>
@@ -24,14 +24,14 @@
 	<properties>
 		<java.version>25</java.version>
 
-		<logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
-		<token-support.version>5.0.35</token-support.version>
+		<logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
+		<token-support.version>6.0.4</token-support.version>
 		<dok-legacy-tjenestespesifikasjoner.version>44-7d14e70</dok-legacy-tjenestespesifikasjoner.version>
-		<mq-jms-spring-boot-starter.version>3.5.9</mq-jms-spring-boot-starter.version>
+		<mq-jms-spring-boot-starter.version>4.0.2</mq-jms-spring-boot-starter.version>
 
 		<!-- Test -->
-		<spring-cloud-contract-wiremock.version>4.3.0</spring-cloud-contract-wiremock.version>
-		<datasource-proxy-spring-boot-starter.version>1.12.0</datasource-proxy-spring-boot-starter.version>
+		<wiremock-spring-boot.version>4.0.9</wiremock-spring-boot.version>
+		<datasource-proxy-spring-boot-starter.version>2.0.0</datasource-proxy-spring-boot-starter.version>
 
 		<!-- Plugins -->
 		<maven-toolchains-plugin.version>3.2.0</maven-toolchains-plugin.version>
@@ -72,9 +72,9 @@
 
 			<!-- Test -->
 			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-contract-wiremock</artifactId>
-				<version>${spring-cloud-contract-wiremock.version}</version>
+				<groupId>org.wiremock.integrations</groupId>
+				<artifactId>wiremock-spring-boot</artifactId>
+				<version>${wiremock-spring-boot.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
