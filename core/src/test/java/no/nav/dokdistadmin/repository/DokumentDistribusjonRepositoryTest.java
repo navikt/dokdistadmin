@@ -30,16 +30,16 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldSaveDistribusjonInfo() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		assertNotNull(distribusjonInfo.getDistribusjonInfoId());
 	}
 
 	@Test
 	public void shouldUpdateDistribusjonInfo() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 		distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.OVERSENDT);
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		var updated = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
@@ -49,8 +49,8 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldFindDistribusjonInfoByDistribusjonId() {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		var result = dokumentDistribusjonRepository.getDistribusjonInfoByDistribusjonId(distribusjonInfo.getDistribusjonId());
 
@@ -65,7 +65,7 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 		var IKKE_EKSPEDERT = EnumSet.of(OPPRETTET, OVERSENDT, BEKREFTET, KLAR_FOR_DIST);
 
 		//Opprett en distribusjonInfo med distribution_datetime = now
-		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		distribusjoninfo.addDokumentInfo(DokumentInfo.builder()
 				.dokumentId(DOKUMENT_ID_1)
@@ -75,7 +75,7 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 				.dokumentId(DOKUMENT_ID_2)
 				.dokumentStatus(DokumentStatusCode.OPPRETTET)
 				.build());
-		dokumentDistribusjonRepository.save(distribusjoninfo);
+		dokumentDistribusjonRepository.persist(distribusjoninfo);
 
 		commitAndBeginNewTransaction();
 

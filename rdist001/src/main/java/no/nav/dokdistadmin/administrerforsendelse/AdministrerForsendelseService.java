@@ -109,7 +109,7 @@ public class AdministrerForsendelseService {
 
 		DistribusjonInfo distribusjonInfo = OpprettForsendelseRequestMapper.mapToDistribusjonInfo(persisterForsendelseRequest, dokdistadminProperties.getModus());
 
-		distribusjonInfo = dokumentDistribusjonRepository.save(distribusjonInfo);
+		distribusjonInfo = dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		var forsendelseId = distribusjonInfo.getDokumentInfos().iterator().next().getDokumentInfoId();
 

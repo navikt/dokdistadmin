@@ -18,14 +18,14 @@ class FilinfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldSaveFilinfo() {
-		var filinfo = filinfoRepository.save(createFilInfo());
+		var filinfo = filinfoRepository.persist(createFilInfo());
 
 		assertNotNull(filinfo.getFilInfoId());
 	}
 
 	@Test
 	void shouldFindFilInfoByFilnavn() {
-		filinfoRepository.save(createFilInfo());
+		filinfoRepository.persist(createFilInfo());
 
 		var result = filinfoRepository.findFilInfoByFilnavn(FILNAVN);
 

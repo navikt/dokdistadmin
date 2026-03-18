@@ -23,7 +23,7 @@ import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
-public class FinnForsendelseITest extends AbstractITest {
+public class FinnForsendelseIT extends AbstractITest {
 
 	private static final String FINN_FORSENDELSE_URI = "/rest/v1/administrerforsendelse/finnforsendelse/%s/%s";
 
@@ -57,7 +57,7 @@ public class FinnForsendelseITest extends AbstractITest {
 		dokument.setKonversasjonId("123");
 		dokument.setArkivkode("123");
 		distribusjon.addDokumentInfo(dokument);
-		dokumentDistribusjonRepository.save(distribusjon);
+		dokumentDistribusjonRepository.persist(distribusjon);
 
 		commitAndBeginNewTransaction();
 
@@ -70,7 +70,7 @@ public class FinnForsendelseITest extends AbstractITest {
 				.returnResult()
 				.getResponseBody();
 
-		var dokumentInfoId = dokumentInfoRepository.findAll().iterator().next().getDokumentInfoId();
+		var dokumentInfoId = distribusjon.getDokumentInfos().iterator().next().getDokumentInfoId();
 
 		assertThat(response).isNotNull()
 				.extracting(Forsendelse::getForsendelseId)
@@ -102,7 +102,7 @@ public class FinnForsendelseITest extends AbstractITest {
 		var dokument2 = createDokumentInfoWithDokumentId(BESTILLINGS_ID);
 		distribusjon.addDokumentInfo(dokument1);
 		distribusjon.addDokumentInfo(dokument2);
-		dokumentDistribusjonRepository.save(distribusjon);
+		dokumentDistribusjonRepository.persist(distribusjon);
 
 		commitAndBeginNewTransaction();
 

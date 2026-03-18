@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.awaitility.Awaitility.await;
 
 
-public class DistribuerTilNyKanalITest extends AbstractITest {
+public class DistribuerTilNyKanalIT extends AbstractITest {
 
 	private static final String DISTRIBUER_TIL_NY_KANAL_URI = "/rest/v1/administrerforsendelse/distribuertilnykanal";
 	private static final String TEST_ARSAK_BESKRIVELSE = "Test arsak beskrivelse";
@@ -116,7 +116,7 @@ public class DistribuerTilNyKanalITest extends AbstractITest {
 						tuple(VEDLEGG, 2)
 				);
 
-		assertThat(feilkvitteringRepository.findAll())
+		assertThat(dokumentInfoRepository.findDokumentInfoByDokumentInfoId(originalDokument.getDokumentInfoId()).getFeilkvitterings())
 				.singleElement()
 				.satisfies(f -> {
 					assertThat(f.getFeiltype()).isEqualTo(VARSLINGSFEIL);
@@ -179,7 +179,7 @@ public class DistribuerTilNyKanalITest extends AbstractITest {
 				.forsendelseId(999999L)
 				.kanal(PRINT.name())
 				.arsak(VARSLINGSFEIL.name())
-				.arsakBeskrivelse(DistribuerTilNyKanalITest.TEST_ARSAK_BESKRIVELSE)
+				.arsakBeskrivelse(DistribuerTilNyKanalIT.TEST_ARSAK_BESKRIVELSE)
 				.build();
 
 		webTestClient.post()
@@ -223,14 +223,14 @@ public class DistribuerTilNyKanalITest extends AbstractITest {
 	}
 
 	private DistribusjonInfo setupDatabase(DokumentStatusCode dokumentStatus) {
-		var distribusjonInfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		var dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDokumentStatus(dokumentStatus);
 		dokumentInfo.addDokumentReferanse(createDokumentReferanseWithRefererTilAndRekkefoelge(HOVEDDOKUMENT, 1));
 		dokumentInfo.addDokumentReferanse(createDokumentReferanseWithRefererTilAndRekkefoelge(VEDLEGG, 2));
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		commitAndBeginNewTransaction();
 

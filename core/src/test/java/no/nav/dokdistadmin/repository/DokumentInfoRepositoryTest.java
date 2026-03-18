@@ -44,26 +44,26 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	public void shouldSaveDokumentInfo() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
 
-		var result = dokumentInfoRepository.save(dokumentInfo);
+		var result = dokumentInfoRepository.persist(dokumentInfo);
 
 		assertNotNull(result.getDokumentInfoId());
 	}
 
 	@Test
 	void shouldSaveAndFindDokumentInfoWithForsendelseMetadata() throws URISyntaxException, IOException {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		var arkivmeldingXml = Files.readString(Paths.get(getClass().getClassLoader().getResource("forsendelsemetadata/arkivmelding.xml").toURI()));
 		dokumentInfo.setForsendelseMetadata(arkivmeldingXml);
 
 		dokumentInfo.setDistribusjonInfo(distribusjon);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentId(dokumentInfo.getDokumentId());
 
@@ -74,11 +74,11 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfo() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentId(dokumentInfo.getDokumentId());
 
@@ -87,11 +87,11 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfoByDokumentInfoId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfo.getDokumentInfoId());
 
@@ -100,11 +100,11 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfoByKonversasjonId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findDokumentInfoByKonversasjonId(KONVERSASJON_ID);
 
@@ -113,12 +113,12 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindDokumentInfoByJournalpostId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
 		dokumentInfo.setArkivkode(JOURNALPOST_ID);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findDokumentInfoByArkivkode(JOURNALPOST_ID);
 
@@ -128,7 +128,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 	@Test
 	void shouldFindDokumentInfoByDokumentStatusAndDistribusjonKanal() {
 		var distribusjon = TestUtils.createDistribusjonInfo();
-		dokumentDistribusjonRepository.save(distribusjon);
+		dokumentDistribusjonRepository.persist(distribusjon);
 
 		var dokumentInfos = Set.of(
 				DokumentInfo.builder()
@@ -143,7 +143,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 						.build()
 		);
 
-		dokumentInfoRepository.saveAll(dokumentInfos);
+		dokumentInfoRepository.persistAll(dokumentInfos);
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
 				EnumSet.of(OPPRETTET),
@@ -158,11 +158,11 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 	@Test
 	public void shouldFindEkspedertDokumentInfo() {
 		var distribusjonInfo = createDistribusjonInfo();
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		var dokumentInfoList = getDokumentInfoSet(distribusjonInfo);
 
-		dokumentInfoRepository.saveAll(dokumentInfoList);
+		dokumentInfoRepository.persistAll(dokumentInfoList);
 
 		var result = dokumentInfoRepository.findEkspedertDokumentInfo(1, EnumSet.of(PRINT));
 
@@ -178,10 +178,10 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 	@Test
 	void shouldUpdateAllDokumentInfosInList() {
 		var distribusjonInfo = createDistribusjonInfo();
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		var dokumentInfoList = getDokumentInfoSet(distribusjonInfo);
-		dokumentInfoRepository.saveAll(dokumentInfoList);
+		dokumentInfoRepository.persistAll(dokumentInfoList);
 
 		var idList = dokumentInfoList.stream()
 				.map(DokumentInfo::getDokumentInfoId)
@@ -205,7 +205,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		var tidligereSattAvstemtReferanse = "MMA-0001";
 
 		var distribusjonInfo = createDistribusjonInfo();
-		dokumentDistribusjonRepository.save(distribusjonInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
 		var dokumentInfoSkalOppdateres = createDokumentInfo();
 		dokumentInfoSkalOppdateres.setDistribusjonInfo(distribusjonInfo);
@@ -213,7 +213,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		dokumentInfoSkalIkkeOppdateres.setDistribusjonInfo(distribusjonInfo);
 		dokumentInfoSkalIkkeOppdateres.setAvstemtReferanse(tidligereSattAvstemtReferanse);
 
-		dokumentInfoRepository.saveAll(List.of(dokumentInfoSkalOppdateres, dokumentInfoSkalIkkeOppdateres));
+		dokumentInfoRepository.persistAll(List.of(dokumentInfoSkalOppdateres, dokumentInfoSkalIkkeOppdateres));
 
 		var idList = List.of(dokumentInfoSkalOppdateres.getDokumentInfoId(), dokumentInfoSkalIkkeOppdateres.getDokumentInfoId());
 
@@ -235,7 +235,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldUpdateDokumentInfosAvstemtArkivDato() {
-		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		var dokumentInfoList = Set.of(
 				DokumentInfo.builder()
@@ -249,7 +249,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		);
 
 		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
-		dokumentDistribusjonRepository.save(distribusjoninfo);
+		dokumentDistribusjonRepository.persist(distribusjoninfo);
 
 		var dokumentInfoIdList = distribusjoninfo.getDokumentInfos().stream()
 				.map(DokumentInfo::getDokumentInfoId)
@@ -268,7 +268,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldUpdateStatusForAllDokumentInfosRelatedTo() {
-		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		var dokumentInfoList = Set.of(
 				DokumentInfo.builder()
@@ -282,7 +282,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		);
 
 		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
-		dokumentDistribusjonRepository.save(distribusjoninfo);
+		dokumentDistribusjonRepository.persist(distribusjoninfo);
 
 		dokumentInfoRepository.updateStatusForAllDokumentInfosRelatedTo(distribusjoninfo, DokumentStatusCode.OVERSENDT, USER_ID);
 		commitAndBeginNewTransaction();
@@ -297,7 +297,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldUpdateStatusToEkspedertForAllDokumentInfosRelatedTo() {
-		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		DistribusjonInfo distribusjoninfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		var dokumentInfoList = Set.of(
 				DokumentInfo.builder()
@@ -311,7 +311,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		);
 
 		dokumentInfoList.forEach(distribusjoninfo::addDokumentInfo);
-		dokumentDistribusjonRepository.save(distribusjoninfo);
+		dokumentDistribusjonRepository.persist(distribusjoninfo);
 
 		dokumentInfoRepository.updateStatusToEkspedertForAllDokumentInfosRelatedTo(distribusjoninfo, USER_ID);
 		commitAndBeginNewTransaction();
@@ -326,11 +326,11 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindByDokumentId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findIdsByDokumentId(dokumentInfo.getDokumentId());
 
@@ -341,11 +341,11 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindByKonversasjonId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findIdsByKonversasjonId(KONVERSASJON_ID);
 
@@ -356,12 +356,12 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindByJournalpostId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
 		dokumentInfo.setDistribusjonInfo(distribusjon);
 		dokumentInfo.setArkivkode(JOURNALPOST_ID);
-		dokumentInfoRepository.save(dokumentInfo);
+		dokumentInfoRepository.persist(dokumentInfo);
 
 		var result = dokumentInfoRepository.findTopByArkivkodeOrderByDokumentInfoIdDesc(JOURNALPOST_ID);
 
@@ -372,17 +372,17 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	@Test
 	void shouldFindTopByJournalpostId() {
-		var distribusjon = dokumentDistribusjonRepository.save(createDistribusjonInfo());
+		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo1 = createDokumentInfo();
 		dokumentInfo1.setDistribusjonInfo(distribusjon);
 		dokumentInfo1.setArkivkode(JOURNALPOST_ID);
-		dokumentInfoRepository.save(dokumentInfo1);
+		dokumentInfoRepository.persist(dokumentInfo1);
 
 		DokumentInfo dokumentInfo2 = createDokumentInfo();
 		dokumentInfo2.setDistribusjonInfo(distribusjon);
 		dokumentInfo2.setArkivkode(JOURNALPOST_ID);
-		dokumentInfoRepository.save(dokumentInfo2);
+		dokumentInfoRepository.persist(dokumentInfo2);
 
 		var expected = max(List.of(dokumentInfo1.getDokumentInfoId(), dokumentInfo2.getDokumentInfoId()));
 
