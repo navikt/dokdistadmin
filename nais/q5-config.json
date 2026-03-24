@@ -15,7 +15,8 @@
   "DOKDISTADMIN_JMS_QUEUES_QDIST011_SDP": "QA.Q2_DOKDISTDPI.QDIST011_DIST_TIL_DPI",
   "DOKDISTADMIN_JMS_QUEUES_QDIST016_DPVT": "QA.Q2_DOKDISTDPV.QDIST016_DIST_TIL_DPV",
   "INGRESSES": [
-    "https://dokdistadmin-q5.dev.intern.nav.no"
+    "https://dokdistadmin-q5.dev.intern.nav.no",
+    "https://dokdistadmin-q5.intern.dev.nav.no"
   ],
   "AZURE_IAC_RULES": [
     {

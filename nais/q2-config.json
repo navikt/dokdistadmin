@@ -16,7 +16,8 @@
   "DOKDISTADMIN_JMS_QUEUES_QDIST016_DPVT": "QA.Q2_DOKDISTDPV.QDIST016_DIST_TIL_DPV",
   "INGRESSES": [
     "https://dokdistadmin.dev-fss-pub.nais.io",
-    "https://dokdistadmin.dev.intern.nav.no"
+    "https://dokdistadmin.dev.intern.nav.no",
+    "https://dokdistadmin.intern.dev.nav.no"
   ],
   "AZURE_IAC_RULES": [
     {
