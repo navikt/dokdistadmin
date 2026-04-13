@@ -10,11 +10,13 @@ import no.nav.dokdistadmin.exception.functional.ForsendelseIkkeFunnetException;
 import no.nav.dokdistadmin.exception.functional.IkkeSammenfallendeStatusException;
 import no.nav.dokdistadmin.exception.functional.StatusErAlleredeSattException;
 import no.nav.dokdistadmin.exception.functional.UlovligStatusOvergangException;
+import no.nav.dokdistadmin.exception.functional.ValideringFeiletException;
 import no.nav.dokdistadmin.repository.DokumentInfoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDateTime.now;
 import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligDokumentstatusOvergang;
 import static no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.StatusovergangValidator.isLovligVarselstatusOvergang;
@@ -60,6 +62,10 @@ public class OppdaterForsendelseService {
 
 		if (SDP.equals(dokumentInfo.getDistribusjonInfo().getDistribusjonKanal())) {
 			oppdaterDigitalDistribusjonAdresseFraDPI(dokumentInfo, oppdaterForsendelseRequest);
+		}
+
+		if (oppdaterForsendelseRequest.getForsendelseMetadata() != null || oppdaterForsendelseRequest.getForsendelseMetadataType() != null) {
+			oppdaterForsendelseMetadata(dokumentInfo, oppdaterForsendelseRequest);
 		}
 	}
 
@@ -126,6 +132,28 @@ public class OppdaterForsendelseService {
 
 		if (isNotBlank(oppdaterForsendelseRequest.getDigitalPostkasseadresse())) {
 			dokumentInfo.setDigitalPostkasseAdresse(oppdaterForsendelseRequest.getDigitalPostkasseadresse());
+		}
+	}
+
+	private void oppdaterForsendelseMetadata(DokumentInfo dokumentInfo, OppdaterForsendelseRequest request) {
+		byte[] metadata = request.getForsendelseMetadata();
+
+		if (metadata != null && metadata.length == 0) {
+			throw new ValideringFeiletException("forsendelseMetadata kan ikke være tom");
+		}
+
+		boolean harMetadata = metadata != null;
+		boolean harMetadataType = request.getForsendelseMetadataType() != null;
+
+		if (harMetadata != harMetadataType) {
+			throw new ValideringFeiletException(
+					"forsendelseMetadata og forsendelseMetadataType må enten begge være satt, eller begge være null. forsendelseMetadata=%s, forsendelseMetadataType=%s"
+							.formatted(harMetadata ? "<satt>" : null, request.getForsendelseMetadataType()));
+		}
+
+		if (harMetadata) {
+			dokumentInfo.setForsendelseMetadata(new String(metadata, UTF_8));
+			dokumentInfo.setForsendelseMetadataType(request.getForsendelseMetadataType());
 		}
 	}
 
