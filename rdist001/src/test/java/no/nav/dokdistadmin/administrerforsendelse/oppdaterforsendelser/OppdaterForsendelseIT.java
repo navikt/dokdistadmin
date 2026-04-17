@@ -6,16 +6,22 @@ import no.nav.dokdistadmin.domain.DistribusjonKanalCode;
 import no.nav.dokdistadmin.domain.DistribusjonStatusCode;
 import no.nav.dokdistadmin.domain.DokumentInfo;
 import no.nav.dokdistadmin.domain.DokumentStatusCode;
+import no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode;
 import no.nav.dokdistadmin.domain.VarselStatusCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.DOKDISTADMIN;
+import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.FORSENDELSE_METADATA;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithDistribusjonKanal;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithVarselstatus;
@@ -26,6 +32,7 @@ import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
+import static no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode.DPO_AVTALEMELDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
@@ -474,5 +481,116 @@ public class OppdaterForsendelseIT extends AbstractITest {
 				.exchange()
 				.expectStatus()
 				.isBadRequest();
+	}
+
+	@Test
+	void skalOppdatereForsendelseMetadata() {
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		distribusjonInfo.addDokumentInfo(dokumentInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		long dokumentInfoId = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList().getFirst();
+
+		var nyMetadata = FORSENDELSE_METADATA;
+		var nyMetadataType = DPO_AVTALEMELDING;
+
+		webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoId)
+						.forsendelseMetadata(nyMetadata)
+						.forsendelseMetadataType(nyMetadataType)
+						.build())
+				.exchange()
+				.expectStatus().isOk();
+
+		commitAndBeginNewTransaction();
+
+		var oppdatertDokumentInfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
+
+		assertThat(oppdatertDokumentInfo.getForsendelseMetadata()).isEqualTo(new String(nyMetadata, UTF_8));
+		assertThat(oppdatertDokumentInfo.getForsendelseMetadataType()).isEqualTo(nyMetadataType);
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	void skalReturnereBadRequestNaarKunEnAvForsendelseMetadataEllerTypeErSatt(byte[] forsendelseMetadata, ForsendelseMetadataTypeCode forsendelseMetadataType, String forventetFeilmelding) {
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		distribusjonInfo.addDokumentInfo(dokumentInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		long dokumentInfoId = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList().getFirst();
+
+		var response = webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoId)
+						.forsendelseMetadata(forsendelseMetadata)
+						.forsendelseMetadataType(forsendelseMetadataType)
+						.build())
+				.exchange()
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).contains("forsendelseMetadata og forsendelseMetadataType må enten begge være satt, eller begge være null. %s".formatted(forventetFeilmelding));
+	}
+
+	private static Stream<Arguments> skalReturnereBadRequestNaarKunEnAvForsendelseMetadataEllerTypeErSatt() {
+		return Stream.of(
+				Arguments.of(FORSENDELSE_METADATA, null, "forsendelseMetadata=<satt>, forsendelseMetadataType=null"),
+				Arguments.of(null, DPO_AVTALEMELDING, "forsendelseMetadata=null, forsendelseMetadataType=DPO_AVTALEMELDING")
+		);
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	void skalReturnereBadRequestNaarForsendelseMetadataErTom(byte[] forsendelseMetadata, ForsendelseMetadataTypeCode forsendelseMetadataType) {
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
+		DokumentInfo dokumentInfo = createDokumentInfo();
+		distribusjonInfo.addDokumentInfo(dokumentInfo);
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		long dokumentInfoId = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList().getFirst();
+
+		var response = webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoId)
+						.forsendelseMetadata(forsendelseMetadata)
+						.forsendelseMetadataType(forsendelseMetadataType)
+						.build())
+				.exchange()
+				.expectStatus().isBadRequest()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+
+		assertThat(response).contains("forsendelseMetadata kan ikke være tom");
+	}
+
+	private static Stream<Arguments> skalReturnereBadRequestNaarForsendelseMetadataErTom() {
+		return Stream.of(
+				Arguments.of(new byte[0], null),
+				Arguments.of(new byte[0], DPO_AVTALEMELDING)
+		);
 	}
 }
