@@ -9,7 +9,6 @@ import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DITTNAV;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DPVT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
-import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.RETURPOSTBEHANDLET;
 import static no.nav.dokdistadmin.domain.FeilTypeCode.MELDINGSFEIL;
@@ -20,7 +19,7 @@ public class DistribuerTilNyKanalValidator {
 
     private static final Set<String> GYLDIGE_KANALER = Set.of(PRINT.name(), SDP.name(), DITTNAV.name(), DPVT.name());
     private static final Set<String> GYLDIGE_ARSAKER = Set.of(VARSLINGSFEIL.name(), MELDINGSFEIL.name());
-    private static final Set<String> UGYLDIGE_STATUSER = Set.of(EKSPEDERT.name(), RETURPOSTBEHANDLET.name(), FEILET.name());
+    private static final Set<String> UGYLDIGE_STATUSER = Set.of(RETURPOSTBEHANDLET.name(), FEILET.name());
 
     private DistribuerTilNyKanalValidator() {}
 

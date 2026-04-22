@@ -24,8 +24,8 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DistribusjonStatusCode.FEILET;
 import static no.nav.dokdistadmin.domain.DistribusjonStatusCode.KLAR_FOR_DIST;
-import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.RETURPOSTBEHANDLET;
 import static no.nav.dokdistadmin.domain.FeilTypeCode.VARSLINGSFEIL;
 import static no.nav.dokdistadmin.domain.RefererTilCode.HOVEDDOKUMENT;
 import static no.nav.dokdistadmin.domain.RefererTilCode.VEDLEGG;
@@ -194,8 +194,8 @@ public class DistribuerTilNyKanalIT extends AbstractITest {
 	}
 
 	@Test
-	public void skalReturnereBadRequestForsendelseHarStatusEkspedert() {
-		var distribusjonInfo = setupDatabase(EKSPEDERT);
+	public void skalReturnereBadRequestForsendelseHarStatusReturpostbehandlet() {
+		var distribusjonInfo = setupDatabase(RETURPOSTBEHANDLET);
 		long forsendelseId = distribusjonInfo.getDokumentInfos().iterator().next().getDokumentInfoId();
 
 		DistribuerTilNyKanalRequest request = DistribuerTilNyKanalRequest.builder()
@@ -214,7 +214,7 @@ public class DistribuerTilNyKanalIT extends AbstractITest {
 				.isBadRequest()
 				.expectBody(String.class)
 				.value(body ->
-					assertThat(body).contains("Forsendelsen har status '%s' og kan ikke distribueres til ny kanal.".formatted(EKSPEDERT.name()))
+					assertThat(body).contains("Forsendelsen har status '%s' og kan ikke distribueres til ny kanal.".formatted(RETURPOSTBEHANDLET.name()))
 				);
 	}
 
