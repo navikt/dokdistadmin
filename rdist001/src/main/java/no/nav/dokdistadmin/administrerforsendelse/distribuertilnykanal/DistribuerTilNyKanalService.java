@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static no.nav.dokdistadmin.administrerforsendelse.distribuertilnykanal.DistribuerTilNyKanalMapper.mapTilOpprettForsendelseRequest;
+import static no.nav.dokdistadmin.administrerforsendelse.distribuertilnykanal.DistribuerTilNyKanalValidator.validerForsendelseStatus;
+import static no.nav.dokdistadmin.administrerforsendelse.distribuertilnykanal.DistribuerTilNyKanalValidator.validerRequest;
 import static no.nav.dokdistadmin.domain.DistribusjonStatusCode.KLAR_FOR_DIST;
 
 @Slf4j
@@ -40,9 +42,8 @@ public class DistribuerTilNyKanalService {
 
     @Transactional
     public long distribuerTilNyKanal(DistribuerTilNyKanalRequest request) {
-
         //1: Valider input
-        DistribuerTilNyKanalValidator.validerRequest(request);
+        validerRequest(request);
 
         DistribusjonKanalCode kanal = DistribusjonKanalCode.valueOf(request.getKanal());
 
@@ -50,7 +51,7 @@ public class DistribuerTilNyKanalService {
         HentForsendelseResponse originalForsendelse = administrerForsendelseService.hentForsendelse(request.getForsendelseId());
 
         //3: Valider status på den originale forsendelsen
-        DistribuerTilNyKanalValidator.validerForsendelseStatus(originalForsendelse.getForsendelseStatus());
+        validerForsendelseStatus(originalForsendelse.getForsendelseStatus());
 
         //4: Opprett ny forsendelse
         OpprettForsendelseRequest opprettRequest = mapTilOpprettForsendelseRequest(originalForsendelse, kanal);

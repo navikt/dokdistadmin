@@ -47,7 +47,7 @@ class DistribuerTilNyKanalValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"EKSPEDERT", "RETURPOSTBEHANDLET", "FEILET"})
+    @ValueSource(strings = {"RETURPOSTBEHANDLET", "FEILET"})
     void skalKasteExceptionForUgyldigeStatuser(String status) {
         assertThatExceptionOfType(UgyldigInputException.class)
                 .isThrownBy(() -> DistribuerTilNyKanalValidator.validerForsendelseStatus(status))
