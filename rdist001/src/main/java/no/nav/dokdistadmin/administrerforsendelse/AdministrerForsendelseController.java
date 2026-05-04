@@ -236,7 +236,7 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<HentEformidlingforsendelserResponse> hentEformidlingForsendelser(@RequestParam DistribusjonKanalCode distribusjonKanal) {
 		log.info("henteformidlingforsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanal={}", distribusjonKanal);
 
-		var result = forsendelserService.hentAlleEformidlingForsendelser(distribusjonKanal);
+		var result = forsendelserService.hentEformidlingForsendelser(distribusjonKanal);
 		log.info("henteformidlingforsendelser har hentet antall={} eformidlingforsendelser for distribusjonskanal={}",
 				result.getForsendelser().size(), distribusjonKanal);
 
@@ -244,13 +244,13 @@ public class AdministrerForsendelseController {
 	}
 
 	@GetMapping("/eformidlingforsendelser")
-	public ResponseEntity<HentEformidlingforsendelserResponse> hentAlleEformidlingForsendelser(@RequestParam List<DistribusjonKanalCode> distribusjonKanal) {
+	public ResponseEntity<HentEformidlingforsendelserResponse> hentAlleEformidlingForsendelser(@RequestParam List<DistribusjonKanalCode> distribusjonKanaler) {
 
-		log.info("hentAlleEformidlingForsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanaler={}", distribusjonKanal);
+		log.info("hentAlleEformidlingForsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanaler={}", distribusjonKanaler);
 
-		var result = forsendelserService.hentAlleEformidlingForsendelser(distribusjonKanal);
+		var result = forsendelserService.hentEformidlingForsendelser(distribusjonKanaler);
 		log.info("hentAlleEformidlingForsendelser har hentet antall={} eformidlingforsendelser for distribusjonskanaler={}",
-				result.getForsendelser().size(), distribusjonKanal);
+				result.getForsendelser().size(), distribusjonKanaler);
 
 		return ResponseEntity.ok(result);
 	}

@@ -39,7 +39,6 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -50,8 +49,6 @@ import static java.util.Set.of;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DPO;
-import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
@@ -195,7 +192,7 @@ public class AdministrerForsendelseService {
 		return hentUekspederteForsendelserMapper.map(distribusjonInfoList);
 	}
 
-	public HentEformidlingforsendelserResponse hentAlleEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
+	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
 
 		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
 				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, List.of(distribusjonKanal));
@@ -203,7 +200,7 @@ public class AdministrerForsendelseService {
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
 
-	public HentEformidlingforsendelserResponse hentAlleEformidlingForsendelser(List<DistribusjonKanalCode> distribusjonKanaler) {
+	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(List<DistribusjonKanalCode> distribusjonKanaler) {
 
 		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
 				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, distribusjonKanaler);
