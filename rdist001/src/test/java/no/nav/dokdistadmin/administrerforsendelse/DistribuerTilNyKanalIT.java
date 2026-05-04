@@ -15,6 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.jms.core.JmsTemplate;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -32,6 +33,7 @@ import static no.nav.dokdistadmin.domain.RefererTilCode.VEDLEGG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.awaitility.Awaitility.await;
+import static org.springframework.http.HttpStatus.CONFLICT;
 
 
 public class DistribuerTilNyKanalIT extends AbstractITest {
@@ -194,7 +196,7 @@ public class DistribuerTilNyKanalIT extends AbstractITest {
 	}
 
 	@Test
-	public void skalReturnereBadRequestForsendelseHarStatusReturpostbehandlet() {
+	public void skalReturnereConflictForsendelseHarStatusReturpostbehandlet() {
 		var distribusjonInfo = setupDatabase(RETURPOSTBEHANDLET);
 		long forsendelseId = distribusjonInfo.getDokumentInfos().iterator().next().getDokumentInfoId();
 
@@ -211,7 +213,7 @@ public class DistribuerTilNyKanalIT extends AbstractITest {
 				.bodyValue(request)
 				.exchange()
 				.expectStatus()
-				.isBadRequest()
+				.isEqualTo(CONFLICT)
 				.expectBody(String.class)
 				.value(body ->
 					assertThat(body).contains("Forsendelsen har status '%s' og kan ikke distribueres til ny kanal.".formatted(RETURPOSTBEHANDLET.name()))
