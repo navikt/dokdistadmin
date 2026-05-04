@@ -668,7 +668,7 @@ public class Rdist001IT extends AbstractITest {
 		var response = webTestClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.path(EFORMIDLINGFORSENDELSER_URI)
-						.queryParam("distribusjonKanal", DPO.name(), TRYGDERETTEN.name())
+						.queryParam("distribusjonKanaler", DPO.name(), TRYGDERETTEN.name())
 						.build())
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
@@ -697,7 +697,7 @@ public class Rdist001IT extends AbstractITest {
 		var response = webTestClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.path(EFORMIDLINGFORSENDELSER_URI)
-						.queryParam("distribusjonKanal", DPO.name(), TRYGDERETTEN.name())
+						.queryParam("distribusjonKanaler", DPO.name(), TRYGDERETTEN.name())
 						.build())
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
