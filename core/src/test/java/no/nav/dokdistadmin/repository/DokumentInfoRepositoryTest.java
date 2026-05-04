@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.max;
+import static java.util.List.of;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DPO;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
@@ -145,14 +148,61 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		dokumentInfoRepository.persistAll(dokumentInfos);
 
-		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
+		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
 				EnumSet.of(OPPRETTET),
-				PRINT);
+				List.of(PRINT));
 
 		assertEquals(1, result.size());
 		assertEquals(DOKUMENT_ID_1, result.getFirst().getDokumentId());
 
 		assertNotNull(result);
+	}
+
+	@Test
+	void shouldFindDokumentInfoByDokumentStatusAndDistribusjonKanalIn() {
+		var distribusjonPrint = TestUtils.createDistribusjonInfo();
+		dokumentDistribusjonRepository.persist(distribusjonPrint);
+
+		var distribusjonTrygderetten = TestUtils.createDistribusjonInfo();
+		distribusjonTrygderetten.setDistribusjonKanal(TRYGDERETTEN);
+		dokumentDistribusjonRepository.persist(distribusjonTrygderetten);
+
+		var distribusjonDpo = TestUtils.createDistribusjonInfo();
+		distribusjonDpo.setDistribusjonKanal(DPO);
+		dokumentDistribusjonRepository.persist(distribusjonDpo);
+
+		var dokumentInfos = Set.of(
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_1)
+						.dokumentStatus(OVERSENDT)
+						.distribusjonInfo(distribusjonPrint)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId(DOKUMENT_ID_2)
+						.dokumentStatus(OVERSENDT)
+						.distribusjonInfo(distribusjonTrygderetten)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId("3")
+						.dokumentStatus(OPPRETTET)
+						.distribusjonInfo(distribusjonTrygderetten)
+						.build(),
+				DokumentInfo.builder()
+						.dokumentId("4")
+						.dokumentStatus(OVERSENDT)
+						.distribusjonInfo(distribusjonDpo)
+						.build()
+		);
+
+		dokumentInfoRepository.persistAll(dokumentInfos);
+
+		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
+				EnumSet.of(OVERSENDT),
+				List.of(PRINT, TRYGDERETTEN));
+
+		assertThat(result)
+				.extracting(DokumentInfo::getDokumentId)
+				.containsExactlyInAnyOrder(DOKUMENT_ID_1, DOKUMENT_ID_2);
 	}
 
 	@Test
@@ -213,9 +263,9 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		dokumentInfoSkalIkkeOppdateres.setDistribusjonInfo(distribusjonInfo);
 		dokumentInfoSkalIkkeOppdateres.setAvstemtReferanse(tidligereSattAvstemtReferanse);
 
-		dokumentInfoRepository.persistAll(List.of(dokumentInfoSkalOppdateres, dokumentInfoSkalIkkeOppdateres));
+		dokumentInfoRepository.persistAll(of(dokumentInfoSkalOppdateres, dokumentInfoSkalIkkeOppdateres));
 
-		var idList = List.of(dokumentInfoSkalOppdateres.getDokumentInfoId(), dokumentInfoSkalIkkeOppdateres.getDokumentInfoId());
+		var idList = of(dokumentInfoSkalOppdateres.getDokumentInfoId(), dokumentInfoSkalIkkeOppdateres.getDokumentInfoId());
 
 		var result = dokumentInfoRepository.updateAvstemtReferanseAndAvstemtDatoForIdIn(AVSTEMT_REFERANSE, idList, USER_ID);
 
@@ -384,7 +434,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		dokumentInfo2.setArkivkode(JOURNALPOST_ID);
 		dokumentInfoRepository.persist(dokumentInfo2);
 
-		var expected = max(List.of(dokumentInfo1.getDokumentInfoId(), dokumentInfo2.getDokumentInfoId()));
+		var expected = max(of(dokumentInfo1.getDokumentInfoId(), dokumentInfo2.getDokumentInfoId()));
 
 		var result = dokumentInfoRepository.findTopByArkivkodeOrderByDokumentInfoIdDesc(JOURNALPOST_ID);
 
@@ -392,7 +442,6 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 				.isNotNull()
 				.satisfies(it -> assertThat(it.getDokumentInfoId()).isEqualTo(expected));
 	}
-
 
 
 	private Set<DokumentInfo> getDokumentInfoSet(DistribusjonInfo distribusjonInfo) {

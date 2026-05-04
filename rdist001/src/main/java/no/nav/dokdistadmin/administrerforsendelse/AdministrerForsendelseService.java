@@ -39,15 +39,19 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Set.of;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DPO;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
@@ -191,10 +195,18 @@ public class AdministrerForsendelseService {
 		return hentUekspederteForsendelserMapper.map(distribusjonInfoList);
 	}
 
-	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
+	public HentEformidlingforsendelserResponse hentAlleEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
 
-		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
-				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, distribusjonKanal);
+		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, List.of(distribusjonKanal));
+
+		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
+	}
+
+	public HentEformidlingforsendelserResponse hentAlleEformidlingForsendelser(List<DistribusjonKanalCode> distribusjonKanaler) {
+
+		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, distribusjonKanaler);
 
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
