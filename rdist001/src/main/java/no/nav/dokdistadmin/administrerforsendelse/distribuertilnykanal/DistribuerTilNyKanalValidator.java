@@ -2,6 +2,7 @@ package no.nav.dokdistadmin.administrerforsendelse.distribuertilnykanal;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dokdistadmin.exception.functional.UgyldigInputException;
+import no.nav.dokdistadmin.exception.functional.UgyldigStatusException;
 
 import java.util.Set;
 
@@ -30,7 +31,7 @@ public class DistribuerTilNyKanalValidator {
 
     public static void validerForsendelseStatus(String forsendelseStatus) {
         if (UGYLDIGE_STATUSER.contains(forsendelseStatus)) {
-            avbrytBehandling("Forsendelsen har status '%s' og kan ikke distribueres til ny kanal. Forsendelser med status %s kan ikke behandles."
+            throw new UgyldigStatusException("Forsendelsen har status '%s' og kan ikke distribueres til ny kanal. Forsendelser med status %s kan ikke behandles."
                     .formatted(forsendelseStatus, UGYLDIGE_STATUSER));
         }
     }

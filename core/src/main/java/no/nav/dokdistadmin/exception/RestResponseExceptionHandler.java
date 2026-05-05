@@ -1,5 +1,6 @@
 package no.nav.dokdistadmin.exception;
 
+import no.nav.dokdistadmin.exception.functional.UgyldigStatusException;
 import tools.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +100,8 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 	}
 
 	@ExceptionHandler({
-			FlereForsendelserFunnetException.class
+			FlereForsendelserFunnetException.class,
+			UgyldigStatusException.class
 	})
 	public ResponseEntity<Object> conflictExceptionHandler(Exception e) {
 		log.warn(RDIST001_FUNKSJONELL_FEILMELDING, e.getMessage(), e);

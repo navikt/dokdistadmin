@@ -1,6 +1,7 @@
 package no.nav.dokdistadmin.administrerforsendelse.distribuertilnykanal;
 
 import no.nav.dokdistadmin.exception.functional.UgyldigInputException;
+import no.nav.dokdistadmin.exception.functional.UgyldigStatusException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -49,7 +50,7 @@ class DistribuerTilNyKanalValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {"RETURPOSTBEHANDLET", "FEILET"})
     void skalKasteExceptionForUgyldigeStatuser(String status) {
-        assertThatExceptionOfType(UgyldigInputException.class)
+        assertThatExceptionOfType(UgyldigStatusException.class)
                 .isThrownBy(() -> DistribuerTilNyKanalValidator.validerForsendelseStatus(status))
                 .withMessageContaining("Forsendelsen har status '%s' og kan ikke distribueres til ny kanal", status);
     }
