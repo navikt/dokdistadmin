@@ -77,18 +77,18 @@ public class AdministrerForsendelseController {
 	@PostMapping
 	public ResponseEntity<Forsendelse> opprettForsendelse(@RequestBody @Valid OpprettForsendelseRequest opprettForsendelseRequest) {
 		log.info("opprettForsendelse har mottatt kall om å persistere forsendelse med bestillingsId={}",
-			opprettForsendelseRequest.getBestillingsId());
+				opprettForsendelseRequest.getBestillingsId());
 
 		Forsendelse forsendelse = forsendelserService.opprettForsendelse(opprettForsendelseRequest);
 		log.info("opprettForsendelse har persistert forsendelse med bestillingsId={}. ForsendelseId={}",
-			opprettForsendelseRequest.getBestillingsId(), forsendelse.getForsendelseId());
+				opprettForsendelseRequest.getBestillingsId(), forsendelse.getForsendelseId());
 
 		return ResponseEntity.ok(forsendelse);
 	}
 
 	@GetMapping("/{forsendelseId}")
 	public ResponseEntity<HentForsendelseResponse> hentForsendelse(
-		@PathVariable("forsendelseId") @Positive(message = "Sti-parameter forsendelseId må være et positivt tall") long forsendelseId) {
+			@PathVariable("forsendelseId") @Positive(message = "Sti-parameter forsendelseId må være et positivt tall") long forsendelseId) {
 
 		log.info("hentForsendelse har mottatt kall om å hente forsendelse med forsendelseId={}", forsendelseId);
 
@@ -100,49 +100,49 @@ public class AdministrerForsendelseController {
 
 	@GetMapping("/finnforsendelse/{oppslagsnoekkel}/{verdi}")
 	public ResponseEntity<Forsendelse> finnForsendelse(
-		@PathVariable @NotBlank(message = "Sti-parameter oppslagsnoekkel må ha en verdi") String oppslagsnoekkel,
-		@PathVariable @NotBlank(message = "Sti-parameter verdi må ha en verdi") String verdi) {
+			@PathVariable @NotBlank(message = "Sti-parameter oppslagsnoekkel må ha en verdi") String oppslagsnoekkel,
+			@PathVariable @NotBlank(message = "Sti-parameter verdi må ha en verdi") String verdi) {
 
 		Oppslagsnoekkel oppslagsnoekkelCode = Oppslagsnoekkel.fromString(oppslagsnoekkel);
 		log.info("finnforsendelse har mottatt kall om å finne forsendelse med {}={}", oppslagsnoekkelCode, verdi);
 
 		var forsendelse = forsendelserService.finnForsendelse(oppslagsnoekkelCode, verdi);
 		log.info("finnforsendelse har funnet forsendelse med forsendelseId={} og {}={}", forsendelse.getForsendelseId(),
-			oppslagsnoekkelCode, verdi);
+				oppslagsnoekkelCode, verdi);
 
 		return ResponseEntity.ok(forsendelse);
 	}
 
 	@GetMapping("/hentForsendelser")
 	public ResponseEntity<HentForsendelserResponse> hentForsendelser(
-		@RequestParam(name = "distribusjonstyper", required = false, defaultValue = "") List<String> distribusjonstyper,
-		@RequestParam(name = "dokumentstatus", required = false, defaultValue = "") List<String> dokumentstatus,
-		@RequestParam(name = "distribusjonkanal", required = false) Optional<String> distribusjonkanal,
-		@RequestParam(name = "inkluderAvstemte", required = false, defaultValue = "true") boolean inkluderAvstemte,
-		@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<Long> journalpostliste
+			@RequestParam(name = "distribusjonstyper", required = false, defaultValue = "") List<String> distribusjonstyper,
+			@RequestParam(name = "dokumentstatus", required = false, defaultValue = "") List<String> dokumentstatus,
+			@RequestParam(name = "distribusjonkanal", required = false) Optional<String> distribusjonkanal,
+			@RequestParam(name = "inkluderAvstemte", required = false, defaultValue = "true") boolean inkluderAvstemte,
+			@RequestParam(name = "journalpostliste") @NotEmpty(message = "journalpostliste kan ikke være null eller en tom liste") List<Long> journalpostliste
 	) {
 		var optionalDistribusjonKanalCode = distribusjonkanal
-			.map(kanal -> safelyMapToEnum("distribusjonkanal", DistribusjonKanalCode::valueOf, kanal));
+				.map(kanal -> safelyMapToEnum("distribusjonkanal", DistribusjonKanalCode::valueOf, kanal));
 		List<DistribusjonsTypeKode> distribusjonstyperList = mapListToEnumValues("distribusjonstyper", DistribusjonsTypeKode::valueOf, distribusjonstyper);
 		List<DokumentStatusCode> dokumentstatusList = mapListToEnumValues("dokumentstatus", DokumentStatusCode::valueOf, dokumentstatus);
 		log.info("hentForsendelser har mottatt kall om å hente forsendelser med " +
-				"journalpostIds={}, distribusjonstyper={}, dokumentstatus={}, distribusjonskanal={}, inkluderAvstemte={}",
-			journalpostliste, distribusjonstyperList,
-			dokumentstatusList, optionalDistribusjonKanalCode.map(Enum::name).orElse("<ikke satt>"),
-			inkluderAvstemte);
+						"journalpostIds={}, distribusjonstyper={}, dokumentstatus={}, distribusjonskanal={}, inkluderAvstemte={}",
+				journalpostliste, distribusjonstyperList,
+				dokumentstatusList, optionalDistribusjonKanalCode.map(Enum::name).orElse("<ikke satt>"),
+				inkluderAvstemte);
 
 		List<HentForsendelseResponse> forsendelser = forsendelserService.hentForsendelser(
-			journalpostliste,
-			distribusjonstyperList,
-			dokumentstatusList,
-			inkluderAvstemte,
-			optionalDistribusjonKanalCode
+				journalpostliste,
+				distribusjonstyperList,
+				dokumentstatusList,
+				inkluderAvstemte,
+				optionalDistribusjonKanalCode
 		);
 
 		log.info("hentForsendelser har hentet forsendelser med journalpostIds aka. arkivIds={}",
-			forsendelser.stream().map(HentForsendelseResponse::getArkivInformasjon)
-				.map(HentForsendelseResponse.ArkivInformasjon::getArkivId)
-				.toList());
+				forsendelser.stream().map(HentForsendelseResponse::getArkivInformasjon)
+						.map(HentForsendelseResponse.ArkivInformasjon::getArkivId)
+						.toList());
 
 		return ResponseEntity.ok(new HentForsendelserResponse(forsendelser));
 	}
@@ -150,7 +150,7 @@ public class AdministrerForsendelseController {
 	@PutMapping("/oppdaterforsendelse")
 	public ResponseEntity<String> oppdaterForsendelse(@RequestBody @Valid @NotNull OppdaterForsendelseRequest oppdaterForsendelseRequest) {
 		log.info("oppdaterForsendelse har mottatt kall om å oppdatere forsendelse med forsendelseId={}",
-			oppdaterForsendelseRequest.getForsendelseId());
+				oppdaterForsendelseRequest.getForsendelseId());
 
 		oppdaterForsendelseService.oppdaterForsendelse(oppdaterForsendelseRequest);
 		log.info("oppdaterForsendelse har oppdatert forsendelse med forsendelseId={}", oppdaterForsendelseRequest.getForsendelseId());
@@ -161,11 +161,11 @@ public class AdministrerForsendelseController {
 	@PutMapping("/feilregistrerforsendelse")
 	public ResponseEntity<Void> feilregistrerForsendelse(@RequestBody @Valid @NotNull FeilregistrerForsendelseRequest feilregistrerForsendelseRequest) {
 		log.info("feilregistrerForsendelse har mottatt kall om å feilregistrere forsendelse med forsendelseId={}",
-			feilregistrerForsendelseRequest.getForsendelseId());
+				feilregistrerForsendelseRequest.getForsendelseId());
 
 		feilregistrerForsendelseService.feilregistrerForsendelse(feilregistrerForsendelseRequest);
 		log.info("feilregistrerForsendelse har feilregistrert forsendelse med forsendelseId={}",
-			feilregistrerForsendelseRequest.getForsendelseId());
+				feilregistrerForsendelseRequest.getForsendelseId());
 
 		return ResponseEntity.ok().build();
 	}
@@ -173,11 +173,11 @@ public class AdministrerForsendelseController {
 	@PostMapping("/distribuertilnykanal")
 	public ResponseEntity<Void> distribuerTilNyKanal(@RequestBody @Valid @NotNull DistribuerTilNyKanalRequest distribuerTilNyKanalRequest) {
 		log.info("distribuerTilNyKanal har mottatt kall om å distribuere forsendelse med forsendelseId={} til ny kanal={}",
-			distribuerTilNyKanalRequest.getForsendelseId(), distribuerTilNyKanalRequest.getKanal());
+				distribuerTilNyKanalRequest.getForsendelseId(), distribuerTilNyKanalRequest.getKanal());
 
 		long nyForsendelseId = distribuerTilNyKanalService.distribuerTilNyKanal(distribuerTilNyKanalRequest);
 		log.info("distribuerTilNyKanal har fullført distribusjon av forsendelse med forsendelseId={} til ny kanal={}, nyForsendelseId={}",
-			distribuerTilNyKanalRequest.getForsendelseId(), distribuerTilNyKanalRequest.getKanal(), nyForsendelseId);
+				distribuerTilNyKanalRequest.getForsendelseId(), distribuerTilNyKanalRequest.getKanal(), nyForsendelseId);
 
 		return ResponseEntity.ok().build();
 	}
@@ -204,16 +204,16 @@ public class AdministrerForsendelseController {
 
 	@GetMapping("/hentuekspederteforsendelser/{distribusjonkanal}/{antallTimer}")
 	public ResponseEntity<HentUekspederteForsendelserResponse> hentUekspederteForsendelser(
-		@PathVariable @NotBlank(message = "Sti-parameter distribusjonkanal må ha en verdi") String distribusjonkanal,
-		@PathVariable @PositiveOrZero(message = "Sti-parameter antallTimer må være et positivt tall") long antallTimer) {
+			@PathVariable @NotBlank(message = "Sti-parameter distribusjonkanal må ha en verdi") String distribusjonkanal,
+			@PathVariable @PositiveOrZero(message = "Sti-parameter antallTimer må være et positivt tall") long antallTimer) {
 
 		DistribusjonKanalCode distribusjonKanalCode = DistribusjonKanalCode.fromString(distribusjonkanal);
 		log.info("hentuekspederteforsendelser har mottatt kall om å hente uekspederte forsendelser med distribusjonKanal={}, som er eldre enn {} timer",
-			distribusjonKanalCode, antallTimer);
+				distribusjonKanalCode, antallTimer);
 
 		HentUekspederteForsendelserResponse uekspederteForsendelser = forsendelserService.hentUekspederteForsendelser(distribusjonKanalCode, antallTimer);
 		log.info("hentuekspederteforsendelser har hentet {} uekspederte forsendelser med distribusjonkanal={}, som er eldre enn {} timer",
-			uekspederteForsendelser.getUekspederteForsendelser().size(), distribusjonKanalCode, antallTimer);
+				uekspederteForsendelser.getUekspederteForsendelser().size(), distribusjonKanalCode, antallTimer);
 
 		return uekspederteForsendelser.getUekspederteForsendelser().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(uekspederteForsendelser);
 	}
@@ -222,8 +222,8 @@ public class AdministrerForsendelseController {
 	public ResponseEntity<Void> avstemForsendelser(@RequestBody @Valid AvstemForsendelserRequest avstemForsendelserRequest) {
 
 		log.info("avstemforsendelser har mottatt kall om å oppdatere {} forsendelser med avstemtDato og avstemtReferanse={}",
-			avstemForsendelserRequest.forsendelser().size(),
-			avstemForsendelserRequest.avstemtReferanse());
+				avstemForsendelserRequest.forsendelser().size(),
+				avstemForsendelserRequest.avstemtReferanse());
 
 		var antallOppdaterteForsendelser = forsendelserService.avstemForsendelser(avstemForsendelserRequest);
 		log.info("avstemforsendelser har oppdatert avstemtReferanse og avstemtDato på {} forsendelser", antallOppdaterteForsendelser);
@@ -231,13 +231,26 @@ public class AdministrerForsendelseController {
 		return ResponseEntity.ok().build();
 	}
 
+	@Deprecated
 	@GetMapping("/henteformidlingforsendelser")
 	public ResponseEntity<HentEformidlingforsendelserResponse> hentEformidlingForsendelser(@RequestParam DistribusjonKanalCode distribusjonKanal) {
 		log.info("henteformidlingforsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanal={}", distribusjonKanal);
 
 		var result = forsendelserService.hentEformidlingForsendelser(distribusjonKanal);
 		log.info("henteformidlingforsendelser har hentet antall={} eformidlingforsendelser for distribusjonskanal={}",
-			result.getForsendelser().size(), distribusjonKanal);
+				result.getForsendelser().size(), distribusjonKanal);
+
+		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/eformidlingforsendelser")
+	public ResponseEntity<HentEformidlingforsendelserResponse> hentAlleEformidlingForsendelser(@RequestParam List<DistribusjonKanalCode> distribusjonKanaler) {
+
+		log.info("hentAlleEformidlingForsendelser har mottatt kall om å hente eformidlingforsendelser for distribusjonskanaler={}", distribusjonKanaler);
+
+		var result = forsendelserService.hentEformidlingForsendelser(distribusjonKanaler);
+		log.info("hentAlleEformidlingForsendelser har hentet antall={} eformidlingforsendelser for distribusjonskanaler={}",
+				result.getForsendelser().size(), distribusjonKanaler);
 
 		return ResponseEntity.ok(result);
 	}
@@ -254,8 +267,8 @@ public class AdministrerForsendelseController {
 
 	@GetMapping("/hentpostdestinasjon/{landkode}")
 	public ResponseEntity<HentPostdestinasjonResponse> hentPostdestinasjon(
-		@PathVariable @NotBlank(message = "Sti-parameter landkode må ha en verdi")
-		@Pattern(regexp = "^[a-zA-Z?]{2,3}$", message = "landkode må bestå av to eller tre bokstaver") String landkode) {
+			@PathVariable @NotBlank(message = "Sti-parameter landkode må ha en verdi")
+			@Pattern(regexp = "^[a-zA-Z?]{2,3}$", message = "landkode må bestå av to eller tre bokstaver") String landkode) {
 
 		log.info("hentPostdestinasjon har mottatt kall om å hente postdestinasjon for landkode={}", landkode);
 

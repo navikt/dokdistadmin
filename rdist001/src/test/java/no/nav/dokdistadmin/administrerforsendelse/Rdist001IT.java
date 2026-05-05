@@ -42,6 +42,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithEkspedertDato;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCode;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCodeAndDokumentId;
+import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.DPO;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.PRINT;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.SDP;
 import static no.nav.dokdistadmin.domain.DistribusjonKanalCode.TRYGDERETTEN;
@@ -68,6 +69,7 @@ public class Rdist001IT extends AbstractITest {
 	private static final String HENTUEKSPEDERTEFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentuekspederteforsendelser";
 	private static final String AVSTEMFORSENDELSER_URI = "/rest/v1/administrerforsendelse/avstemforsendelser";
 	private static final String HENTEFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/henteformidlingforsendelser";
+	private static final String EFORMIDLINGFORSENDELSER_URI = "/rest/v1/administrerforsendelse/eformidlingforsendelser";
 	private static final String HENTFORSENDELSER_URI = "/rest/v1/administrerforsendelse/hentForsendelser";
 
 	private static final String AVSTEMTREFERANSE = "MMA-1234";
@@ -405,10 +407,10 @@ public class Rdist001IT extends AbstractITest {
 
 		var request = webTestClient.get()
 				.uri(HENTFORSENDELSER_URI +
-					 "?journalpostliste=" + journalpostIdsParam +
-					 (distribusjonskanalQueryParam != null ? "&distribusjonkanal=" + distribusjonskanalQueryParam : "") +
-					 (distribusjonstyperQueryParam != null ? "&distribusjonstyper=" + distribusjonstyperQueryParam : "") +
-					 (dokumentstatusQueryParam != null ? "&dokumentstatus=" + dokumentstatusQueryParam : "")
+						"?journalpostliste=" + journalpostIdsParam +
+						(distribusjonskanalQueryParam != null ? "&distribusjonkanal=" + distribusjonskanalQueryParam : "") +
+						(distribusjonstyperQueryParam != null ? "&distribusjonstyper=" + distribusjonstyperQueryParam : "") +
+						(dokumentstatusQueryParam != null ? "&dokumentstatus=" + dokumentstatusQueryParam : "")
 				)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange();
@@ -443,13 +445,13 @@ public class Rdist001IT extends AbstractITest {
 	public void skalValidereParametreForHentForsendelser(String journalpostListQueryParam, String distribusjonskanalQueryParam, String distribusjonstyperQueryParam, String dokumentstatusQueryParam) {
 		webTestClient.get()
 				.uri(HENTFORSENDELSER_URI +
-					 "?" + Stream.of(
+						"?" + Stream.of(
 								(journalpostListQueryParam != null ? "journalpostliste=" + journalpostListQueryParam : null),
 								(distribusjonskanalQueryParam != null ? "distribusjonkanal=" + distribusjonskanalQueryParam : null),
 								(distribusjonstyperQueryParam != null ? "distribusjonstyper=" + distribusjonstyperQueryParam : null),
 								(dokumentstatusQueryParam != null ? "dokumentstatus=" + dokumentstatusQueryParam : null))
-							 .filter(Objects::nonNull)
-							 .collect(Collectors.joining("&"))
+						.filter(Objects::nonNull)
+						.collect(Collectors.joining("&"))
 				)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
@@ -636,9 +638,87 @@ public class Rdist001IT extends AbstractITest {
 			"?kanalDistribusjon=TRYGDERETTEN",
 	})
 	@EmptySource
-	void skalReturnereBadRequestGittUgyldigEllerManglendeDistribusjonKanal(String pathParam) {
+	void skalReturnereBadRequestGittUgyldigDistribusjonKanal(String kanal) {
 		webTestClient.get()
-				.uri(HENTEFORMIDLINGFORSENDELSER_URI + pathParam)
+				.uri(HENTEFORMIDLINGFORSENDELSER_URI + kanal)
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isBadRequest();
+	}
+
+	@Test
+	void skalHenteEformidlingforsendelserForKonfigurerteDistribusjonskanaler() {
+		var distribusjonTrygderetten = createDistribusjonInfoWithDistribusjonKanal(TRYGDERETTEN);
+		var trygderettenDokument = createDokumentInfoWithStatusCodeAndDokumentId(OVERSENDT, "trygderettenDokument");
+		distribusjonTrygderetten.addDokumentInfo(trygderettenDokument);
+		dokumentDistribusjonRepository.persist(distribusjonTrygderetten);
+
+		var distribusjonDpo = createDistribusjonInfoWithDistribusjonKanal(DPO);
+		var dpoDokument = createDokumentInfoWithStatusCodeAndDokumentId(BEKREFTET, "dpoDokument");
+		distribusjonDpo.addDokumentInfo(dpoDokument);
+		dokumentDistribusjonRepository.persist(distribusjonDpo);
+
+		var distribusjonPrint = createDistribusjonInfoWithDistribusjonKanal(PRINT);
+		var printDokument = createDokumentInfoWithStatusCodeAndDokumentId(OVERSENDT, "printDokument");
+		distribusjonPrint.addDokumentInfo(printDokument);
+		dokumentDistribusjonRepository.persist(distribusjonPrint);
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path(EFORMIDLINGFORSENDELSER_URI)
+						.queryParam("distribusjonKanaler", DPO.name(), TRYGDERETTEN.name())
+						.build())
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentEformidlingforsendelserResponse.class)
+				.getResponseBody()
+				.blockFirst();
+
+		assertNotNull(response);
+
+		assertThat(response.getForsendelser()).hasSize(2);
+	}
+
+	@Test
+	void skalIkkeHenteEformidlingforsendelserForKanalerSomIkkeErKonfigurert() {
+		var distribusjonPrint = createDistribusjonInfoWithDistribusjonKanal(PRINT);
+		distribusjonPrint.addDokumentInfo(createDokumentInfoWithStatusCodeAndDokumentId(OVERSENDT, "printDokument"));
+		dokumentDistribusjonRepository.persist(distribusjonPrint);
+
+		var distribusjonSdp = createDistribusjonInfoWithDistribusjonKanal(SDP);
+		distribusjonSdp.addDokumentInfo(createDokumentInfoWithStatusCodeAndDokumentId(BEKREFTET, "sdpDokument"));
+		dokumentDistribusjonRepository.persist(distribusjonSdp);
+
+		commitAndBeginNewTransaction();
+
+		var response = webTestClient.get()
+				.uri(uriBuilder -> uriBuilder
+						.path(EFORMIDLINGFORSENDELSER_URI)
+						.queryParam("distribusjonKanaler", DPO.name(), TRYGDERETTEN.name())
+						.build())
+				.headers(headers -> headers.setBearerAuth(jwt()))
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(HentEformidlingforsendelserResponse.class)
+				.getResponseBody()
+				.blockFirst();
+
+		assertNotNull(response);
+		assertThat(response.getForsendelser()).isEmpty();
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+			"?distribusjonKanal=UGYLDIG_KANAL",
+			"?kanal=DPO",
+	})
+	@EmptySource
+	void skalReturnereBadRequestForAlleEformidlingforsendelserGittUgyldigEllerManglendeDistribusjonKanal(String pathParam) {
+		webTestClient.get()
+				.uri(EFORMIDLINGFORSENDELSER_URI + pathParam)
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.exchange()
 				.expectStatus().isBadRequest();

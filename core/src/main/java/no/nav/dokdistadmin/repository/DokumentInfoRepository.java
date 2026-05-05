@@ -34,12 +34,12 @@ public interface DokumentInfoRepository extends BaseJpaRepository<DokumentInfo, 
 			 join dok.distribusjonInfo dis
 				where dok.dokumentStatus in (:dokumentStatusList)
 				and dok.distribusjonInfo = dis
-				and dis.distribusjonKanal = :distribusjonKanal
+				and dis.distribusjonKanal in (:distribusjonKanaler)
 				and dok.changeStamp.opprettetDato >= {d '2022-01-01'}
 			""")
-	List<DokumentInfo> findDokumentInfoByDokumentStatusAndDistribusjonKanal(
+	List<DokumentInfo> findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
 			@Param("dokumentStatusList") EnumSet<DokumentStatusCode> dokumentStatusList,
-			@Param("distribusjonKanal") DistribusjonKanalCode distribusjonKanal);
+			@Param("distribusjonKanaler") EnumSet<DistribusjonKanalCode> distribusjonKanaler);
 
 	@Modifying
 	@Query("""

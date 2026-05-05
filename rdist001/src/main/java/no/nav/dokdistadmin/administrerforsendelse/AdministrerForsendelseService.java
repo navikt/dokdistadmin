@@ -45,6 +45,7 @@ import java.util.stream.IntStream;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Set.of;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -193,8 +194,16 @@ public class AdministrerForsendelseService {
 
 	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
 
-		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanal(
-				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, distribusjonKanal);
+		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, EnumSet.of(distribusjonKanal));
+
+		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
+	}
+
+	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(List<DistribusjonKanalCode> distribusjonKanaler) {
+
+		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, EnumSet.copyOf(distribusjonKanaler));
 
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
