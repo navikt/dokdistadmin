@@ -39,7 +39,7 @@ public interface DokumentInfoRepository extends BaseJpaRepository<DokumentInfo, 
 			""")
 	List<DokumentInfo> findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
 			@Param("dokumentStatusList") EnumSet<DokumentStatusCode> dokumentStatusList,
-			@Param("distribusjonKanaler") List<DistribusjonKanalCode> distribusjonKanaler);
+			@Param("distribusjonKanaler") EnumSet<DistribusjonKanalCode> distribusjonKanaler);
 
 	@Modifying
 	@Query("""

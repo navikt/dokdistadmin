@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
+class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 	private static final String KONVERSASJON_ID = "879";
 	private static final String JOURNALPOST_ID = "123456";
@@ -46,7 +46,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 	private static final LocalDateTime UGYLDIG_EKSPEDERTDATO = LocalDateTime.of(2022, 9, 30, 0, 0);
 
 	@Test
-	public void shouldSaveDokumentInfo() {
+	void shouldSaveDokumentInfo() {
 		var distribusjon = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
 		DokumentInfo dokumentInfo = createDokumentInfo();
@@ -150,12 +150,10 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
 				EnumSet.of(OPPRETTET),
-				List.of(PRINT));
+				EnumSet.of(PRINT));
 
 		assertEquals(1, result.size());
 		assertEquals(DOKUMENT_ID_1, result.getFirst().getDokumentId());
-
-		assertNotNull(result);
 	}
 
 	@Test
@@ -198,7 +196,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		var result = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
 				EnumSet.of(OVERSENDT),
-				List.of(PRINT, TRYGDERETTEN));
+				EnumSet.of(PRINT, TRYGDERETTEN));
 
 		assertThat(result)
 				.extracting(DokumentInfo::getDokumentId)
@@ -206,7 +204,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 	}
 
 	@Test
-	public void shouldFindEkspedertDokumentInfo() {
+	void shouldFindEkspedertDokumentInfo() {
 		var distribusjonInfo = createDistribusjonInfo();
 		dokumentDistribusjonRepository.persist(distribusjonInfo);
 
@@ -216,8 +214,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 
 		var result = dokumentInfoRepository.findEkspedertDokumentInfo(1, EnumSet.of(PRINT));
 
-		assertThat(result).hasSize(1);
-		assertThat(result).doesNotContainNull();
+		assertThat(result).hasSize(1).doesNotContainNull();
 
 		List<DokumentInfo> dokumentInfos = dokumentInfoRepository.fetchEkspedertDokumentInfo(result);
 		assertThat(dokumentInfos)
@@ -244,6 +241,7 @@ public class DokumentInfoRepositoryTest extends AbstractRepositoryTest {
 		var updatedDokumentInfoList = dokumentInfoRepository.findAllById(idList);
 
 		assertThat(updatedDokumentInfoList)
+				.isNotNull()
 				.allSatisfy(it -> {
 					assertThat(it.getAvstemtReferanse()).isEqualTo(AVSTEMT_REFERANSE);
 					assertThat(it.getAvstemtDato()).isNotNull();

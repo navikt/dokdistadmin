@@ -195,7 +195,7 @@ public class AdministrerForsendelseService {
 	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(DistribusjonKanalCode distribusjonKanal) {
 
 		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
-				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, List.of(distribusjonKanal));
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, EnumSet.of(distribusjonKanal));
 
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
@@ -203,7 +203,7 @@ public class AdministrerForsendelseService {
 	public HentEformidlingforsendelserResponse hentEformidlingForsendelser(List<DistribusjonKanalCode> distribusjonKanaler) {
 
 		List<DokumentInfo> dokumentInfoList = dokumentInfoRepository.findDokumentInfoByDokumentStatusAndDistribusjonKanalIn(
-				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, distribusjonKanaler);
+				STATUSER_DER_FORSENDELSE_ER_DISTRIBUERT, EnumSet.copyOf(distribusjonKanaler));
 
 		return hentEformidlingforsendelserResponseMapper.map(dokumentInfoList);
 	}
