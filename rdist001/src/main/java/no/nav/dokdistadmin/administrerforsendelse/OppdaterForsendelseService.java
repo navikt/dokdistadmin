@@ -49,7 +49,7 @@ public class OppdaterForsendelseService {
 		}
 
 		if (isGyldigForsendelseStatus(oppdaterForsendelseRequest.getForsendelseStatus())) {
-			oppdaterDokumentstatusOgDistribusjonstatus(dokumentInfo, oppdaterForsendelseRequest.getForsendelseStatus());
+			oppdaterDokumentstatusOgDistribusjonstatus(dokumentInfo, oppdaterForsendelseRequest);
 		}
 
 		if (isNotBlank(oppdaterForsendelseRequest.getKonversasjonId())) {
@@ -69,7 +69,8 @@ public class OppdaterForsendelseService {
 		}
 	}
 
-	private void oppdaterDokumentstatusOgDistribusjonstatus(DokumentInfo dokumentInfo, String nyForsendelsestatus) {
+	private void oppdaterDokumentstatusOgDistribusjonstatus(DokumentInfo dokumentInfo, OppdaterForsendelseRequest request) {
+		final String nyForsendelsestatus = request.getForsendelseStatus();
 		final String dokumentstatus = dokumentInfo.getDokumentStatus().name();
 		final String distribusjonstatus = dokumentInfo.getDistribusjonInfo().getDistribusjonStatus().name();
 
@@ -101,6 +102,14 @@ public class OppdaterForsendelseService {
 		dokumentInfo.getDistribusjonInfo().setDistribusjonStatus(nyDistribusjonStatus);
 
 		if (EKSPEDERT.equals(nyDokumentStatus)) {
+			oppdaterEkspedertDato(dokumentInfo, request);
+		}
+	}
+
+	private void oppdaterEkspedertDato(DokumentInfo dokumentInfo, OppdaterForsendelseRequest request) {
+		if (request.getEkspedertDato() != null) {
+			dokumentInfo.setEkspedertDato(request.getEkspedertDato());
+		} else {
 			dokumentInfo.setEkspedertDato(now());
 		}
 	}
