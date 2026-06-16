@@ -95,4 +95,3 @@ public class DokumentDistribusjonRepositoryTest extends AbstractRepositoryTest {
 		assertEquals(1, result.size());
 	}
 }
-

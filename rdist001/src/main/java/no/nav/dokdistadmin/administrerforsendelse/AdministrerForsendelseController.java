@@ -19,6 +19,8 @@ import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.Feilr
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.oppdaterdistribusjonstatus.OppdaterDistribusjonStatusRequest;
+import no.nav.dokdistadmin.administrerforsendelse.oppdaterdistribusjonstatus.OppdaterDistribusjonStatusService;
 import no.nav.dokdistadmin.administrerforsendelse.oppdaterforsendelser.OppdaterForsendelseRequest;
 import no.nav.dokdistadmin.administrerforsendelse.post.HentPostdestinasjonResponse;
 import no.nav.dokdistadmin.administrerforsendelse.post.OppdaterPostadresseRequest;
@@ -59,19 +61,22 @@ public class AdministrerForsendelseController {
 	private final PostService postService;
 	private final FeilregistrerForsendelseService feilregistrerForsendelseService;
 	private final DistribuerTilNyKanalService distribuerTilNyKanalService;
+	private final OppdaterDistribusjonStatusService oppdaterDistribusjonStatusService;
 
 	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
 											VarselInfoService varselInfoService,
 											OppdaterForsendelseService oppdaterForsendelseService,
 											PostService postService,
 											FeilregistrerForsendelseService feilregistrerForsendelseService,
-											DistribuerTilNyKanalService distribuerTilNyKanalService) {
+											DistribuerTilNyKanalService distribuerTilNyKanalService,
+											OppdaterDistribusjonStatusService oppdaterDistribusjonStatusService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
 		this.oppdaterForsendelseService = oppdaterForsendelseService;
 		this.postService = postService;
 		this.feilregistrerForsendelseService = feilregistrerForsendelseService;
 		this.distribuerTilNyKanalService = distribuerTilNyKanalService;
+		this.oppdaterDistribusjonStatusService = oppdaterDistribusjonStatusService;
 	}
 
 	@PostMapping
@@ -284,6 +289,17 @@ public class AdministrerForsendelseController {
 
 		postService.oppdaterPostadresse(oppdaterPostadresseRequest);
 		log.info("oppdaterPostadresse har oppdatert postadresse på forsendelse med forsendelseId={}", oppdaterPostadresseRequest.getForsendelseId());
+
+		return ResponseEntity.ok().build();
+	}
+
+	@PutMapping("/oppdaterdistribusjonstatus")
+	public ResponseEntity<Void> oppdaterDistribusjonStatus(@RequestBody @Valid @NotNull OppdaterDistribusjonStatusRequest request) {
+		log.info("oppdaterDistribusjonStatus har mottatt kall om å oppdatere status for distribusjon med distribusjonId={}", request.distribusjonId());
+
+		oppdaterDistribusjonStatusService.oppdaterDistribusjonStatus(request);
+
+		log.info("oppdaterDistribusjonStatus har oppdatert status for distribusjon med distribusjonId={}", request.distribusjonId());
 
 		return ResponseEntity.ok().build();
 	}
