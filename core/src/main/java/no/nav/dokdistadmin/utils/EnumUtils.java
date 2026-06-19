@@ -10,7 +10,7 @@ public class EnumUtils {
 		try {
 			Enum.valueOf(enumClass, enumName);
 		} catch (IllegalArgumentException e) {
-			throw new UgyldigInputException(format("Ugyldig input: %s er ikke en gyldig kodeverdi for %s", enumName, enumClass));
+			throw new UgyldigInputException(format("Ugyldig input: %s er ikke en gyldig kodeverdi for %s", enumName, enumClass.getSimpleName()));
 		}
 	}
 
