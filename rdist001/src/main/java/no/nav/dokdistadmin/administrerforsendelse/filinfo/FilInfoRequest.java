@@ -12,7 +12,7 @@ public record FilInfoRequest(
 		String filtype,
 		@NotBlank(message = "status må ha en verdi")
 		String status,
-		@NotBlank
+		@NotBlank(message = "kilde må ha en verdi")
 		@Size(max = 20, message = "kilde kan ikke være lengre enn 20 tegn")
 		String kilde
 ) {

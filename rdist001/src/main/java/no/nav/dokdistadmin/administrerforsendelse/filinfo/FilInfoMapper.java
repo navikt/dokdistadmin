@@ -7,7 +7,6 @@ import no.nav.dokdistadmin.domain.KommunikasjonRetningCode;
 import no.nav.dokdistadmin.exception.functional.UgyldigInputException;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -23,6 +22,8 @@ public class FilInfoMapper {
 
 	public static final Set<FilTypeCode> INNGAENDE_FILTYPER = EnumSet.of(DOK_RAPP_PRINT, BEST_BEKR_PRINT);
 	public static final Set<FilTypeCode> UTGAENDE_FILTYPER = EnumSet.of(BEST_INFO_PRINT, PRINTFIL);
+	public static final Set<String> VALID_FIL_TYPER = Set.of(DOK_RAPP_PRINT.name(), BEST_BEKR_PRINT.name(),
+			BEST_INFO_PRINT.name(), PRINTFIL.name());
 
 	public static FilInfo mapTilFilInfo(FilInfoRequest request) {
 		FilTypeCode filType = FilTypeCode.valueOf(request.filtype());
@@ -32,7 +33,7 @@ public class FilInfoMapper {
 				.mottattDato(erInngaendeFilType(filType) ? LocalDateTime.now() : null)
 				.sendtDato(erUtgaendeFilType(filType) ? LocalDateTime.now() : null)
 				.filType(filType)
-				.kommunikasjonRetning(resolveKommunikasjonRetning(filType))
+				.kommunikasjonRetning(mapKommunikasjonRetning(filType))
 				.filStatus(FilStatusCode.valueOf(request.status()))
 				.kildeType(SITS)
 				.build();
@@ -46,7 +47,7 @@ public class FilInfoMapper {
 		return UTGAENDE_FILTYPER.contains(filType);
 	}
 
-	private static KommunikasjonRetningCode resolveKommunikasjonRetning(FilTypeCode filType) {
+	private static KommunikasjonRetningCode mapKommunikasjonRetning(FilTypeCode filType) {
 		if (INNGAENDE_FILTYPER.contains(filType)) {
 			return INNGAENDE;
 		}
@@ -55,7 +56,7 @@ public class FilInfoMapper {
 			return UTGAENDE;
 		}
 
-		throw new UgyldigInputException("filtype må være en av %s".formatted(Arrays.toString(FilTypeCode.values())));
+		throw new UgyldigInputException("filtype må være en av %s".formatted(VALID_FIL_TYPER));
 	}
 
 	private FilInfoMapper() {

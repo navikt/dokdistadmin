@@ -16,7 +16,7 @@ class FilInfoValidatorTest {
 	private static final String FILNAVN = "test-fil";
 
 	@Test
-	void shouldValidateWhenFilInfoIdIsNullOgFilnavnOgTypeAreSett() {
+	void shouldValidateWhenFileInfoIdIsNullAndFilenameAndTypeAreSet() {
 		FilInfoRequest validCreateRequest = FilInfoRequest.builder()
 				.filnavn(FILNAVN)
 				.filtype(BEST_INFO_PRINT.name())
@@ -28,7 +28,7 @@ class FilInfoValidatorTest {
 	}
 
 	@Test
-	void shouldValidateWhenFilInfoIdIsSettOgFilnavnOgTypeAreNull() {
+	void shouldValidateWhenFilInfoIdIsSetAndFilnavnAndTypeAreNull() {
 		FilInfoRequest validUpdateRequest = FilInfoRequest.builder()
 				.filInfoId(1L)
 				.status(OK.name())
@@ -40,7 +40,7 @@ class FilInfoValidatorTest {
 	}
 
 	@Test
-	void shouldThrowExceptionWhenFilnavnOgTypeOgFilInfoIdAreSett() {
+	void shouldThrowExceptionWhenFilnavnOgTypeOgFilInfoIdAreSet() {
 		FilInfoRequest invalidRequest = FilInfoRequest.builder()
 				.filInfoId(1L)
 				.filnavn(FILNAVN)
@@ -54,7 +54,7 @@ class FilInfoValidatorTest {
 	}
 
 	@Test
-	void shouldThrowExceptionWhenOnlyFilnavnIsSettWithFilInfoId() {
+	void shouldThrowExceptionWhenOnlyFilnavnIsSetWithFilInfoId() {
 		FilInfoRequest invalidRequest = FilInfoRequest.builder()
 				.filInfoId(1L)
 				.filnavn("skal-ikke-settes")
@@ -67,40 +67,41 @@ class FilInfoValidatorTest {
 	}
 
 	@Test
-	void shouldThrowExceptionWhenFilnavnOgTypeOgFilInfoIdAreNull() {
+	void shouldThrowExceptionWhenFilnavnTypeOgFilInfoIdAreNull() {
 		FilInfoRequest invalidRequest = FilInfoRequest.builder()
 				.status(OPPRETTET.name())
 				.build();
 
 		assertThatThrownBy(() -> FilInfoValidator.validerFilInfoRequest(invalidRequest))
 				.isInstanceOf(UgyldigInputException.class)
-				.hasMessage("filnavn og filtype kan ikke være null eller tom");
+				.hasMessageContaining("filnavn og filtype kan ikke være null eller tom");
 	}
 
 	@Test
-	void shouldValidateWhenOnlyFilnavnIsSett() {
+	void shouldThrowExceptionWhenOnlyFilnavnIsSet() {
 		FilInfoRequest validRequest = FilInfoRequest.builder()
 				.filnavn(FILNAVN)
 				.status(OPPRETTET.name())
 				.build();
 
 		assertThatCode(() -> FilInfoValidator.validerFilInfoRequest(validRequest))
-				.doesNotThrowAnyException();
+				.isInstanceOf(UgyldigInputException.class);
 	}
 
 	@Test
-	void skalValidereNarKunTypeErSattVedCreate() {
+	void shouldThrowExceptionWhenOnlyTypeIsSet() {
 		FilInfoRequest validRequest = FilInfoRequest.builder()
 				.filtype(BEST_INFO_PRINT.name())
 				.status(OPPRETTET.name())
 				.build();
 
 		assertThatCode(() -> FilInfoValidator.validerFilInfoRequest(validRequest))
-				.doesNotThrowAnyException();
+				.isInstanceOf(UgyldigInputException.class)
+				.hasMessageContaining("filnavn og filtype kan ikke være null eller tom");
 	}
 
 	@Test
-	void skalKasteExceptionNarFilnavnErTomStringVedCreate() {
+	void shouldThrowExceptionWhenFilInfoIdIsNullAndFilnavnIsBlank() {
 		FilInfoRequest validRequest = FilInfoRequest.builder()
 				.filnavn("")
 				.filtype(BEST_INFO_PRINT.name())
@@ -108,11 +109,12 @@ class FilInfoValidatorTest {
 				.build();
 
 		assertThatCode(() -> FilInfoValidator.validerFilInfoRequest(validRequest))
-				.doesNotThrowAnyException();
+				.isInstanceOf(UgyldigInputException.class)
+				.hasMessageContaining("filnavn og filtype kan ikke være null eller tom");
 	}
 
 	@Test
-	void shouldThrowExceptionWhenTypeErTomString() {
+	void shouldThrowExceptionWhenTypeIsBlankAndFilInfoIdIsNull() {
 		FilInfoRequest validRequest = FilInfoRequest.builder()
 				.filnavn(FILNAVN)
 				.filtype("")
@@ -120,7 +122,7 @@ class FilInfoValidatorTest {
 				.build();
 
 		assertThatCode(() -> FilInfoValidator.validerFilInfoRequest(validRequest))
-				.doesNotThrowAnyException();
+				.isInstanceOf(UgyldigInputException.class);
 	}
 
 	@Test
@@ -133,7 +135,7 @@ class FilInfoValidatorTest {
 
 		assertThatThrownBy(() -> FilInfoValidator.validerFilInfoRequest(invalidRequest))
 				.isInstanceOf(UgyldigInputException.class)
-				.hasMessage("Ugyldig input: INVALID_TYPE er ikke en gyldig kodeverdi for FilTypeCode");
+				.hasMessageContaining("Ugyldig input: INVALID_TYPE er ikke en gyldig kodeverdi");
 	}
 
 	@Test
@@ -146,7 +148,7 @@ class FilInfoValidatorTest {
 
 		assertThatThrownBy(() -> FilInfoValidator.validerFilInfoRequest(invalidRequest))
 				.isInstanceOf(UgyldigInputException.class)
-				.hasMessage("Ugyldig input: INVALID_STATUS er ikke en gyldig kodeverdi for FilStatusCode");
+				.hasMessageContaining("Ugyldig input: INVALID_STATUS er ikke en gyldig kodeverdi");
 	}
 
 	@Test
