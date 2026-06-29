@@ -22,8 +22,7 @@ public class FilInfoMapper {
 
 	public static final Set<FilTypeCode> INNGAENDE_FILTYPER = EnumSet.of(DOK_RAPP_PRINT, BEST_BEKR_PRINT);
 	public static final Set<FilTypeCode> UTGAENDE_FILTYPER = EnumSet.of(BEST_INFO_PRINT, PRINTFIL);
-	public static final Set<String> VALID_FIL_TYPER = Set.of(DOK_RAPP_PRINT.name(), BEST_BEKR_PRINT.name(),
-			BEST_INFO_PRINT.name(), PRINTFIL.name());
+	public static final Set<String> VALID_FILTYPER = Set.of(DOK_RAPP_PRINT.name(), BEST_BEKR_PRINT.name(), BEST_INFO_PRINT.name(), PRINTFIL.name());
 
 	public static FilInfo mapTilFilInfo(FilInfoRequest request) {
 		FilTypeCode filType = FilTypeCode.valueOf(request.filtype());
@@ -55,8 +54,7 @@ public class FilInfoMapper {
 		if (UTGAENDE_FILTYPER.contains(filType)) {
 			return UTGAENDE;
 		}
-
-		throw new UgyldigInputException("filtype må være en av %s".formatted(VALID_FIL_TYPER));
+		throw new UgyldigInputException("filtype må være en av %s".formatted(VALID_FILTYPER));
 	}
 
 	private FilInfoMapper() {

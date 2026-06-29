@@ -311,12 +311,12 @@ public class AdministrerForsendelseController {
 	}
 
 	@PutMapping("/oppdaterfilinformasjon")
-	public ResponseEntity<FilInfoResponse> oppdaterFilInfo(@Valid @RequestBody FilInfoRequest request) {
+	public ResponseEntity<FilInfoResponse> oppdaterFilInfo(@RequestBody @Valid @NotNull FilInfoRequest request) {
 		log.info("oppdaterFilInfo har mottatt kall om å oppdatere filinformasjon for fil med filInfoId={}", request.filInfoId());
 
 		FilInfoResponse filInfoResponse = filInfoService.oppdaterFilInfo(request);
 
 		log.info("oppdaterFilInfo har oppdatert filinformasjon for fil med filInfoId={}", filInfoResponse.filInfoId());
-		return ResponseEntity.ok(new FilInfoResponse(filInfoResponse.filInfoId()));
+		return ResponseEntity.ok(filInfoResponse);
 	}
 }
