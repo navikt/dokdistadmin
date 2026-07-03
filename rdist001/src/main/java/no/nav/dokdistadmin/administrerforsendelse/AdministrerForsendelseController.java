@@ -16,6 +16,9 @@ import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.AvstemF
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserRequest;
 import no.nav.dokdistadmin.administrerforsendelse.ekspederteforsendelser.HentEkspederteForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.feilregistrerforsendelse.FeilregistrerForsendelseRequest;
+import no.nav.dokdistadmin.administrerforsendelse.filinfo.FilInfoRequest;
+import no.nav.dokdistadmin.administrerforsendelse.filinfo.FilInfoResponse;
+import no.nav.dokdistadmin.administrerforsendelse.filinfo.FilInfoService;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelseResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.HentForsendelserResponse;
 import no.nav.dokdistadmin.administrerforsendelse.forsendelser.OpprettForsendelseRequest;
@@ -62,6 +65,7 @@ public class AdministrerForsendelseController {
 	private final FeilregistrerForsendelseService feilregistrerForsendelseService;
 	private final DistribuerTilNyKanalService distribuerTilNyKanalService;
 	private final OppdaterDistribusjonStatusService oppdaterDistribusjonStatusService;
+	private final FilInfoService filInfoService;
 
 	public AdministrerForsendelseController(AdministrerForsendelseService forsendelserService,
 											VarselInfoService varselInfoService,
@@ -69,7 +73,8 @@ public class AdministrerForsendelseController {
 											PostService postService,
 											FeilregistrerForsendelseService feilregistrerForsendelseService,
 											DistribuerTilNyKanalService distribuerTilNyKanalService,
-											OppdaterDistribusjonStatusService oppdaterDistribusjonStatusService) {
+											OppdaterDistribusjonStatusService oppdaterDistribusjonStatusService,
+											FilInfoService filInfoService) {
 		this.forsendelserService = forsendelserService;
 		this.varselInfoService = varselInfoService;
 		this.oppdaterForsendelseService = oppdaterForsendelseService;
@@ -77,6 +82,7 @@ public class AdministrerForsendelseController {
 		this.feilregistrerForsendelseService = feilregistrerForsendelseService;
 		this.distribuerTilNyKanalService = distribuerTilNyKanalService;
 		this.oppdaterDistribusjonStatusService = oppdaterDistribusjonStatusService;
+		this.filInfoService = filInfoService;
 	}
 
 	@PostMapping
@@ -302,5 +308,15 @@ public class AdministrerForsendelseController {
 		log.info("oppdaterDistribusjonStatus har oppdatert status for distribusjon med distribusjonId={}", request.distribusjonId());
 
 		return ResponseEntity.ok().build();
+	}
+
+	@PutMapping("/oppdaterfilinformasjon")
+	public ResponseEntity<FilInfoResponse> oppdaterFilInfo(@RequestBody @Valid @NotNull FilInfoRequest request) {
+		log.info("oppdaterFilInfo har mottatt kall om å oppdatere filinformasjon for fil med filInfoId={}", request.filInfoId());
+
+		FilInfoResponse filInfoResponse = filInfoService.oppdaterFilInfo(request);
+
+		log.info("oppdaterFilInfo har oppdatert filinformasjon for fil med filInfoId={}", filInfoResponse.filInfoId());
+		return ResponseEntity.ok(filInfoResponse);
 	}
 }
