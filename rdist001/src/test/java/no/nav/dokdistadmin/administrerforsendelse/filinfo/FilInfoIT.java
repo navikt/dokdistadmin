@@ -17,6 +17,7 @@ import static no.nav.dokdistadmin.domain.FilTypeCode.DOK_RAPP_PRINT;
 import static no.nav.dokdistadmin.domain.KildeTypeCode.SITS;
 import static no.nav.dokdistadmin.domain.KommunikasjonRetningCode.INNGAENDE;
 import static no.nav.dokdistadmin.domain.KommunikasjonRetningCode.UTGAENDE;
+import static no.nav.dokdistadmin.utils.NavHeaders.NAV_SERVICE_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FilInfoIT extends AbstractITest {
@@ -24,7 +25,7 @@ class FilInfoIT extends AbstractITest {
 	private static final String URI = "/rest/v1/administrerforsendelse/oppdaterfilinformasjon";
 	private static final String NY_FILNAVN = "ny-fil.txt";
 	private static final String FILENAVN_OVER_256_LENGTH = "a".repeat(260);
-	private static final String KILDE = "kilde";
+	private static final String KILDE_SDIST009 = "SDIST009";
 
 	@Test
 	void skalOppdatereStatusForEksisterendeFil() {
@@ -34,12 +35,15 @@ class FilInfoIT extends AbstractITest {
 		FilInfoRequest request = FilInfoRequest.builder()
 				.filInfoId(eksisterendeFil.getFilInfoId())
 				.status(OK.name())
-				.kilde(KILDE)
+				.kilde(KILDE_SDIST009)
 				.build();
 
 		webTestClient.put()
 				.uri(URI)
-				.headers(h -> h.setBearerAuth(jwt()))
+				.headers(h -> {
+					h.set(NAV_SERVICE_ID, KILDE_SDIST009);
+					h.setBearerAuth(jwt());
+				})
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk()
@@ -48,7 +52,7 @@ class FilInfoIT extends AbstractITest {
 
 		FilInfo oppdatertFil = filinfoRepository.findById(eksisterendeFil.getFilInfoId()).orElseThrow();
 		assertThat(oppdatertFil.getFilStatus()).isEqualTo(OK);
-		assertThat(oppdatertFil.getChangeStamp().getEndretAv()).isEqualTo(KILDE);
+		assertThat(oppdatertFil.getChangeStamp().getEndretAv()).isEqualTo(KILDE_SDIST009);
 	}
 
 	@ParameterizedTest
@@ -63,7 +67,10 @@ class FilInfoIT extends AbstractITest {
 
 		String responseBody = webTestClient.put()
 				.uri(URI)
-				.headers(h -> h.setBearerAuth(jwt()))
+				.headers(h -> {
+					h.set(NAV_SERVICE_ID, kilde);
+					h.setBearerAuth(jwt());
+				})
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isBadRequest()
@@ -88,12 +95,15 @@ class FilInfoIT extends AbstractITest {
 				.filnavn(NY_FILNAVN)
 				.filtype(BEST_INFO_PRINT.name())
 				.status(OPPRETTET.name())
-				.kilde(KILDE)
+				.kilde(KILDE_SDIST009)
 				.build();
 
 		webTestClient.put()
 				.uri(URI)
-				.headers(h -> h.setBearerAuth(jwt()))
+				.headers(h -> {
+					h.set(NAV_SERVICE_ID, KILDE_SDIST009);
+					h.setBearerAuth(jwt());
+				})
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isOk()
@@ -115,12 +125,15 @@ class FilInfoIT extends AbstractITest {
 		FilInfoRequest request = FilInfoRequest.builder()
 				.filInfoId(999L)
 				.status(OK.name())
-				.kilde(KILDE)
+				.kilde(KILDE_SDIST009)
 				.build();
 
 		webTestClient.put()
 				.uri(URI)
-				.headers(h -> h.setBearerAuth(jwt()))
+				.headers(h -> {
+					h.set(NAV_SERVICE_ID, KILDE_SDIST009);
+					h.setBearerAuth(jwt());
+				})
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isBadRequest()
@@ -136,12 +149,15 @@ class FilInfoIT extends AbstractITest {
 		FilInfoRequest request = FilInfoRequest.builder()
 				.filInfoId(eksisterendeFil.getFilInfoId())
 				.status("UGYLDIG")
-				.kilde(KILDE)
+				.kilde(KILDE_SDIST009)
 				.build();
 
 		webTestClient.put()
 				.uri(URI)
-				.headers(h -> h.setBearerAuth(jwt()))
+				.headers(h -> {
+					h.set(NAV_SERVICE_ID, KILDE_SDIST009);
+					h.setBearerAuth(jwt());
+				})
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isBadRequest()
@@ -159,12 +175,15 @@ class FilInfoIT extends AbstractITest {
 				.filnavn("skal-ikke-vare-satt")
 				.filtype(BEST_INFO_PRINT.name())
 				.status(OK.name())
-				.kilde(KILDE)
+				.kilde(KILDE_SDIST009)
 				.build();
 
 		webTestClient.put()
 				.uri(URI)
-				.headers(h -> h.setBearerAuth(jwt()))
+				.headers(h -> {
+					h.set(NAV_SERVICE_ID, KILDE_SDIST009);
+					h.setBearerAuth(jwt());
+				})
 				.bodyValue(request)
 				.exchange()
 				.expectStatus().isBadRequest()

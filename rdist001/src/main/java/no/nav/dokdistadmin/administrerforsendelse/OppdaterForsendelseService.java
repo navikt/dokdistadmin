@@ -32,6 +32,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Transactional(readOnly = true)
 public class OppdaterForsendelseService {
 
+	public static final String KILDE_SDIST009 = "SDIST009";
+
 	private final DokumentInfoRepository dokumentInfoRepository;
 
 	public OppdaterForsendelseService(DokumentInfoRepository dokumentInfoRepository) {
@@ -48,7 +50,7 @@ public class OppdaterForsendelseService {
 					oppdaterForsendelseRequest.getForsendelseId()));
 		}
 
-		if (isGyldigForsendelseStatus(oppdaterForsendelseRequest.getForsendelseStatus())) {
+		if (isGyldigForsendelseStatus(oppdaterForsendelseRequest)) {
 			oppdaterDokumentstatusOgDistribusjonstatus(dokumentInfo, oppdaterForsendelseRequest);
 		}
 
@@ -96,10 +98,12 @@ public class OppdaterForsendelseService {
 		}
 
 		DokumentStatusCode nyDokumentStatus = valueOf(nyForsendelsestatus);
-		DistribusjonStatusCode nyDistribusjonStatus = DistribusjonStatusCode.valueOf(nyForsendelsestatus);
-
 		dokumentInfo.setDokumentStatus(nyDokumentStatus);
-		dokumentInfo.getDistribusjonInfo().setDistribusjonStatus(nyDistribusjonStatus);
+
+		if (!KILDE_SDIST009.equals(request.getKilde())) {
+			DistribusjonStatusCode nyDistribusjonStatus = DistribusjonStatusCode.valueOf(nyForsendelsestatus);
+			dokumentInfo.getDistribusjonInfo().setDistribusjonStatus(nyDistribusjonStatus);
+		}
 
 		if (EKSPEDERT.equals(nyDokumentStatus)) {
 			oppdaterEkspedertDato(dokumentInfo, request);
@@ -166,13 +170,17 @@ public class OppdaterForsendelseService {
 		}
 	}
 
-	private boolean isGyldigForsendelseStatus(String forsendelseStatus) {
+	private boolean isGyldigForsendelseStatus(OppdaterForsendelseRequest oppdaterForsendelseRequest) {
+		String forsendelseStatus = oppdaterForsendelseRequest.getForsendelseStatus();
 		if (isBlank(forsendelseStatus)) {
 			return false;
 		}
 
 		validateEnum(DokumentStatusCode.class, forsendelseStatus.trim());
-		validateEnum(DistribusjonStatusCode.class, forsendelseStatus.trim());
+
+		if (!KILDE_SDIST009.equals(oppdaterForsendelseRequest.getKilde())) {
+			validateEnum(DistribusjonStatusCode.class, forsendelseStatus.trim());
+		}
 
 		return true;
 	}

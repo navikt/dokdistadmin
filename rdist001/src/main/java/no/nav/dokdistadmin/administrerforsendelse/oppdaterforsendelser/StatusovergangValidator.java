@@ -11,6 +11,7 @@ import static no.nav.dokdistadmin.domain.DokumentStatusCode.FEILET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.RETURPOSTBEHANDLET;
 
 public class StatusovergangValidator {
 	private static final EnumSet<VarselStatusCode> GYLDIGE_NYE_VARSELSTATUSER = EnumSet.of(VarselStatusCode.FEILET, VarselStatusCode.FERDIGSTILT);
@@ -20,13 +21,14 @@ public class StatusovergangValidator {
 
 	public static boolean isLovligDokumentstatusOvergang(String dokumentstatus, String forsendelsestatus) {
 		return statusOvergang(dokumentstatus, forsendelsestatus, OPPRETTET, KLAR_FOR_DIST) ||
-			   statusOvergang(dokumentstatus, forsendelsestatus, KLAR_FOR_DIST, OVERSENDT) ||
-			   statusOvergang(dokumentstatus, forsendelsestatus, KLAR_FOR_DIST, EKSPEDERT) ||
-			   statusOvergang(dokumentstatus, forsendelsestatus, OVERSENDT, BEKREFTET) ||
-			   statusOvergang(dokumentstatus, forsendelsestatus, OVERSENDT, EKSPEDERT) ||
-			   statusOvergang(dokumentstatus, forsendelsestatus, OVERSENDT, FEILET) ||
-			   statusOvergang(dokumentstatus, forsendelsestatus, BEKREFTET, EKSPEDERT) ||
-			   statusOvergang(dokumentstatus, forsendelsestatus, BEKREFTET, FEILET);
+				statusOvergang(dokumentstatus, forsendelsestatus, KLAR_FOR_DIST, OVERSENDT) ||
+				statusOvergang(dokumentstatus, forsendelsestatus, KLAR_FOR_DIST, EKSPEDERT) ||
+				statusOvergang(dokumentstatus, forsendelsestatus, OVERSENDT, BEKREFTET) ||
+				statusOvergang(dokumentstatus, forsendelsestatus, OVERSENDT, EKSPEDERT) ||
+				statusOvergang(dokumentstatus, forsendelsestatus, OVERSENDT, FEILET) ||
+				statusOvergang(dokumentstatus, forsendelsestatus, BEKREFTET, EKSPEDERT) ||
+				statusOvergang(dokumentstatus, forsendelsestatus, BEKREFTET, FEILET) ||
+				statusOvergang(dokumentstatus, forsendelsestatus, EKSPEDERT, RETURPOSTBEHANDLET);
 	}
 
 	private static boolean statusOvergang(String oldDokumentStatus, String nyForsendelseStatus, DokumentStatusCode fraStatus, DokumentStatusCode tilStatus) {

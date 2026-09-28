@@ -19,6 +19,7 @@ class StatusovergangValidatorTest {
 			"OVERSENDT, EKSPEDERT",
 			"OVERSENDT, FEILET",
 			"BEKREFTET, EKSPEDERT",
+			"EKSPEDERT, RETURPOSTBEHANDLET",
 			"BEKREFTET, FEILET"
 	})
 	void skalValidereLovligeDokumentstatusOverganger(String oldDokumentStatus, String nyForsendelseStatus) {
@@ -49,7 +50,6 @@ class StatusovergangValidatorTest {
 			"EKSPEDERT, KLAR_FOR_DIST",
 			"EKSPEDERT, OVERSENDT",
 			"EKSPEDERT, BEKREFTET",
-			"EKSPEDERT, RETURPOSTBEHANDLET",
 			"EKSPEDERT, EKSPEDERT",
 			"FEILET, OPPRETTET",
 			"FEILET, KLAR_FOR_DIST",
