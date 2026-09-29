@@ -22,4 +22,5 @@ public class OppdaterForsendelseRequest {
 	String digitalPostkasseadresse;
 	byte[] forsendelseMetadata;
 	ForsendelseMetadataTypeCode forsendelseMetadataType;
+	String kilde;
 }

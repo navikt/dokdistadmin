@@ -1,7 +1,6 @@
 package no.nav.dokdistadmin.administrerforsendelse.filinfo;
 
 import no.nav.dokdistadmin.domain.FilInfo;
-import no.nav.dokdistadmin.domain.FilStatusCode;
 import no.nav.dokdistadmin.exception.functional.UgyldigInputException;
 import no.nav.dokdistadmin.repository.FilinfoRepository;
 import org.springframework.stereotype.Service;
@@ -9,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static no.nav.dokdistadmin.administrerforsendelse.filinfo.FilInfoMapper.mapTilFilInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.filinfo.FilInfoValidator.validerFilInfoRequest;
+import static no.nav.dokdistadmin.domain.FilStatusCode.valueOf;
 
 @Service
 public class FilInfoService {
@@ -28,10 +28,7 @@ public class FilInfoService {
 					.orElseThrow(() -> new UgyldigInputException(
 							"Fil med filInfoId=%s finnes ikke".formatted(filInfoRequest.filInfoId())));
 
-			filinfoRepository.updateFilInfoFilStatusCode(
-					filInfo.getFilInfoId(),
-					FilStatusCode.valueOf(filInfoRequest.status()),
-					filInfoRequest.kilde());
+			filInfo.setFilStatus(valueOf(filInfoRequest.status()));
 
 			return new FilInfoResponse(filInfo.getFilInfoId());
 		}

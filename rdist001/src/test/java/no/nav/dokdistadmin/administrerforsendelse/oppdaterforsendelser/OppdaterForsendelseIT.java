@@ -33,6 +33,7 @@ import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OVERSENDT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.valueOf;
 import static no.nav.dokdistadmin.domain.ForsendelseMetadataTypeCode.DPO_AVTALEMELDING;
+import static no.nav.dokdistadmin.utils.NavHeaders.NAV_SERVICE_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
@@ -40,6 +41,7 @@ import static org.springframework.http.HttpMethod.PUT;
 
 public class OppdaterForsendelseIT extends AbstractITest {
 
+	private static final String SDIST009 = "SDIST009";
 	private static final String OPPDATERFORSENDELSE_URI = "/rest/v1/administrerforsendelse/oppdaterforsendelse";
 
 	private DistribusjonInfo setupDatabaseWithStatus(String dokumentStatus, VarselStatusCode varselStatus) {
@@ -153,6 +155,52 @@ public class OppdaterForsendelseIT extends AbstractITest {
 					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
 					assertThat(changeStamp.getEndretAv()).isEqualTo(DOKDISTADMIN);
 				});
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {
+			"OVERSENDT,BEKREFTET",
+			"BEKREFTET,EKSPEDERT",
+			"EKSPEDERT,RETURPOSTBEHANDLET"
+	})
+	void skalOppdatereForsendelseStatusFraSdist009(String oldForsendelseStatus, String newForsendelseStatus) {
+		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, VarselStatusCode.OPPRETTET);
+		long dokumentInfoId = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList().getFirst();
+
+		webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> {
+					headers.setBearerAuth(jwt());
+					headers.set(NAV_SERVICE_ID, SDIST009);
+				})
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoId)
+						.forsendelseStatus(newForsendelseStatus)
+						.kilde(SDIST009)
+						.build())
+				.exchange()
+				.expectStatus().isOk();
+
+		commitAndBeginNewTransaction();
+
+		var oppdatertDokumentinfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
+		var oppdatertDistribusjonInfo = oppdatertDokumentinfo.getDistribusjonInfo();
+
+		assertThat(oppdatertDokumentinfo.getChangeStamp())
+				.satisfies(changeStamp -> {
+					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
+					assertThat(changeStamp.getEndretAv()).isEqualTo(SDIST009);
+				});
+
+		assertThat(oppdatertDistribusjonInfo.getChangeStamp())
+				.satisfies(changeStamp -> {
+					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
+					assertThat(changeStamp.getEndretAv()).isEqualTo("ITest");
+				});
+
+		assertThat(oppdatertDistribusjonInfo.getDistribusjonStatus().name()).isEqualTo(oldForsendelseStatus);
 	}
 
 	@ParameterizedTest
@@ -276,8 +324,7 @@ public class OppdaterForsendelseIT extends AbstractITest {
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isNotNull();
-		assertThat(response).contains("Ikke sammenfallende statuser på forsendelse: distribusjonStatus er ikke lik dokumentStatus. distribusjonStatus=%s, dokumentStatus=%s".formatted(
+		assertThat(response).isNotNull().contains("Ikke sammenfallende statuser på forsendelse: distribusjonStatus er ikke lik dokumentStatus. distribusjonStatus=%s, dokumentStatus=%s".formatted(
 				distribusjonInfo.getDistribusjonStatus().name(), dokumentInfo.getDokumentStatus().name()));
 	}
 
@@ -309,8 +356,7 @@ public class OppdaterForsendelseIT extends AbstractITest {
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isNotNull();
-		assertThat(response).contains("Dokumentstatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus for forsendelse=%s er allerede dokumentStatus=%s".formatted(
+		assertThat(response).isNotNull().contains("Dokumentstatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus for forsendelse=%s er allerede dokumentStatus=%s".formatted(
 				distribusjonInfo.getDistribusjonStatus().name(),
 				dokumentInfoId,
 				dokumentInfo.getDokumentStatus().name()));
@@ -345,8 +391,7 @@ public class OppdaterForsendelseIT extends AbstractITest {
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isNotNull();
-		assertThat(response).contains("Varselstatus er allerede satt: fikk forespørsel om å sette ny varselstatus=%s. Varselstatus for distribusjonId=%s er allerede varselstatus=%s".formatted(
+		assertThat(response).isNotNull().contains("Varselstatus er allerede satt: fikk forespørsel om å sette ny varselstatus=%s. Varselstatus for distribusjonId=%s er allerede varselstatus=%s".formatted(
 				distribusjonInfo.getDistribusjonStatus().name(),
 				distribusjonInfo.getDistribusjonId(),
 				dokumentInfo.getDokumentStatus().name()));
@@ -392,8 +437,7 @@ public class OppdaterForsendelseIT extends AbstractITest {
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isNotNull();
-		assertThat(response).contains("Ulovlig statusovergang: kan ikke sette ny dokumentStatus=%s når dokumentStatus=%s".formatted(newForsendelseStatus, oldForsendelseStatus));
+		assertThat(response).isNotNull().contains("Ulovlig statusovergang: kan ikke sette ny dokumentStatus=%s når dokumentStatus=%s".formatted(newForsendelseStatus, oldForsendelseStatus));
 
 	}
 
@@ -424,8 +468,7 @@ public class OppdaterForsendelseIT extends AbstractITest {
 				.returnResult()
 				.getResponseBody();
 
-		assertThat(response).isNotNull();
-		assertThat(response).contains("Ulovlig varselstatusovergang: kan ikke sette ny varselStatus=%s for distribusjon når varselStatus=%s".formatted(newVarselStatus, oldVarselStatus));
+		assertThat(response).isNotNull().contains("Ulovlig varselstatusovergang: kan ikke sette ny varselStatus=%s for distribusjon når varselStatus=%s".formatted(newVarselStatus, oldVarselStatus));
 	}
 
 	@ParameterizedTest

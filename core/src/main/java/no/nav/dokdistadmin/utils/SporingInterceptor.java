@@ -1,19 +1,20 @@
 package no.nav.dokdistadmin.utils;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtTokenClaims;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.UUID;
 
 import static no.nav.dokdistadmin.utils.MDCConstants.CALL_ID;
 import static no.nav.dokdistadmin.utils.MDCConstants.USER_ID;
 import static no.nav.dokdistadmin.utils.NavHeaders.NAV_CALLID;
+import static no.nav.dokdistadmin.utils.NavHeaders.NAV_SERVICE_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.truncate;
@@ -33,7 +34,7 @@ public class SporingInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		populateCallId(request);
-		populateUserId();
+		populateUserId(request);
 
 		return true;
 	}
@@ -53,9 +54,14 @@ public class SporingInterceptor implements HandlerInterceptor {
 		}
 	}
 
-	private void populateUserId() {
+	private void populateUserId(HttpServletRequest request) {
+		final String navServiceId = request.getHeader(NAV_SERVICE_ID);
 
-		MDC.put(USER_ID, truncate(getUserId(), 20));
+		if (isNotBlank(navServiceId)) {
+			MDC.put(USER_ID, navServiceId);
+		} else {
+			MDC.put(USER_ID, truncate(getUserId(), 20));
+		}
 	}
 
 	String getUserId() {
