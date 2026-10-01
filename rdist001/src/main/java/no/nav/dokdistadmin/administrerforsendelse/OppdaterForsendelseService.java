@@ -76,11 +76,6 @@ public class OppdaterForsendelseService {
 		final String dokumentstatus = dokumentInfo.getDokumentStatus().name();
 		final String distribusjonstatus = dokumentInfo.getDistribusjonInfo().getDistribusjonStatus().name();
 
-		if (!distribusjonstatus.equals(dokumentstatus)) {
-			throw new IkkeSammenfallendeStatusException(format("Ikke sammenfallende statuser på forsendelse: distribusjonStatus er ikke lik dokumentStatus. distribusjonStatus=%s, dokumentStatus=%s",
-					distribusjonstatus, dokumentstatus));
-		}
-
 		if (dokumentstatus.equals(nyForsendelsestatus)) {
 			throw new StatusErAlleredeSattException(format("Dokumentstatus er allerede satt: Fikk forespørsel om å sette ny dokumentStatus=%s. Dokumentstatus for forsendelse=%s er allerede dokumentStatus=%s",
 					nyForsendelsestatus,
@@ -93,17 +88,26 @@ public class OppdaterForsendelseService {
 							"OPPRETTET -> KLAR_FOR_DIST, " +
 							"KLAR_FOR_DIST -> OVERSENDT/EKSPEDERT, " +
 							"OVERSENDT -> BEKREFTET/EKSPEDERT/FEILET, " +
-							"BEKREFTET -> EKSPEDERT/FEILET",
+							"BEKREFTET -> EKSPEDERT/FEILET, " +
+							"EKSPEDERT -> RETURPOSTBEHANDLET",
 					nyForsendelsestatus, dokumentstatus));
+		}
+
+		// Spesialregler for Sdist009 (håndtering av mailpiecekvitteringer fra Skattetaten)
+		// - Kall mot oppdaterforsendelse skal kun oppdatere dokumentstatus
+		// - Sjekken om at dokumentstatus må være lik distribusjonstatus kan ikke gjelde (for påfølgende kall), siden første kall fra sdist009 på en forsendelse har gjort at dokumentstatus != distribusjonstatus
+		if (!KILDE_SDIST009.equals(request.getKilde())) {
+			if (!distribusjonstatus.equals(dokumentstatus)) {
+				throw new IkkeSammenfallendeStatusException(format("Ikke sammenfallende statuser på forsendelse: distribusjonStatus er ikke lik dokumentStatus. distribusjonStatus=%s, dokumentStatus=%s",
+						distribusjonstatus, dokumentstatus));
+			}
+
+			DistribusjonStatusCode nyDistribusjonStatus = DistribusjonStatusCode.valueOf(nyForsendelsestatus);
+			dokumentInfo.getDistribusjonInfo().setDistribusjonStatus(nyDistribusjonStatus);
 		}
 
 		DokumentStatusCode nyDokumentStatus = valueOf(nyForsendelsestatus);
 		dokumentInfo.setDokumentStatus(nyDokumentStatus);
-
-		if (!KILDE_SDIST009.equals(request.getKilde())) {
-			DistribusjonStatusCode nyDistribusjonStatus = DistribusjonStatusCode.valueOf(nyForsendelsestatus);
-			dokumentInfo.getDistribusjonInfo().setDistribusjonStatus(nyDistribusjonStatus);
-		}
 
 		if (EKSPEDERT.equals(nyDokumentStatus)) {
 			oppdaterEkspedertDato(dokumentInfo, request);

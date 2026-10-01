@@ -27,6 +27,7 @@ import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.creat
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDistribusjonInfoWithVarselstatus;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfo;
 import static no.nav.dokdistadmin.administrerforsendelse.Rdist001TestUtils.createDokumentInfoWithStatusCode;
+import static no.nav.dokdistadmin.domain.DokumentStatusCode.BEKREFTET;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.EKSPEDERT;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.KLAR_FOR_DIST;
 import static no.nav.dokdistadmin.domain.DokumentStatusCode.OPPRETTET;
@@ -159,52 +160,6 @@ public class OppdaterForsendelseIT extends AbstractITest {
 
 	@ParameterizedTest
 	@CsvSource(value = {
-			"OVERSENDT,BEKREFTET",
-			"BEKREFTET,EKSPEDERT",
-			"EKSPEDERT,RETURPOSTBEHANDLET"
-	})
-	void skalOppdatereForsendelseStatusFraSdist009(String oldForsendelseStatus, String newForsendelseStatus) {
-		DistribusjonInfo distribusjonInfo = setupDatabaseWithStatus(oldForsendelseStatus, VarselStatusCode.OPPRETTET);
-		long dokumentInfoId = distribusjonInfo.getDokumentInfos().stream()
-				.map(DokumentInfo::getDokumentInfoId)
-				.toList().getFirst();
-
-		webTestClient.method(PUT)
-				.uri(OPPDATERFORSENDELSE_URI)
-				.headers(headers -> {
-					headers.setBearerAuth(jwt());
-					headers.set(NAV_SERVICE_ID, SDIST009);
-				})
-				.bodyValue(OppdaterForsendelseRequest.builder()
-						.forsendelseId(dokumentInfoId)
-						.forsendelseStatus(newForsendelseStatus)
-						.kilde(SDIST009)
-						.build())
-				.exchange()
-				.expectStatus().isOk();
-
-		commitAndBeginNewTransaction();
-
-		var oppdatertDokumentinfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
-		var oppdatertDistribusjonInfo = oppdatertDokumentinfo.getDistribusjonInfo();
-
-		assertThat(oppdatertDokumentinfo.getChangeStamp())
-				.satisfies(changeStamp -> {
-					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
-					assertThat(changeStamp.getEndretAv()).isEqualTo(SDIST009);
-				});
-
-		assertThat(oppdatertDistribusjonInfo.getChangeStamp())
-				.satisfies(changeStamp -> {
-					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
-					assertThat(changeStamp.getEndretAv()).isEqualTo("ITest");
-				});
-
-		assertThat(oppdatertDistribusjonInfo.getDistribusjonStatus().name()).isEqualTo(oldForsendelseStatus);
-	}
-
-	@ParameterizedTest
-	@CsvSource(value = {
 			"eBoks,ola#123",
 			"Posten,hei#123"
 	})
@@ -281,7 +236,6 @@ public class OppdaterForsendelseIT extends AbstractITest {
 
 	@Test
 	void skalReturnereNotFoundDersomForsendelseIkkeEksisterer() {
-
 		webTestClient.put()
 				.uri(OPPDATERFORSENDELSE_URI)
 				.headers(headers -> headers.setBearerAuth(jwt()))
@@ -300,7 +254,7 @@ public class OppdaterForsendelseIT extends AbstractITest {
 	void skalReturnereInternalServerErrorDersomDokumentstatusOgDistribusjonstatusErUlike() {
 		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
 
-		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(EKSPEDERT);
+		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(BEKREFTET);
 		distribusjonInfo.addDokumentInfo(dokumentInfo);
 
 		dokumentDistribusjonRepository.persist(distribusjonInfo);
@@ -316,7 +270,7 @@ public class OppdaterForsendelseIT extends AbstractITest {
 				.headers(headers -> headers.setBearerAuth(jwt()))
 				.bodyValue(OppdaterForsendelseRequest.builder()
 						.forsendelseId(dokumentInfoId)
-						.forsendelseStatus(OVERSENDT.name())
+						.forsendelseStatus(EKSPEDERT.name())
 						.build())
 				.exchange()
 				.expectStatus().is5xxServerError()
@@ -326,6 +280,65 @@ public class OppdaterForsendelseIT extends AbstractITest {
 
 		assertThat(response).isNotNull().contains("Ikke sammenfallende statuser på forsendelse: distribusjonStatus er ikke lik dokumentStatus. distribusjonStatus=%s, dokumentStatus=%s".formatted(
 				distribusjonInfo.getDistribusjonStatus().name(), dokumentInfo.getDokumentStatus().name()));
+	}
+
+
+	// Sdist009 - vanlig flyt for en sending
+	// - Mottar mottakskvittering: oppdaterer dokumentstatus fra OVERSENDT til BEKREFTET
+	// - Mottar leveringskvittering: oppdaterer dokumentstatus fra BEKREFTET til EKSPEDERT
+	// - Av og til: Mottar returpostkvittering: oppdaterer dokumentstatus fra EKSPEDERT til RETURPOSTBEHANDLET
+	// Distribusjonstatus vil i alle tilfeller bli værende i status OVERSENDT
+	@ParameterizedTest
+	@CsvSource(value = {
+			"OVERSENDT,BEKREFTET",
+			"BEKREFTET,EKSPEDERT",
+			"EKSPEDERT,RETURPOSTBEHANDLET"
+	})
+	void skalOppdatereDokumentstatusForKvitteringerFraSdist009(DokumentStatusCode gammelDokumentStatus, DokumentStatusCode nyDokumentStatus) {
+		DistribusjonInfo distribusjonInfo = dokumentDistribusjonRepository.persist(createDistribusjonInfo());
+
+		DokumentInfo dokumentInfo = createDokumentInfoWithStatusCode(gammelDokumentStatus);
+		distribusjonInfo.setDistribusjonStatus(DistribusjonStatusCode.OVERSENDT);
+		distribusjonInfo.addDokumentInfo(dokumentInfo);
+
+		dokumentDistribusjonRepository.persist(distribusjonInfo);
+
+		commitAndBeginNewTransaction();
+
+		long dokumentInfoId = distribusjonInfo.getDokumentInfos().stream()
+				.map(DokumentInfo::getDokumentInfoId)
+				.toList().getFirst();
+
+		webTestClient.method(PUT)
+				.uri(OPPDATERFORSENDELSE_URI)
+				.headers(headers -> {
+					headers.setBearerAuth(jwt());
+					headers.set(NAV_SERVICE_ID, SDIST009);
+				})
+				.bodyValue(OppdaterForsendelseRequest.builder()
+						.forsendelseId(dokumentInfoId)
+						.forsendelseStatus(nyDokumentStatus.name())
+						.kilde(SDIST009)
+						.build())
+				.exchange()
+				.expectStatus().isOk();
+
+		var oppdatertDokumentinfo = dokumentInfoRepository.findDokumentInfoByDokumentInfoId(dokumentInfoId);
+		var uoppdatertDistribusjonInfo = oppdatertDokumentinfo.getDistribusjonInfo();
+		assertThat(oppdatertDokumentinfo.getDokumentStatus()).isEqualTo(nyDokumentStatus);
+		assertThat(uoppdatertDistribusjonInfo.getDistribusjonStatus()).isEqualTo(DistribusjonStatusCode.OVERSENDT);
+
+		assertThat(oppdatertDokumentinfo.getChangeStamp())
+				.satisfies(changeStamp -> {
+					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
+					assertThat(changeStamp.getEndretAv()).isEqualTo(SDIST009);
+				});
+
+		assertThat(uoppdatertDistribusjonInfo.getChangeStamp())
+				.satisfies(changeStamp -> {
+					assertThat(changeStamp.getEndretDato()).isCloseTo(LocalDateTime.now(), within(10, SECONDS));
+					assertThat(changeStamp.getEndretAv()).isEqualTo("ITest");
+				});
 	}
 
 	@Test
